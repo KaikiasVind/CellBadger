@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     } else {
         qDebug() << "No config file found under:" << configFilePath;
         exit(1);
+        qDebug() << "No config file found.";
 //        QFileDialog fileDialog;
 //        QFile cellMarkersFile = fileDialog.setFileMode(QFileDialog::AnyFile);
     }
