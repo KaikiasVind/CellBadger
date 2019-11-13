@@ -11,7 +11,7 @@ void Sorter::findHighestLikelyCellTypeMapping(QVector<QVector<QPair<QPair<QStrin
     qDebug() << "Start sorting.";
     QPair<QPair<QString, QString>, double> highestLikelyCellTypeMapping;
     for (QVector<QPair<QPair<QString, QString>, double>> cluster : clustersWithCellTypeMappingLikelihoods) {
-        highestLikelyCellTypeMapping = { qMakePair(qMakePair(QString("nAn"), QString("nAn")), 0) };
+        highestLikelyCellTypeMapping = qMakePair(qMakePair(QString("nAn"), QString("nAn")), 0);
 
         for (QPair<QPair<QString, QString>, double> cellTypeWithMappingLikelihood : cluster) {
             bool isHigherLikelihood = cellTypeWithMappingLikelihood.second > highestLikelyCellTypeMapping.second;

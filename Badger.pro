@@ -18,8 +18,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     BioModels/Celltype.cpp \
     BioModels/Cluster.cpp \
+    Statistics/Correlationfinder.cpp \
     Statistics/Expressioncomparator.cpp \
     Utils/FileOperators/CSVReader.cpp \
+    Utils/FileOperators/ConfigFileOperator.cpp \
     Utils/Sorter.cpp \
     main.cpp \
     Mainwindow.cpp
@@ -28,8 +30,10 @@ HEADERS += \
     BioModels/Celltype.h \
     BioModels/Cluster.h \
     Mainwindow.h \
+    Statistics/Correlationfinder.h \
     Statistics/Expressioncomparator.h \
     Utils/FileOperators/CSVReader.h \
+    Utils/FileOperators/ConfigFileOperator.h \
     Utils/Sorter.h
 
 FORMS += \
