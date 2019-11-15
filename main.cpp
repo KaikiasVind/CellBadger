@@ -9,12 +9,13 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Utils/Sorter.h"
+#include "BioModels/Cluster.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    w.show();
+//    w.show();
     
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
@@ -40,16 +41,20 @@ int main(int argc, char *argv[])
 
     CSVReader csvReader;
     
-    QVector<QStringList> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath, 15);
-    
+    // CUTOFF IS COMMENTED OUT IN FUNCTION!!!
+//    QVector<Cluster> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath, 15);
+    QVector<Cluster> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath);
+
     // Parse cell- / tissue type makers csv file and return all cell types with associated markers
-    QVector<QPair<QPair<QString, QString>, QStringList>> cellTypeMarkers = csvReader.getCellTypeMarkers(cellMarkersFilePath);
-    
+//    QVector<QPair<QPair<QString, QString>, QStringList>> cellTypeMarkers = csvReader.getCellTypeMarkers(cellMarkersFilePath);
+    QVector<CellType> cellTypeMarkers = csvReader.getCellTypesWithMarkers(cellMarkersFilePath);
+
     ExpressionComparator expressionComparator;
-    QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods = expressionComparator.findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
-    
-    Sorter sorter;
-    sorter.findHighestLikelyCellTypeMapping(clustersWithCellTypeMappingLikelihoods);
+//    QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods = expressionComparator.findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
+    QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods = expressionComparator.findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
+    // cluster : clustersWithCellTypeMappingLikelihoods
+
+    Sorter::findHighestLikelyCellTypeMapping(clustersWithCellTypeMappingLikelihoods);
     
     return a.exec();
 }

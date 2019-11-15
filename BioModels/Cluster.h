@@ -2,12 +2,29 @@
 #define CLUSTER_H
 
 #include <QStringList>
+#include <QVector>
 
-struct Cluster
+#include "BioModels/Feature.h"
+
+/**
+ * @brief The Cluster class serves as a container class for features
+ */
+class Cluster
 {
-    const QStringList m_expressedFeatures;
+private:
+    QVector<Feature> features;
 
-    Cluster(QStringList expressedFeatures);
+public:
+    Cluster();
+
+    void addFeature(QString featureID, double expressionCount);
+
+    bool isMarkerExpressed(QString markerID);
+
+    Feature getFeature(int index);
+    QString getFeatureID(int index);
+    double getFeatureExpressionCount(int index);
+
 };
 
 #endif // CLUSTER_H

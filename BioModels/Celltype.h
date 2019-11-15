@@ -1,14 +1,19 @@
 #ifndef CELLTYPE_H
 #define CELLTYPE_H
 
-#include <QVector>
+#include <QString>
+#include <QStringList>
 
+/**
+ * @brief The CellType struct serves as a container class for cell / tissue - marker association
+ */
 struct CellType
 {
-    const QString m_associatedTissueType;
-    const QVector<QString> m_associatedMarkers;
+    const QString ID;
+    const QString associatedTissueType;
+    const QStringList associatedMarkers;
 
-    CellType(QString associatedTissueType, QVector<QString> associatedMarkers);
+    CellType(QString ID, QString associatedTissueType, QStringList associatedMarkers);
 };
 
 #endif // CELLTYPE_H

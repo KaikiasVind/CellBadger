@@ -7,6 +7,9 @@
 #include <QStringList>
 #include <QList>
 
+#include "BioModels/Cluster.h"
+#include "BioModels/Celltype.h"
+
 CSVReader::CSVReader(){}
 
 
@@ -16,7 +19,8 @@ CSVReader::CSVReader(){}
  * @param cutOff
  * @return
  */
-QVector<QStringList> CSVReader::getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
+//QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
+QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -31,9 +35,8 @@ QVector<QStringList> CSVReader::getClusterFeatureExpressions(QString csvFilePath
     QByteArray line = csvFile.readLine();
     QList<QByteArray> splitLine = line.split(',');
 
-    // Each QStringList represents one cluster.
-    // The QStringList is filled with the features that are expressed by the cluster
-    QVector<QStringList> expressedFeaturesForClusters;
+    // Each cluster contains its expressed features
+    QVector<Cluster> expressedFeaturesForClusters;
 
     int numberOfColumns = splitLine.length();
     // The cellranger cluster feature expression file is segmented into 3 rows per cluster
@@ -45,8 +48,8 @@ QVector<QStringList> CSVReader::getClusterFeatureExpressions(QString csvFilePath
     QVector<int> clusterColumnNumbers(numberOfClusters);
     for (int i = 0; i < numberOfClusters; i++) {
         clusterColumnNumbers[i] = (i * 3 + 2);
-        QStringList clusterFeatures;
-        expressedFeaturesForClusters.append(clusterFeatures);
+        Cluster cluster;
+        expressedFeaturesForClusters.append(cluster);
     }
 
     // Start parsing cluster file
@@ -58,12 +61,13 @@ QVector<QStringList> CSVReader::getClusterFeatureExpressions(QString csvFilePath
         for (int i = 0; i < numberOfClusters; i++) {
             double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
             // A cutoff of 0 or > 0 is chosen here
-            bool isFeatureExpressed = featureMeanCount > cutOff;
+//            bool isFeatureExpressed = featureMeanCount > cutOff;
+            bool isFeatureExpressed = featureMeanCount > 0;
 
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
-                QString feature = splitLine.at(1);
-                expressedFeaturesForClusters[i].append(feature);
+                QString featureID = splitLine.at(1);
+                expressedFeaturesForClusters[i].addFeature(featureID, featureMeanCount);
             }
         }
     }
@@ -77,7 +81,8 @@ QVector<QStringList> CSVReader::getClusterFeatureExpressions(QString csvFilePath
  * @param csvFilePath
  * @return
  */
-QVector<QPair<QPair<QString, QString>, QStringList>> CSVReader::getCellTypeMarkers(QString csvFilePath) {
+//QVector<QPair<QPair<QString, QString>, QStringList>> CSVReader::getCellTypeMarkers(QString csvFilePath) {
+QVector<CellType> CSVReader::getCellTypesWithMarkers(QString csvFilePath) {
     // Open file
     QFile csvFile(csvFilePath);
 
@@ -91,23 +96,28 @@ QVector<QPair<QPair<QString, QString>, QStringList>> CSVReader::getCellTypeMarke
     QByteArray line = csvFile.readLine();
     QList<QByteArray> splitLine = line.split('\t');
 
-    QVector<QPair<QPair<QString, QString>, QStringList>> cellTypeMarkers;
+    //    QVector<QPair<QPair<QString, QString>, QStringList>> cellTypeMarkers;
+    QVector<CellType> cellTypesWithMarkers;
 
     // Start parsing cell marker file
     while (!csvFile.atEnd()) {
         line = csvFile.readLine();
         splitLine = line.split('\t');
 
-        QString cellType = splitLine[5], //REMEMBER Is it possible to remove these hard coded column numbers?
-                tissueType = splitLine[1],
+        QString cellTypeID = splitLine[5], //REMEMBER Is it possible to remove these hard coded column numbers?
+                tissueTypeID = splitLine[1],
                 cellMarkers = splitLine[7].toUpper();
 
         QStringList separateCellMarkers = cellMarkers.split(", ");
 
-        cellTypeMarkers.append(qMakePair(qMakePair(cellType, tissueType), separateCellMarkers));
+        CellType newCellType(cellTypeID, tissueTypeID, separateCellMarkers);
+        cellTypesWithMarkers.append(newCellType);
+
+        //        cellTypeMarkers.append(qMakePair(qMakePair(cellType, tissueType), separateCellMarkers));
     }
 
-    return cellTypeMarkers;
+    //    return cellTypeMarkers;
+    return cellTypesWithMarkers;
 }
 
 
