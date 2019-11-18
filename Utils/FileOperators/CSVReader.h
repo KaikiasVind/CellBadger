@@ -10,17 +10,14 @@
 #include "BioModels/Cluster.h"
 #include "BioModels/Celltype.h"
 
-class CSVReader
+namespace CSVReader
 {
-public:
-    CSVReader();
+    extern QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff);
+//  extern QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath);
 
-    static QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff);
-//  static   QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath);
+    extern QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
 
-    static QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
-
-    static QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath);
+    extern QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath);
 };
 
 #endif // CSVREADER_H

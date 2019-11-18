@@ -9,14 +9,10 @@
 #include "BioModels/Cluster.h"
 #include "BioModels/Celltype.h"
 
-class ExpressionComparator
+namespace ExpressionComparator
 {
-public:
-    static QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<Cluster> clusters);
-//    QVector<QVector<QPair<QPair<QString, QString>, double>>> findCellTypeCorrelationsCellWise(QHash <QString, QVector<QPair<QString, QString>>>, QVector<QStringList> clusterFeatureExpressions);
-
-private:
-    ExpressionComparator();
+    extern QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<Cluster> clusters);
+//    extern QVector<QVector<QPair<QPair<QString, QString>, double>>> findCellTypeCorrelationsCellWise(QHash <QString, QVector<QPair<QString, QString>>>, QVector<QStringList> clusterFeatureExpressions);
 
 };
 

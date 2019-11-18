@@ -11,6 +11,10 @@
 #include "Utils/Sorter.h"
 #include "BioModels/Cluster.h"
 
+using namespace CSVReader;
+using namespace ExpressionComparator;
+using namespace Sorter;
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

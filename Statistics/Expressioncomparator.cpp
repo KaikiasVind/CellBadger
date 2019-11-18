@@ -8,7 +8,9 @@
 
 #include "BioModels/Cluster.h"
 
-QVector<QVector<QPair<CellType, double>>> ExpressionComparator::findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<Cluster> clusters) {
+namespace ExpressionComparator {
+
+QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<Cluster> clusters) {
     QVector<QVector<QPair<CellType, double>>> clustersWithCellMappingLikelihoods;
 
     qDebug() << "Go: Find cell type correlations";
@@ -60,7 +62,7 @@ QVector<QVector<QPair<CellType, double>>> ExpressionComparator::findCellTypeCorr
 //    }
 }
 
-//QVector<QVector<QPair<QPair<QString, QString>, double>>> ExpressionComparator::findCellTypeCorrelationsCellWise(QHash <QString, QVector<QPair<QString, QString>>> cellMarkersWithAssociatedTissues, QVector<QStringList> clusterFeatureExpressions) {
+//QVector<QVector<QPair<QPair<QString, QString>, double>>> findCellTypeCorrelationsCellWise(QHash <QString, QVector<QPair<QString, QString>>> cellMarkersWithAssociatedTissues, QVector<QStringList> clusterFeatureExpressions) {
 
 //    qDebug() << "Go: Find cell type correlations cellwise";
 //    for (QStringList cluster : clusterFeatureExpressions) {
@@ -116,3 +118,5 @@ QVector<QVector<QPair<CellType, double>>> ExpressionComparator::findCellTypeCorr
 //    return clustersWithCellMappingLikelihoods;
 
 //}
+
+}

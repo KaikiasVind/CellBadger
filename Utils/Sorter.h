@@ -8,15 +8,10 @@
 /**
  * @brief The Sorter struct is a utility class for everything concerned with sorting
  */
-class Sorter
+namespace Sorter
 {
-private:
-    // Private -> No default constructor for the outside. Only utility class
-    Sorter();
-
-public:
-//    static void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods);
-    static void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods);
+//    extern void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods);
+    extern void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods);
 };
 
 #endif // SORTER_H

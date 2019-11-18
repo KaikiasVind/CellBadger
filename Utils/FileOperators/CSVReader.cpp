@@ -10,8 +10,7 @@
 #include "BioModels/Cluster.h"
 #include "BioModels/Celltype.h"
 
-CSVReader::CSVReader(){}
-
+namespace CSVReader {
 
 /**
  * @brief CSVReader::getClusterFeatureExpressions
@@ -19,7 +18,7 @@ CSVReader::CSVReader(){}
  * @param cutOff
  * @return
  */
-QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
+QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -80,7 +79,7 @@ QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath, do
  * @param csvFilePath
  * @return
  */
-QVector<CellType> CSVReader::getCellTypesWithMarkers(QString csvFilePath) {
+QVector<CellType> getCellTypesWithMarkers(QString csvFilePath) {
     // Open file
     QFile csvFile(csvFilePath);
 
@@ -120,7 +119,7 @@ QVector<CellType> CSVReader::getCellTypesWithMarkers(QString csvFilePath) {
  * @param csvFilePath - Source path of the cell marker file
  * @return Hash of cell marker to list of every tissue / cell type.
  */
-QHash <QString, QVector<QPair<QString, QString>>> CSVReader::sortCsvByMarker(QString csvFilePath) {
+QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -171,4 +170,5 @@ QHash <QString, QVector<QPair<QString, QString>>> CSVReader::sortCsvByMarker(QSt
     }
 
     return seenMarkers;
+}
 }
