@@ -8,6 +8,6 @@
  * @param associatedTissueType - ID of the cell's tissue type from database
  * @param associatedMarkers - List of cell-markers expressed by this cell type
  */
-CellType::CellType(QString ID, QString associatedTissueType, QStringList associatedMarkers)
-    : ID {ID}, associatedTissueType {associatedTissueType}, associatedMarkers {associatedMarkers}
+CellType::CellType(QString cellTypeID, QString associatedTissueTypeForCellType, QStringList associatedMarkersForCellType)
+    : ID {cellTypeID}, associatedTissueType {associatedTissueTypeForCellType}, associatedMarkers {associatedMarkersForCellType}
 {}

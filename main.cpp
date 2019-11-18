@@ -1,4 +1,4 @@
-#include "Mainwindow.h"
+﻿#include "Mainwindow.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-//    w.show();
+    //    w.show();
     
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
@@ -34,25 +34,20 @@ int main(int argc, char *argv[])
     } else {
         qDebug() << "No config file found under:" << configFilePath;
         exit(1);
-//        QFileDialog fileDialog;
-//        QFile cellMarkersFile = fileDialog.setFileMode(QFileDialog::AnyFile);
+        //        QFileDialog fileDialog;
+        //        QFile cellMarkersFile = fileDialog.setFileMode(QFileDialog::AnyFile);
     }
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
-    CSVReader csvReader;
-    
     // CUTOFF IS COMMENTED OUT IN FUNCTION!!!
-//    QVector<Cluster> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath, 15);
-    QVector<Cluster> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath);
+    qDebug() << "Reading cluster expression data.";
+    QVector<Cluster> clusterExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
+//    QVector<Cluster> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath);
 
     // Parse cell- / tissue type makers csv file and return all cell types with associated markers
-//    QVector<QPair<QPair<QString, QString>, QStringList>> cellTypeMarkers = csvReader.getCellTypeMarkers(cellMarkersFilePath);
-    QVector<CellType> cellTypeMarkers = csvReader.getCellTypesWithMarkers(cellMarkersFilePath);
+    QVector<CellType> cellTypeMarkers = CSVReader::getCellTypesWithMarkers(cellMarkersFilePath);
 
-    ExpressionComparator expressionComparator;
-//    QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods = expressionComparator.findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
-    QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods = expressionComparator.findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
-    // cluster : clustersWithCellTypeMappingLikelihoods
+    QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods = ExpressionComparator::findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
 
     Sorter::findHighestLikelyCellTypeMapping(clustersWithCellTypeMappingLikelihoods);
     

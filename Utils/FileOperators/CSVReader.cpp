@@ -19,15 +19,14 @@ CSVReader::CSVReader(){}
  * @param cutOff
  * @return
  */
-//QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
-QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath) {
+QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
 
     // Open file
     QFile csvFile(csvFilePath);
 
     // Throw error in case opening the file fails
     if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << csvFile.errorString();
+        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
         exit(1);
     }
 
@@ -61,8 +60,8 @@ QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath) {
         for (int i = 0; i < numberOfClusters; i++) {
             double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
             // A cutoff of 0 or > 0 is chosen here
-//            bool isFeatureExpressed = featureMeanCount > cutOff;
-            bool isFeatureExpressed = featureMeanCount > 0;
+            bool isFeatureExpressed = featureMeanCount > cutOff;
+//            bool isFeatureExpressed = featureMeanCount > 0;
 
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
@@ -81,14 +80,13 @@ QVector<Cluster> CSVReader::getClusterFeatureExpressions(QString csvFilePath) {
  * @param csvFilePath
  * @return
  */
-//QVector<QPair<QPair<QString, QString>, QStringList>> CSVReader::getCellTypeMarkers(QString csvFilePath) {
 QVector<CellType> CSVReader::getCellTypesWithMarkers(QString csvFilePath) {
     // Open file
     QFile csvFile(csvFilePath);
 
     // In case of problems while reading the file
     if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << csvFile.errorString();
+        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
         exit(1);
     }
 
@@ -96,7 +94,6 @@ QVector<CellType> CSVReader::getCellTypesWithMarkers(QString csvFilePath) {
     QByteArray line = csvFile.readLine();
     QList<QByteArray> splitLine = line.split('\t');
 
-    //    QVector<QPair<QPair<QString, QString>, QStringList>> cellTypeMarkers;
     QVector<CellType> cellTypesWithMarkers;
 
     // Start parsing cell marker file
@@ -112,17 +109,14 @@ QVector<CellType> CSVReader::getCellTypesWithMarkers(QString csvFilePath) {
 
         CellType newCellType(cellTypeID, tissueTypeID, separateCellMarkers);
         cellTypesWithMarkers.append(newCellType);
-
-        //        cellTypeMarkers.append(qMakePair(qMakePair(cellType, tissueType), separateCellMarkers));
     }
 
-    //    return cellTypeMarkers;
     return cellTypesWithMarkers;
 }
 
 
 /**
- * @brief Sort marker-file from tissue / cell -> marker to marker -> tissue /cell
+ * @brief DEPRECATED! - Sort marker-file from tissue / cell -> marker to marker -> tissue /cell
  * @param csvFilePath - Source path of the cell marker file
  * @return Hash of cell marker to list of every tissue / cell type.
  */
@@ -133,7 +127,7 @@ QHash <QString, QVector<QPair<QString, QString>>> CSVReader::sortCsvByMarker(QSt
 
     // Throw error in case opening the file fails
     if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << csvFile.errorString();
+        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
         exit(1);
     }
 

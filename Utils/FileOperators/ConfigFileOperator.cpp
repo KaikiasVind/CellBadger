@@ -56,7 +56,7 @@ void ConfigFileOperator::readConfigFile(QString configFilePath) {
 
     // Throw error in case opening the file fails
     if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << csvFile.errorString();
+        qDebug() << "CONFIG FILE:" << csvFile.errorString();
         exit(1);
     }
 

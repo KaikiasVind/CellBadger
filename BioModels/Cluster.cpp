@@ -2,6 +2,7 @@
 
 #include <QStringList>
 #include <QVector>
+#include <QDebug>
 
 #include "BioModels/Feature.h"
 

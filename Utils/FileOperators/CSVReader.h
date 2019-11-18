@@ -15,13 +15,12 @@ class CSVReader
 public:
     CSVReader();
 
-//    QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff);
-    QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath);
+    static QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff);
+//  static   QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath);
 
-//    QVector<QPair<QPair<QString, QString>, QStringList>> getCellTypeMarkers(QString csvFilePath);
-    QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
+    static QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
 
-    QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath);
+    static QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath);
 };
 
 #endif // CSVREADER_H

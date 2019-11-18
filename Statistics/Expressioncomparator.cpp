@@ -8,32 +8,18 @@
 
 #include "BioModels/Cluster.h"
 
-ExpressionComparator::ExpressionComparator()
-{
-
-}
-
-//QVector<QVector<QPair<QPair<QString, QString>, double>>> ExpressionComparator::findCellTypeCorrelations(QVector<QPair<QPair<QString, QString>, QStringList>> cellTypesWithAssociatedMarkers, QVector<QStringList> clusterFeatureExpressions) {
 QVector<QVector<QPair<CellType, double>>> ExpressionComparator::findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<Cluster> clusters) {
     QVector<QVector<QPair<CellType, double>>> clustersWithCellMappingLikelihoods;
 
-//    QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellMappingLikelihoods;
-
     qDebug() << "Go: Find cell type correlations";
-//    for (QStringList cluster : clusterFeatureExpressions) {
     for (Cluster cluster : clusters) {
-//        QVector<QPair<QPair<QString, QString>, double>> cellMappingLikelihoods;
         QVector<QPair<CellType, double>> cellMappingLikelihoods;
 
         for (CellType cellType : cellTypes) {
-//            int numberOfFeatures = cellType.second.length();
-//            int numberOfExpressedFeatures = 0;
             int numberOfFeatures = cellType.associatedMarkers.length();
             int numberOfExpressedFeatures = 0;
 
-//            for (QString marker : cellType.second) {
             for (QString marker : cellType.associatedMarkers) {
-//                bool isMarkerExpressed = cluster.contains(marker);
                 bool isMarkerExpressed = cluster.isMarkerExpressed(marker);
 
                 if (isMarkerExpressed) {
@@ -42,7 +28,6 @@ QVector<QVector<QPair<CellType, double>>> ExpressionComparator::findCellTypeCorr
             }
 
             double mappingLikelihood = double(numberOfExpressedFeatures) / double(numberOfFeatures);
-//            cellMappingLikelihoods.append(qMakePair(cellType.first, mappingLikelihood));
             cellMappingLikelihoods.append(qMakePair(cellType, mappingLikelihood));
         }
         clustersWithCellMappingLikelihoods.append(cellMappingLikelihoods);

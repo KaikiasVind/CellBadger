@@ -9,9 +9,9 @@
  */
 struct CellType
 {
-    const QString ID;
-    const QString associatedTissueType;
-    const QStringList associatedMarkers;
+    QString ID;
+    QString associatedTissueType;
+    QStringList associatedMarkers;
 
     CellType(QString ID, QString associatedTissueType, QStringList associatedMarkers);
 };

@@ -8,8 +8,8 @@
  */
 struct Feature
 {
-    const QString ID;
-    const double count;
+    QString ID;
+    double count;
 
     Feature(QString ID, double count);
 };
