@@ -9,7 +9,7 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Utils/Sorter.h"
-#include "BioModels/Cluster.h"
+#include "BioModels/FeatureCollection.h"
 
 using namespace CSVReader;
 using namespace ExpressionComparator;
@@ -38,22 +38,35 @@ int main(int argc, char *argv[])
     } else {
         qDebug() << "No config file found under:" << configFilePath;
         exit(1);
-        //        QFileDialog fileDialog;
-        //        QFile cellMarkersFile = fileDialog.setFileMode(QFileDialog::AnyFile);
     }
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
-    // CUTOFF IS COMMENTED OUT IN FUNCTION!!!
-    qDebug() << "Reading cluster expression data.";
-    QVector<Cluster> clusterExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
-//    QVector<Cluster> clusterExpressions = csvReader.getClusterFeatureExpressions(clusterExpressionFilePath);
+//    // Parse cell- / tissue type makers csv file and return all cell types with associated markers
+//    QVector<CellType> cellTypeMarkers = CSVReader::getCellTypesWithMarkers(cellMarkersFilePath);
 
-    // Parse cell- / tissue type makers csv file and return all cell types with associated markers
-    QVector<CellType> cellTypeMarkers = CSVReader::getCellTypesWithMarkers(cellMarkersFilePath);
+//    QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods = ExpressionComparator::findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
 
-    QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods = ExpressionComparator::findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
-
-    Sorter::findHighestLikelyCellTypeMapping(clustersWithCellTypeMappingLikelihoods);
+//    Sorter::findHighestLikelyCellTypeMapping(clustersWithCellTypeMappingLikelihoods);
     
+    qDebug() << "Reading marker expression file.";
+    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath);
+    qDebug() << "Done";
+
+    qDebug() << "Reading 10x cluster expression file.";
+    QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
+    qDebug() << "Done";
+
+    QVector<FeatureCollection> rankedClusterGeneExpressions;
+    QVector<FeatureCollection> rankedTissueGeneExpressions;
+    qDebug() << "Ranking cluster features";
+    for (FeatureCollection collection : xClusterGeneExpressions)
+        rankedClusterGeneExpressions.append(Sorter::rankFeaturesByExpression(collection));
+    qDebug() << "Done";
+    qDebug() << "Ranking tissue features";
+    for (FeatureCollection collection : tissues)
+        rankedTissueGeneExpressions.append(Sorter::rankFeaturesByExpression(collection));
+    qDebug() << "Done";
+
+
     return a.exec();
 }

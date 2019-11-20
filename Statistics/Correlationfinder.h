@@ -2,12 +2,9 @@
 #define CORRELATIONFINDER_H
 
 
-class CorrelationFinder
+namespace CorrelationFinder
 {
-public:
-    CorrelationFinder();
-
-    double calculateSpearmanCorrelation();
+    extern double calculateSpearmanCorrelation();
 };
 
 #endif // CORRELATIONFINDER_H

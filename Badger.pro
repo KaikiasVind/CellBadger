@@ -17,8 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     BioModels/Celltype.cpp \
-    BioModels/Cluster.cpp \
     BioModels/Feature.cpp \
+    BioModels/FeatureCollection.cpp \
     Statistics/Correlationfinder.cpp \
     Statistics/Expressioncomparator.cpp \
     Utils/FileOperators/CSVReader.cpp \
@@ -29,8 +29,8 @@ SOURCES += \
 
 HEADERS += \
     BioModels/Celltype.h \
-    BioModels/Cluster.h \
     BioModels/Feature.h \
+    BioModels/FeatureCollection.h \
     Mainwindow.h \
     Statistics/Correlationfinder.h \
     Statistics/Expressioncomparator.h \

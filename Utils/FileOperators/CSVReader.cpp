@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QList>
 
-#include "BioModels/Cluster.h"
+#include "BioModels/FeatureCollection.h"
 #include "BioModels/Celltype.h"
 
 namespace CSVReader {
@@ -18,7 +18,7 @@ namespace CSVReader {
  * @param cutOff
  * @return
  */
-QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
+QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -34,7 +34,7 @@ QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff
     QList<QByteArray> splitLine = line.split(',');
 
     // Each cluster contains its expressed features
-    QVector<Cluster> expressedFeaturesForClusters;
+    QVector<FeatureCollection> clustersWithExpressedFeatures;
 
     int numberOfColumns = splitLine.length();
     // The cellranger cluster feature expression file is segmented into 3 rows per cluster
@@ -46,8 +46,9 @@ QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff
     QVector<int> clusterColumnNumbers(numberOfClusters);
     for (int i = 0; i < numberOfClusters; i++) {
         clusterColumnNumbers[i] = (i * 3 + 2);
-        Cluster cluster;
-        expressedFeaturesForClusters.append(cluster);
+        QString clusterID = QString("Cluster").append(QString::number(i));
+        FeatureCollection cluster(clusterID);
+        clustersWithExpressedFeatures.append(cluster);
     }
 
     // Start parsing cluster file
@@ -60,17 +61,17 @@ QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath, double cutOff
             double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
             // A cutoff of 0 or > 0 is chosen here
             bool isFeatureExpressed = featureMeanCount > cutOff;
-//            bool isFeatureExpressed = featureMeanCount > 0;
+            //            bool isFeatureExpressed = featureMeanCount > 0;
 
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
                 QString featureID = splitLine.at(1);
-                expressedFeaturesForClusters[i].addFeature(featureID, featureMeanCount);
+                clustersWithExpressedFeatures[i].addFeature(featureID, featureMeanCount);
             }
         }
     }
 
-    return expressedFeaturesForClusters;
+    return clustersWithExpressedFeatures;;
 }
 
 
@@ -171,4 +172,61 @@ QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFil
 
     return seenMarkers;
 }
+
+/**
+ * @brief getTissueGeneExpression
+ * @param csvFilePath
+ */
+QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath) {
+
+    // Open file
+    QFile csvFile(csvFilePath);
+
+    // Throw error in case opening the file fails
+    if (!csvFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
+        exit(1);
+    }
+
+    // tissueIDs is needed here to know the amount of features and
+    // to add them later to the FeatureCollection
+    QStringList tissueIDs;
+    QVector<FeatureCollection> tissues;
+
+    // The tissue names start at column 2
+    int tissueIDsOffset = 2;
+
+    // Get title line with tissue names
+    QByteArray line = csvFile.readLine();
+    QList<QByteArray> splitLine = line.split('\t');
+
+    // and add them to the list
+    for (int i = tissueIDsOffset; i < splitLine.length(); i++) {
+        QString tissueID = splitLine[i];
+        FeatureCollection tissue(tissueID);
+        tissues.append(tissue);
+    }
+
+    int numberOfTissues = tissues.length();
+
+    // Go through the rest of the file
+    while (!csvFile.atEnd()) {
+        line = csvFile.readLine();
+        splitLine = line.split('\t');
+
+        for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
+            QString featureID = splitLine[1];
+            double featureExpressionCount = splitLine[i].toDouble();
+            bool isFeatureExpressed = featureExpressionCount > 0;
+
+            // Add expressed feature to tissue
+            if (isFeatureExpressed) {
+                tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount);
+            }
+        }
+    }
+
+    return tissues;
+}
+
 }

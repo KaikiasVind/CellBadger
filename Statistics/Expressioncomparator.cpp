@@ -6,15 +6,15 @@
 #include <QString>
 #include <QStringList>
 
-#include "BioModels/Cluster.h"
+#include "BioModels/FeatureCollection.h"
 
 namespace ExpressionComparator {
 
-QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<Cluster> clusters) {
+QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<FeatureCollection> clusters) {
     QVector<QVector<QPair<CellType, double>>> clustersWithCellMappingLikelihoods;
 
     qDebug() << "Go: Find cell type correlations";
-    for (Cluster cluster : clusters) {
+    for (FeatureCollection cluster : clusters) {
         QVector<QPair<CellType, double>> cellMappingLikelihoods;
 
         for (CellType cellType : cellTypes) {
@@ -22,7 +22,7 @@ QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellT
             int numberOfExpressedFeatures = 0;
 
             for (QString marker : cellType.associatedMarkers) {
-                bool isMarkerExpressed = cluster.isMarkerExpressed(marker);
+                bool isMarkerExpressed = cluster.isFeatureExpressed(marker);
 
                 if (isMarkerExpressed) {
                     numberOfExpressedFeatures++;

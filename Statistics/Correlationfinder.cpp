@@ -1,7 +1,9 @@
 #include "Correlationfinder.h"
 
-CorrelationFinder::CorrelationFinder(){}
+namespace CorrelationFinder {
 
-double CorrelationFinder::calculateSpearmanCorrelation() {
-    return -1.;
+double calculateSpearmanCorrelation() {
+
+    return -1;
+}
 }
