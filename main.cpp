@@ -7,9 +7,10 @@
 
 #include "Utils/FileOperators/ConfigFileOperator.h"
 #include "Utils/FileOperators/CSVReader.h"
-#include "Statistics/Expressioncomparator.h"
 #include "Utils/Sorter.h"
 #include "BioModels/FeatureCollection.h"
+#include "Statistics/Expressioncomparator.h"
+#include "Statistics/Correlator.h"
 
 using namespace CSVReader;
 using namespace ExpressionComparator;
@@ -41,13 +42,6 @@ int main(int argc, char *argv[])
     }
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
-//    // Parse cell- / tissue type makers csv file and return all cell types with associated markers
-//    QVector<CellType> cellTypeMarkers = CSVReader::getCellTypesWithMarkers(cellMarkersFilePath);
-
-//    QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods = ExpressionComparator::findCellTypeCorrelations(cellTypeMarkers, clusterExpressions);
-
-//    Sorter::findHighestLikelyCellTypeMapping(clustersWithCellTypeMappingLikelihoods);
-    
     qDebug() << "Reading marker expression file.";
     QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath);
     qDebug() << "Done";
@@ -56,16 +50,35 @@ int main(int argc, char *argv[])
     QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
     qDebug() << "Done";
 
-    QVector<FeatureCollection> rankedClusterGeneExpressions;
-    QVector<FeatureCollection> rankedTissueGeneExpressions;
-    qDebug() << "Ranking cluster features";
-    for (FeatureCollection collection : xClusterGeneExpressions)
-        rankedClusterGeneExpressions.append(Sorter::rankFeaturesByExpression(collection));
-    qDebug() << "Done";
-    qDebug() << "Ranking tissue features";
-    for (FeatureCollection collection : tissues)
-        rankedTissueGeneExpressions.append(Sorter::rankFeaturesByExpression(collection));
-    qDebug() << "Done";
+    FeatureCollection tissue = tissues[1];
+    QVector<double> tissueFeatureExpressions(tissue.getNumberOfFeatures());
+    for (int i = 0; i < tissue.getNumberOfFeatures(); i++) {
+        tissueFeatureExpressions.append(tissue.getFeatureExpressionCount(i));
+    }
+
+    FeatureCollection cluster = xClusterGeneExpressions[0];
+    QVector<double> clusterFeatureExpressions(cluster.getNumberOfFeatures());
+    for (int i = 0; i < cluster.getNumberOfFeatures(); i++) {
+        clusterFeatureExpressions.append(cluster.getFeatureExpressionCount(i));
+    }
+
+    qDebug() << tissueFeatureExpressions.length() << ":" << clusterFeatureExpressions.length();
+
+    qDebug() << "Result:" << Correlator::calculateSpearmanCorrelation(tissueFeatureExpressions, clusterFeatureExpressions);
+
+//    QVector<FeatureCollection> rankedClusterGeneExpressions;
+//    QVector<FeatureCollection> rankedTissueGeneExpressions;
+//    qDebug() << "Ranking cluster features";
+//    for (FeatureCollection collection : xClusterGeneExpressions)
+//        rankedClusterGeneExpressions.append(Sorter::sortFeaturesByExpression(collection));
+//    qDebug() << "Done";
+//    qDebug() << "Ranking tissue features";
+//    for (FeatureCollection collection : tissues)
+//        rankedTissueGeneExpressions.append(Sorter::sortFeaturesByExpression(collection));
+//    qDebug() << "Done";
+
+//    QVector<double> variableOne = {59, 35, 43, 23, 42, 27},
+//                    variableTwo = {14.61, 11.80, 14.34, 13.03, 14.18, 11.02};
 
 
     return a.exec();

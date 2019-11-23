@@ -19,10 +19,11 @@ SOURCES += \
     BioModels/Celltype.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
-    Statistics/Correlationfinder.cpp \
+    Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
+    Utils/Math.cpp \
     Utils/Sorter.cpp \
     main.cpp \
     Mainwindow.cpp
@@ -32,10 +33,11 @@ HEADERS += \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
     Mainwindow.h \
-    Statistics/Correlationfinder.h \
+    Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
+    Utils/Math.h \
     Utils/Sorter.h
 
 FORMS += \

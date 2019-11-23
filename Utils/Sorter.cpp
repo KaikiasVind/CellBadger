@@ -46,7 +46,7 @@ void sortCollectionPair(QVector<T>& collectionA, QVector<R>& collectionB, Compar
  * @brief rankFeaturesByExpression
  * @param featureCollection
  */
-FeatureCollection rankFeaturesByExpression(FeatureCollection featureCollection) {
+FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection) {
     //REMEMBER: This function should use less memory -> No copying of featureCollection?! -> See below
     FeatureCollection sortedCollection(featureCollection.ID);
 
@@ -116,6 +116,5 @@ void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> 
         i++;
     }
 }
-
 
 }
