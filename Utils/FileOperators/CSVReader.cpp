@@ -59,9 +59,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
         // Check the expression for each feature in the clusters and add the feature in case its expressed
         for (int i = 0; i < numberOfClusters; i++) {
             double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
-            // A cutoff of 0 or > 0 is chosen here
             bool isFeatureExpressed = featureMeanCount > cutOff;
-            //            bool isFeatureExpressed = featureMeanCount > 0;
 
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
@@ -71,7 +69,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
         }
     }
 
-    return clustersWithExpressedFeatures;;
+    return clustersWithExpressedFeatures;
 }
 
 
@@ -177,7 +175,7 @@ QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFil
  * @brief getTissueGeneExpression
  * @param csvFilePath
  */
-QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath) {
+QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, double cutOff) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -217,7 +215,7 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath) {
         for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
             QString featureID = splitLine[1];
             double featureExpressionCount = splitLine[i].toDouble();
-            bool isFeatureExpressed = featureExpressionCount > 0;
+            bool isFeatureExpressed = featureExpressionCount > cutOff;
 
             // Add expressed feature to tissue
             if (isFeatureExpressed) {

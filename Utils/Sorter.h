@@ -21,6 +21,8 @@ namespace Sorter
     extern void sortCollectionPair(QVector<T>& collectionA, QVector<R>& collectionB, Compare cmp);
 
     extern QVector<int> calculateRanks(QVector<double> numbers);
+
+    extern QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection collectionOne, FeatureCollection collecionTwo);
 };
 
 #endif // SORTER_H

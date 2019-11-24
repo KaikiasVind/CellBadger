@@ -7,8 +7,53 @@
 #include <QStringList>
 
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Sorter.h"
+#include "Statistics/Correlator.h"
 
 namespace ExpressionComparator {
+
+/**
+ * @brief findClusterTissueCorrelations
+ * @param clusters
+ * @param tissues
+ * @return
+ */
+QVector<QVector<QPair<QString, double>>> findClusterTissueCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> tissues) {
+    QVector<QVector<QPair<QString, double>>> tissueCorrelationsForAllClusters;
+    tissueCorrelationsForAllClusters.reserve(clusters.length());
+
+    for (int i = 0; i < clusters.length(); i++) {
+        QVector<QPair<QString, double>> clusterTissueCorrelations;
+        clusterTissueCorrelations.reserve(tissues.length());
+
+        for (int j = 0; j < tissues.length(); j++) {
+            QVector<QPair<Feature, Feature>> equallyExpressedFeatures = Sorter::findEquallyExpressedFeatures(clusters[i], tissues[j]);
+
+            int numberOfEquallyExpressedFeatures = equallyExpressedFeatures.length();
+
+            QVector<double> tissueFeatureExpressionCounts,
+                            clusterFeatureExpressionCounts;
+            tissueFeatureExpressionCounts.reserve(numberOfEquallyExpressedFeatures);
+            clusterFeatureExpressionCounts.reserve(numberOfEquallyExpressedFeatures);
+            for (QPair<Feature, Feature> equallyExpressedFeature : equallyExpressedFeatures) {
+                clusterFeatureExpressionCounts.append(equallyExpressedFeature.first.count);
+                tissueFeatureExpressionCounts.append(equallyExpressedFeature.second.count);
+            }
+
+            double correlation = Correlator::calculateSpearmanCorrelation(clusterFeatureExpressionCounts, tissueFeatureExpressionCounts);
+
+            clusterTissueCorrelations.append(qMakePair(tissues[j].ID, correlation));
+        }
+
+        std::sort(clusterTissueCorrelations.begin(), clusterTissueCorrelations.end(),
+                  [](QPair<QString, double> pairA, QPair<QString, double> pairB) { return pairA.second > pairB.second; });
+
+        tissueCorrelationsForAllClusters.append(clusterTissueCorrelations);
+    }
+
+    return tissueCorrelationsForAllClusters;
+}
+
 
 QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<FeatureCollection> clusters) {
     QVector<QVector<QPair<CellType, double>>> clustersWithCellMappingLikelihoods;

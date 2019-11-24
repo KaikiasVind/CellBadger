@@ -24,12 +24,16 @@ public:
     void addFeature(Feature feature);
 
     bool isFeatureExpressed(QString markerID);
+    bool isFeatureExpressed(Feature feature);
 
     Feature getFeature(int index);
+    Feature getFeature(QString featureID);
     QString getFeatureID(int index);
     double getFeatureExpressionCount(int index);
     int getNumberOfFeatures();
     QVector<Feature> getFeatures();
+    QVector<double> getMostExpressedFeaturesCounts(int number);
+    //REMEMBER: Maybe write a function to get a vector of all feature expression counts?
 
 };
 

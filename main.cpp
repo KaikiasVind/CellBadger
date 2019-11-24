@@ -42,29 +42,50 @@ int main(int argc, char *argv[])
     }
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
-    qDebug() << "Reading marker expression file.";
-    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath);
-    qDebug() << "Done";
-
     qDebug() << "Reading 10x cluster expression file.";
     QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
     qDebug() << "Done";
 
-    FeatureCollection tissue = tissues[1];
-    QVector<double> tissueFeatureExpressions(tissue.getNumberOfFeatures());
-    for (int i = 0; i < tissue.getNumberOfFeatures(); i++) {
-        tissueFeatureExpressions.append(tissue.getFeatureExpressionCount(i));
-    }
+    qDebug() << "Reading marker expression file.";
+    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath, 100);
+    qDebug() << "Done";
 
-    FeatureCollection cluster = xClusterGeneExpressions[0];
-    QVector<double> clusterFeatureExpressions(cluster.getNumberOfFeatures());
-    for (int i = 0; i < cluster.getNumberOfFeatures(); i++) {
-        clusterFeatureExpressions.append(cluster.getFeatureExpressionCount(i));
-    }
+    qDebug() << xClusterGeneExpressions[0].getNumberOfFeatures() << ":" << tissues[0].getNumberOfFeatures();
 
-    qDebug() << tissueFeatureExpressions.length() << ":" << clusterFeatureExpressions.length();
+    qDebug() << "Finding cluster - tissue correlations";
+    QVector<QVector<QPair<QString, double>>> clustersWithTissueCorrelations;
+    clustersWithTissueCorrelations.reserve(xClusterGeneExpressions.length());
+    clustersWithTissueCorrelations = ExpressionComparator::findClusterTissueCorrelations(xClusterGeneExpressions, tissues);
+    qDebug() << "Done";
 
-    qDebug() << "Result:" << Correlator::calculateSpearmanCorrelation(tissueFeatureExpressions, clusterFeatureExpressions);
+//    int i = 0;
+//    for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : clustersWithTissueCorrelations) {
+//        qDebug() << "cluster:" << i++;
+//        for (QPair<QString, double> correlation : clusterWithTissueCorrelations) {
+//            qDebug() << correlation.first << ":" << correlation.second;
+//        }
+//        qDebug() << "\n";
+//    }
+
+//    for (QPair<QString, double> pair : clusterTissueCorrelations) {
+//        qDebug() << pair.first << ":" << pair.second;
+//    }
+//    qDebug() << "\n";
+
+//    qDebug() << "Finding equally expressed Features";
+//    QVector<QPair<Feature, Feature>> equallyExpressedFeatures = Sorter::findEquallyExpressedFeatures(tissues[0], xClusterGeneExpressions[0]);
+
+//    qDebug() << "Equally expressed features:";
+//    for (int i = 0; i < equallyExpressedFeatures.length(); i++) {
+//        qDebug() << equallyExpressedFeatures[i].first.ID << ":" << equallyExpressedFeatures[i].first.count << "-" <<
+//                    equallyExpressedFeatures[i].second.ID << ":" << equallyExpressedFeatures[i].second.count;
+//    }
+
+//    QVector<double> tissueFeatureExpressions = tissues[0].getMostExpressedFeaturesCounts(200);
+//    QVector<double> clusterFeatureExpressions = xClusterGeneExpressions[0].getMostExpressedFeaturesCounts(200);
+
+//    qDebug() << tissueFeatureExpressions << "\n" << clusterFeatureExpressions;
+//    qDebug() << "Result:" << Correlator::calculateSpearmanCorrelation(tissueFeatureExpressions, clusterFeatureExpressions);
 
 //    QVector<FeatureCollection> rankedClusterGeneExpressions;
 //    QVector<FeatureCollection> rankedTissueGeneExpressions;

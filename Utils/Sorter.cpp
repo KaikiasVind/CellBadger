@@ -117,4 +117,38 @@ void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> 
     }
 }
 
+// This is too waaaaay fucking slow.
+QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection collectionOne, FeatureCollection collectionTwo) {
+    QVector<QPair<Feature, Feature>> equallyExpressedFeatures;
+
+    QVector<Feature> featuresCollectionOne = collectionOne.getFeatures(),
+                     featuresCollectionTwo = collectionTwo.getFeatures();
+
+//    for (Feature feature : featuresCollectionOne) {
+//        Feature * addressFoundFeature = std::find_if(featuresCollectionTwo.begin(), featuresCollectionTwo.end(),
+//                     [feature](Feature currentFeature) -> bool {
+//                return currentFeature.ID == feature.ID;
+//        });
+//        if (addressFoundFeature != nullptr) {
+//            Feature foundFeature = * addressFoundFeature;
+//            qDebug() << "Found feature:" << addressFoundFeature->ID;
+//            equallyExpressedFeatures.append(qMakePair(feature, foundFeature));
+//        }
+//    }
+//    qDebug() << "Done";
+
+//    auto comparator = [](Feature featureOne, Feature featureTwo) { return featureOne.ID == featureTwo.ID; };
+
+    for (int i = 0; i < collectionOne.getNumberOfFeatures(); i++) {
+        Feature currentFeature = collectionOne.getFeature(i);
+        bool isFeatureExpressedEqually = collectionTwo.isFeatureExpressed(currentFeature);
+
+        if (isFeatureExpressedEqually) {
+            equallyExpressedFeatures.append(qMakePair(currentFeature, collectionTwo.getFeature(currentFeature.ID)));
+        }
+    }
+
+    return equallyExpressedFeatures;
+}
+
 }

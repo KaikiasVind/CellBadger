@@ -39,6 +39,22 @@ void FeatureCollection::addFeature(Feature feature) {
     features.append(feature);
 }
 
+/**
+ * @brief FeatureCollection::filterFeatures - Keep only $number most expressed features
+ * @param number - Number of features to keep
+ */
+QVector<double> FeatureCollection::getMostExpressedFeaturesCounts(int number) {
+    QVector<double> sortedFeaturesExpressions;
+    sortedFeaturesExpressions.reserve(this->getNumberOfFeatures());
+    for (int i = 0; i < this->getNumberOfFeatures(); i++) {
+        sortedFeaturesExpressions.append(this->getFeatureExpressionCount(i));
+    }
+    std::sort(sortedFeaturesExpressions.begin(), sortedFeaturesExpressions.end());
+    sortedFeaturesExpressions.resize(number);
+    sortedFeaturesExpressions.squeeze();
+    return sortedFeaturesExpressions;
+}
+
 bool FeatureCollection::isFeatureExpressed(QString markerID) {
     //REMEMBER: MAYBE -> WOULDTHAT WORK?
 //    Feature feature(markerID, COUNT);
@@ -52,6 +68,10 @@ bool FeatureCollection::isFeatureExpressed(QString markerID) {
     return false;
 }
 
+bool FeatureCollection::isFeatureExpressed(Feature feature) {
+    return this->isFeatureExpressed(feature.ID);
+}
+
 /**
  * @brief Cluster::getFeature
  * @param index
@@ -59,6 +79,20 @@ bool FeatureCollection::isFeatureExpressed(QString markerID) {
  */
 Feature FeatureCollection::getFeature(int index) {
     return features[index];
+}
+
+/**
+ * @brief FeatureCollection::getFeature
+ * @param ID
+ * @return
+ */
+Feature FeatureCollection::getFeature(QString featureID) {
+    for (Feature feature : this->features) {
+        if (feature.ID == featureID)
+            return feature;
+    }
+    Feature noFeature("nAn", -1.);
+    return noFeature;
 }
 
 /**
@@ -92,5 +126,6 @@ int FeatureCollection::getNumberOfFeatures() {
  * @return List of features associated with FeatureCollection
  */
 QVector<Feature> FeatureCollection::getFeatures() {
-    return features;
+    QVector<Feature> copyCollection = this->features;
+    return copyCollection;
 }
