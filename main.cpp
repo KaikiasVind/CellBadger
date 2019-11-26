@@ -20,43 +20,43 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    //    w.show();
+    w.show();
     
-    // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
-    QString configFilePath = QDir::homePath().append("/.badger.conf");
-    ConfigFileOperator configFileOperator;
+//    // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
+//    QString configFilePath = QDir::homePath().append("/.badger.conf");
+//    ConfigFileOperator configFileOperator;
 
-    bool isConfigFileExits = configFileOperator.isConfigFileExists(configFilePath);
+//    bool isConfigFileExits = configFileOperator.isConfigFileExists(configFilePath);
 
-    QString cellMarkersFilePath,
-            clusterExpressionFilePath;
+//    QString cellMarkersFilePath,
+//            clusterExpressionFilePath;
 
-    if (isConfigFileExits) {
-        qDebug() << "Reading config file:" << configFilePath;
-        configFileOperator.readConfigFile(configFilePath);
-        cellMarkersFilePath = configFileOperator.getCellMarkersFilePath();
-        clusterExpressionFilePath = configFileOperator.getClusterExpressionFilePath();
-    } else {
-        qDebug() << "No config file found under:" << configFilePath;
-        exit(1);
-    }
-    // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
+//    if (isConfigFileExits) {
+//        qDebug() << "Reading config file:" << configFilePath;
+//        configFileOperator.readConfigFile(configFilePath);
+//        cellMarkersFilePath = configFileOperator.getCellMarkersFilePath();
+//        clusterExpressionFilePath = configFileOperator.getClusterExpressionFilePath();
+//    } else {
+//        qDebug() << "No config file found under:" << configFilePath;
+//        exit(1);
+//    }
+//    // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
-    qDebug() << "Reading 10x cluster expression file.";
-    QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
-    qDebug() << "Done";
+//    qDebug() << "Reading 10x cluster expression file.";
+//    QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
+//    qDebug() << "Done";
 
-    qDebug() << "Reading marker expression file.";
-    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath, 100);
-    qDebug() << "Done";
+//    qDebug() << "Reading marker expression file.";
+//    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath, 100);
+//    qDebug() << "Done";
 
-    qDebug() << xClusterGeneExpressions[0].getNumberOfFeatures() << ":" << tissues[0].getNumberOfFeatures();
+//    qDebug() << xClusterGeneExpressions[0].getNumberOfFeatures() << ":" << tissues[0].getNumberOfFeatures();
 
-    qDebug() << "Finding cluster - tissue correlations";
-    QVector<QVector<QPair<QString, double>>> clustersWithTissueCorrelations;
-    clustersWithTissueCorrelations.reserve(xClusterGeneExpressions.length());
-    clustersWithTissueCorrelations = ExpressionComparator::findClusterTissueCorrelations(xClusterGeneExpressions, tissues);
-    qDebug() << "Done";
+//    qDebug() << "Finding cluster - tissue correlations";
+//    QVector<QVector<QPair<QString, double>>> clustersWithTissueCorrelations;
+//    clustersWithTissueCorrelations.reserve(xClusterGeneExpressions.length());
+//    clustersWithTissueCorrelations = ExpressionComparator::findClusterTissueCorrelations(xClusterGeneExpressions, tissues);
+//    qDebug() << "Done";
 
 //    int i = 0;
 //    for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : clustersWithTissueCorrelations) {

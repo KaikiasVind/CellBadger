@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++11
 
@@ -19,6 +19,7 @@ SOURCES += \
     BioModels/Celltype.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
+    Graphics/qcustomplot.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
     Utils/FileOperators/CSVReader.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     BioModels/Celltype.h \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
+    Graphics/qcustomplot.h \
     Mainwindow.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
