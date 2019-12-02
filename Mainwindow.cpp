@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->plotWidget->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -121,3 +122,16 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 #endif
 }
 
+
+void MainWindow::on_buttonExit_clicked() {
+    qDebug() << "Exiting";
+    exit(0);
+}
+
+void MainWindow::on_buttonMaximize_clicked() {
+    this->setWindowState(Qt::WindowMaximized);
+}
+
+void MainWindow::on_buttonMinimize_clicked() {
+    this->setWindowState(Qt::WindowMinimized);
+}

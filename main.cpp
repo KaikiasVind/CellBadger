@@ -16,9 +16,9 @@ using namespace CSVReader;
 using namespace ExpressionComparator;
 using namespace Sorter;
 
-#define run 1
-#define gui 0
-#define verbose 1
+#define run 0
+#define gui 1
+#define verbose 0
 
 int main(int argc, char *argv[])
 {
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 #endif
 
 #if gui
-    w.plotHeatMap(clustersWithTissueCorrelations);
+//    w.plotHeatMap(clustersWithTissueCorrelations);
 #endif
 
 

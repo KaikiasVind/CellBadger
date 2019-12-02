@@ -22,6 +22,13 @@ public:
     void plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorrelations);
     void plotHeatMap();
 
+private slots:
+    void on_buttonExit_clicked();
+
+    void on_buttonMaximize_clicked();
+
+    void on_buttonMinimize_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
