@@ -17,7 +17,8 @@ using namespace ExpressionComparator;
 using namespace Sorter;
 
 #define run 1
-#define gui 1
+#define gui 0
+#define verbose 1
 
 int main(int argc, char *argv[])
 {
@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
     clustersWithTissueCorrelations = ExpressionComparator::findClusterTissueCorrelations(xClusterGeneExpressions, tissues);
     qDebug() << "Done";
 
+#if verbose
     int i = 0;
     for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : clustersWithTissueCorrelations) {
         qDebug() << "cluster:" << i++;
@@ -72,6 +74,11 @@ int main(int argc, char *argv[])
         }
         qDebug() << "\n";
     }
+#endif
+#endif
+
+#if gui
+    w.plotHeatMap(clustersWithTissueCorrelations);
 #endif
 
 

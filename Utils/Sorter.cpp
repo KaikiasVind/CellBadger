@@ -118,12 +118,81 @@ void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> 
 }
 
 // This is too waaaaay fucking slow.
+/**
+ * @brief findEquallyExpressedFeatures
+ * @param collectionOne
+ * @param collectionTwo
+ * @return
+ */
 QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection collectionOne, FeatureCollection collectionTwo) {
     QVector<QPair<Feature, Feature>> equallyExpressedFeatures;
 
-    QVector<Feature> featuresCollectionOne = collectionOne.getFeatures(),
-                     featuresCollectionTwo = collectionTwo.getFeatures();
+    int numberOfFeaturesCollectionOne = collectionOne.getNumberOfFeatures(),
+        numberOfFeaturesCollectionTwo = collectionTwo.getNumberOfFeatures();
 
+    // Create vector of QStrings to easily create intersection
+    QVector<QString> featureIDsCollectionOne,
+                     featureIDsCollectionTwo,
+                     // This vector is used to store the intersected elements
+                     intersectedCollection;
+    featureIDsCollectionOne.reserve(numberOfFeaturesCollectionOne);
+    featureIDsCollectionTwo.reserve(numberOfFeaturesCollectionTwo);
+
+    // Create hash-map to easily look up Features
+    QHash<QString, double> featuresCollectionOne,
+                           featuresCollectionTwo;
+    featuresCollectionOne.reserve(numberOfFeaturesCollectionOne);
+    featuresCollectionTwo.reserve(numberOfFeaturesCollectionTwo);
+
+    // Fill hash-maps
+    for (int i = 0; i < numberOfFeaturesCollectionOne; i++) {
+        featuresCollectionOne.insert(collectionOne.getFeatureID(i), collectionOne.getFeatureExpressionCount(i));
+        featureIDsCollectionOne.append(collectionOne.getFeatureID(i));
+    }
+    for (int i = 0; i < numberOfFeaturesCollectionTwo; i++) {
+        featuresCollectionTwo.insert(collectionTwo.getFeatureID(i), collectionTwo.getFeatureExpressionCount(i));
+        featureIDsCollectionTwo.append(collectionTwo.getFeatureID(i));
+    }
+
+    // Comparator to sort features alphabetically by feature-ID
+    auto sortFeaturesAlphabetically = [](QString featureOneID, QString featureTwoID) {
+        return featureOneID.compare(featureTwoID) < 0;
+    };
+
+    // Sort the two input collections
+    std::sort(featureIDsCollectionOne.begin(), featureIDsCollectionOne.end(), sortFeaturesAlphabetically);
+    std::sort(featureIDsCollectionTwo.begin(), featureIDsCollectionTwo.end(), sortFeaturesAlphabetically);
+
+    // Find intersection of the two sorted collections and fill the intersected elements into new vector
+    std::set_intersection(featureIDsCollectionOne.begin(), featureIDsCollectionOne.end(), featureIDsCollectionTwo.begin(), featureIDsCollectionTwo.end(), std::back_inserter(intersectedCollection));
+
+    equallyExpressedFeatures.reserve(intersectedCollection.length());
+
+    // Add all intersected features from original collections as pair into result vector
+    for (QString featureID : intersectedCollection) {
+        // Retrieve feature expression counts from Feature map
+        double collectionOneExpressionCount = featuresCollectionOne[featureID],
+               collectionTwoExpressionCount = featuresCollectionTwo[featureID];
+
+        // Reassamble Features with found feature expression counts from map and feature ID from intersection
+        Feature featureCollectionOne(featureID, collectionOneExpressionCount),
+                featureCollectionTwo(featureID, collectionTwoExpressionCount);
+
+        // Add these as pair to result vector
+        equallyExpressedFeatures.append(qMakePair(featureCollectionOne, featureCollectionTwo));
+    }
+
+//    for (int i = 0; i < collectionOne.getNumberOfFeatures(); i++) {
+//        Feature currentFeature = collectionOne.getFeature(i);
+//        bool isFeatureExpressedEqually = collectionTwo.isFeatureExpressed(currentFeature);
+
+//        if (isFeatureExpressedEqually) {
+//            equallyExpressedFeatures.append(qMakePair(currentFeature, collectionTwo.getFeature(currentFeature.ID)));
+//        }
+//    }
+
+
+    // ############################################# REMAINS #############################################
 //    for (Feature feature : featuresCollectionOne) {
 //        Feature * addressFoundFeature = std::find_if(featuresCollectionTwo.begin(), featuresCollectionTwo.end(),
 //                     [feature](Feature currentFeature) -> bool {
@@ -139,15 +208,8 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
 
 //    auto comparator = [](Feature featureOne, Feature featureTwo) { return featureOne.ID == featureTwo.ID; };
 
-    for (int i = 0; i < collectionOne.getNumberOfFeatures(); i++) {
-        Feature currentFeature = collectionOne.getFeature(i);
-        bool isFeatureExpressedEqually = collectionTwo.isFeatureExpressed(currentFeature);
-
-        if (isFeatureExpressedEqually) {
-            equallyExpressedFeatures.append(qMakePair(currentFeature, collectionTwo.getFeature(currentFeature.ID)));
-        }
-    }
-
+//    for (QPair<Feature, Feature> pair : equallyExpressedFeatures)
+//        qDebug() << pair.first.ID << ":" << pair.first.count << "-" << pair.second.ID << ":" << pair.second.count;
     return equallyExpressedFeatures;
 }
 

@@ -16,7 +16,7 @@ namespace ExpressionComparator {
  * @brief findClusterTissueCorrelations
  * @param clusters
  * @param tissues
- * @return
+ * @return Sorted correlations between every cluster and every tissue
  */
 QVector<QVector<QPair<QString, double>>> findClusterTissueCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> tissues) {
     QVector<QVector<QPair<QString, double>>> tissueCorrelationsForAllClusters;
