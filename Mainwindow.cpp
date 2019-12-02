@@ -4,6 +4,8 @@
 #include <QVector>
 #include <QPair>
 #include <QString>
+#include <QFileDialog>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -128,10 +130,32 @@ void MainWindow::on_buttonExit_clicked() {
     exit(0);
 }
 
+/**
+ * @brief MainWindow::on_buttonMaximize_clicked - Minimises the main window
+ */
 void MainWindow::on_buttonMaximize_clicked() {
     this->setWindowState(Qt::WindowMaximized);
 }
 
+/**
+ * @brief MainWindow::on_buttonMinimize_clicked - Maximises the main window
+ */
 void MainWindow::on_buttonMinimize_clicked() {
     this->setWindowState(Qt::WindowMinimized);
+}
+
+/**
+ * @brief MainWindow::on_buttonUploadData_clicked - Opens a file dialog and lets the user select multiple csv files
+ */
+void MainWindow::on_buttonUploadData_clicked() {
+    QFileDialog fileDialog(this);
+    fileDialog.setDirectory(QDir::home());
+    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setNameFilter(tr("Csv files (*.csv *.tsv)"));
+
+    QStringList fileNames;
+    if (fileDialog.exec())
+        fileNames = fileDialog.selectedFiles();
+
+    qDebug() << "Selected files:" << fileNames;
 }

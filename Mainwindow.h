@@ -22,12 +22,17 @@ public:
     void plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorrelations);
     void plotHeatMap();
 
+signals:
+    QStringList filesUploaded(QStringList filePaths);
+
 private slots:
     void on_buttonExit_clicked();
 
     void on_buttonMaximize_clicked();
 
     void on_buttonMinimize_clicked();
+
+    void on_buttonUploadData_clicked();
 
 private:
     Ui::MainWindow *ui;
