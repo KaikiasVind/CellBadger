@@ -11,12 +11,13 @@
 #include "BioModels/FeatureCollection.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Statistics/Correlator.h"
+#include "Coordinator.h"
 
 using namespace CSVReader;
 using namespace ExpressionComparator;
 using namespace Sorter;
 
-#define run 0
+#define run 1
 #define gui 1
 #define verbose 0
 
@@ -28,6 +29,15 @@ int main(int argc, char *argv[])
     w.show();
 #endif
 
+    // ############################### SIGNAL AND SLOT LOGIC #####################################
+    Coordinator coordinator;
+
+    // MAIN WINDOW
+    // Connecting the
+    QObject::connect(&w, &MainWindow::filesUploaded, &coordinator, &Coordinator::on_filesUploaded);
+    QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
+
+    // ############################### SIGNAL AND SLOT LOGIC #####################################
 #if run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");

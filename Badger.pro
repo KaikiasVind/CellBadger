@@ -19,6 +19,7 @@ SOURCES += \
     BioModels/Celltype.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
+    Coordinator.cpp \
     Graphics/qcustomplot.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     BioModels/Celltype.h \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
+    Coordinator.h \
     Graphics/qcustomplot.h \
     Mainwindow.h \
     Statistics/Correlator.h \

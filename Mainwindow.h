@@ -23,7 +23,8 @@ public:
     void plotHeatMap();
 
 signals:
-    QStringList filesUploaded(QStringList filePaths);
+    void filesUploaded(QStringList filePaths);
+    void projectFileUploaded(QStringList filePath);
 
 private slots:
     void on_buttonExit_clicked();
@@ -34,7 +35,11 @@ private slots:
 
     void on_buttonUploadData_clicked();
 
+    void on_buttonLoadProject_clicked();
+
 private:
     Ui::MainWindow *ui;
+
+    QStringList openFileDialog(QStringList validMimeTypeExtensions);
 };
 #endif // MAINWINDOW_H

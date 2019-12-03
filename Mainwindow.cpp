@@ -125,6 +125,28 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 }
 
 
+/**
+ * @brief MainWindow::openFileDialog - Opens a file dialog specific for csv files
+ * @return - List of user-selected files
+ */
+QStringList MainWindow::openFileDialog(QStringList validMimeTypeExtensions) {
+    QFileDialog fileDialog(this);
+    fileDialog.setDirectory(QDir::home());
+    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setMimeTypeFilters(validMimeTypeExtensions);
+
+    QStringList fileNames;
+    if (fileDialog.exec())
+        fileNames = fileDialog.selectedFiles();
+
+    return fileNames;
+}
+
+
+// ############################################### SLOTS ###############################################
+/**
+ * @brief MainWindow::on_buttonExit_clicked - Shutdown the program
+ */
 void MainWindow::on_buttonExit_clicked() {
     qDebug() << "Exiting";
     exit(0);
@@ -148,14 +170,26 @@ void MainWindow::on_buttonMinimize_clicked() {
  * @brief MainWindow::on_buttonUploadData_clicked - Opens a file dialog and lets the user select multiple csv files
  */
 void MainWindow::on_buttonUploadData_clicked() {
-    QFileDialog fileDialog(this);
-    fileDialog.setDirectory(QDir::home());
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setNameFilter(tr("Csv files (*.csv *.tsv)"));
+    QStringList csvMimeTypes = { "text/csv" };
+    QStringList fileNames = this->openFileDialog(csvMimeTypes);
 
-    QStringList fileNames;
-    if (fileDialog.exec())
-        fileNames = fileDialog.selectedFiles();
+    if (fileNames.empty())
+        return;
 
-    qDebug() << "Selected files:" << fileNames;
+    qDebug() << "Sent file names.";
+    emit filesUploaded(fileNames);
+}
+
+/**
+ * @brief MainWindow::on_buttonLoadProject_clicked
+ */
+void MainWindow::on_buttonLoadProject_clicked() {
+    QStringList csvMimeTypes = { "text/plain" };
+    QStringList fileNames = this->openFileDialog(csvMimeTypes);
+
+    if (fileNames.empty())
+        return;
+
+    qDebug() << "Sent project file name.";
+    emit projectFileUploaded(fileNames);
 }
