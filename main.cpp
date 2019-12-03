@@ -17,7 +17,7 @@ using namespace CSVReader;
 using namespace ExpressionComparator;
 using namespace Sorter;
 
-#define run 1
+#define run 0
 #define gui 1
 #define verbose 0
 
@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
 
     // ############################### SIGNAL AND SLOT LOGIC #####################################
+
 #if run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
@@ -55,7 +56,7 @@ int main(int argc, char *argv[])
         clusterExpressionFilePath = configFileOperator.getClusterExpressionFilePath();
     } else {
         qDebug() << "No config file found under:" << configFilePath;
-        exit(1);
+        configFileOperator.createConfigFile(configFilePath);
     }
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 

@@ -15,6 +15,7 @@ public:
 
     void readConfigFile(QString configFilePath);
     void writeConfigFile(QString configFilePath);
+    void createConfigFile(QString configFilePath);
 
     bool isConfigFileExists(QString configFilePath);
 

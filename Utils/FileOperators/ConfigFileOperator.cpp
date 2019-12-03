@@ -90,3 +90,21 @@ void ConfigFileOperator::readConfigFile(QString configFilePath) {
             clusterExpressionFilePath = value;
     }
 }
+
+/**
+ * @brief createConfigFile - Creates a txt file for usage later on
+ * @param configFilePath - Full file path to config file
+ */
+void ConfigFileOperator::createConfigFile(QString configFilePath) {
+//    QDir directory;
+
+//    // Create the directory if it does not exist
+//    if (!directory.exists(configFilePath))
+//        directory.mkpath(configFilePath);
+
+    if (Q_UNLIKELY(this->isConfigFileExists(configFilePath)))
+        return;
+
+    QFile configFile(configFilePath);
+    configFile.open(QIODevice::WriteOnly);
+}
