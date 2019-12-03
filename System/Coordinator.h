@@ -18,8 +18,13 @@ private:
 public:
     Coordinator(InformationCenter informationCenter);
 
+signals:
+    void finishedCellMarkerFileParsing();
+    void finishedClusterFileParsing();
+
 public slots:
     // ################### INTERACTION WITH MAIN WINDOW ########################
+    void on_programStarted(QStringList filePaths);
     void on_filesUploaded(QStringList filePaths);
     void on_projectFileUploaded(QStringList filePaths);
     // ################### INTERACTION WITH MAIN WINDOW ########################
