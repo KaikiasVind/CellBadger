@@ -19,8 +19,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorrelations);
-    void plotHeatMap();
+//    void plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorrelations);
+//    void plotHeatMap();
 
 signals:
     void filesUploaded(QStringList filePaths);

@@ -6,13 +6,14 @@
 #include <QString>
 #include <QFileDialog>
 #include <QDir>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->plotWidget->setVisible(false);
+//    ui->plotWidget->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -20,6 +21,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+#if 0
 void MainWindow::plotHeatMap() {
     QCPColorMap * colorMap = new QCPColorMap(ui->plotWidget->xAxis, ui->plotWidget->yAxis);
 
@@ -123,6 +125,7 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
     ui->plotWidget->removePlottable(colorMap);
 #endif
 }
+#endif
 
 
 /**

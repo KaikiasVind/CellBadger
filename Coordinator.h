@@ -10,6 +10,8 @@ class Coordinator : public QObject
 {
     Q_OBJECT
 
+private:
+
 public:
     Coordinator();
 
