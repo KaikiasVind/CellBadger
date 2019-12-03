@@ -11,8 +11,11 @@
 #include "BioModels/FeatureCollection.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Statistics/Correlator.h"
-#include "Coordinator.h"
+#include "Utils/FileOperators/ConfigFileOperator.h"
+#include "System/Coordinator.h"
+#include "System/InformationCenter.h"
 
+using namespace ConfigFileOperator;
 using namespace CSVReader;
 using namespace ExpressionComparator;
 using namespace Sorter;
@@ -29,35 +32,55 @@ int main(int argc, char *argv[])
     w.show();
 #endif
 
-    // ############################### SIGNAL AND SLOT LOGIC #####################################
-    Coordinator coordinator;
+    // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
+    QString configFilePath = QDir::homePath().append("/.badger.conf");
+    ConfigFile configFile;
 
-    // MAIN WINDOW
-    // Connecting the
+    bool isConfigFileExits = ConfigFileOperator::isConfigFileExists(configFilePath);
+
+    if (isConfigFileExits) {
+        configFile = ConfigFileOperator::readConfigFile(configFilePath);
+    } else {
+        ConfigFileOperator::createConfigFile(configFilePath);
+        configFile = ConfigFileOperator::initializeConfigFile();
+    }
+    // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
+
+    // ++++++++++++++++++++++++ CREATE PROGRAM BASICS +++++++++++++++++++++++++++++
+    // InformationCenter is used to store all relevant software data
+    InformationCenter informationCenter(configFile);
+    // Coordinator is used to control the relevant data flow
+    Coordinator coordinator(informationCenter);
+    // ++++++++++++++++++++++++ CREATE PROGRAM BASICS +++++++++++++++++++++++++++++
+
+    // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
+    // Main Window -> Coordinator
     QObject::connect(&w, &MainWindow::filesUploaded, &coordinator, &Coordinator::on_filesUploaded);
     QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
+    // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
-    // ############################### SIGNAL AND SLOT LOGIC #####################################
+    // At this point, the complete control over the system workflow is handed over to Coordinator
+
 
 #if run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
-    QString configFilePath = QDir::homePath().append("/.badger.conf");
-    ConfigFileOperator configFileOperator;
+//    QString configFilePath = QDir::homePath().append("/.badger.conf");
+//    ConfigFileOperator configFileOperator;
 
-    bool isConfigFileExits = configFileOperator.isConfigFileExists(configFilePath);
+//    bool isConfigFileExits = configFileOperator.isConfigFileExists(configFilePath);
 
-    QString cellMarkersFilePath,
-            clusterExpressionFilePath;
+//    QString cellMarkersFilePath,
+//            clusterExpressionFilePath;
 
-    if (isConfigFileExits) {
-        qDebug() << "Reading config file:" << configFilePath;
-        configFileOperator.readConfigFile(configFilePath);
-        cellMarkersFilePath = configFileOperator.getCellMarkersFilePath();
-        clusterExpressionFilePath = configFileOperator.getClusterExpressionFilePath();
-    } else {
-        qDebug() << "No config file found under:" << configFilePath;
-        configFileOperator.createConfigFile(configFilePath);
-    }
+//    if (isConfigFileExits) {
+//        qDebug() << "Reading config file:" << configFilePath;
+//        configFileOperator.readConfigFile(configFilePath);
+//        cellMarkersFilePath = configFileOperator.getCellMarkersFilePath();
+//        clusterExpressionFilePath = configFileOperator.getClusterExpressionFilePath();
+//    } else {
+//        qDebug() << "No config file found under:" << configFilePath;
+//        configFileOperator.createConfigFile(configFilePath);
+//    InformationCenter
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
     qDebug() << "Reading 10x cluster expression file.";

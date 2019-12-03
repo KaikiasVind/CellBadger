@@ -19,10 +19,12 @@ SOURCES += \
     BioModels/Celltype.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
-    Coordinator.cpp \
     Graphics/qcustomplot.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
+    System/ConfigFile.cpp \
+    System/Coordinator.cpp \
+    System/InformationCenter.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
     Utils/Math.cpp \
@@ -34,11 +36,13 @@ HEADERS += \
     BioModels/Celltype.h \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
-    Coordinator.h \
     Graphics/qcustomplot.h \
     Mainwindow.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
+    System/ConfigFile.h \
+    System/Coordinator.h \
+    System/InformationCenter.h \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
     Utils/Math.h \

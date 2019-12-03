@@ -3,25 +3,16 @@
 
 #include <QString>
 
-class ConfigFileOperator
+#include "System/ConfigFile.h"
+
+namespace ConfigFileOperator
 {
-private:
-    QString projectFilePath;
-    QString cellMarkersFilePath;
-    QString clusterExpressionFilePath;
+    extern ConfigFile readConfigFile(QString configFilePath);
+    extern void writeConfigFile(QString configFilePath);
+    extern void createConfigFile(QString configFilePath);
+    extern ConfigFile initializeConfigFile();
 
-public:
-    ConfigFileOperator();
-
-    void readConfigFile(QString configFilePath);
-    void writeConfigFile(QString configFilePath);
-    void createConfigFile(QString configFilePath);
-
-    bool isConfigFileExists(QString configFilePath);
-
-    QString getProjectFilePath();
-    QString getCellMarkersFilePath();
-    QString getClusterExpressionFilePath();
+    extern bool isConfigFileExists(QString configFilePath);
 };
 
 #endif // CONFIGFILEOPERATOR_H

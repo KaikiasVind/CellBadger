@@ -7,50 +7,26 @@
 #include <QVector>
 #include <QDebug>
 
-ConfigFileOperator::ConfigFileOperator(){}
+#include "System/ConfigFile.h"
+
+
+namespace ConfigFileOperator {
 
 /**
- * @brief ConfigFileOperator::isConfigFileExists
+ * @brief isConfigFileExists
  * @param configFilePath
  * @return
  */
-bool ConfigFileOperator::isConfigFileExists(QString configFilePath) {
+bool isConfigFileExists(QString configFilePath) {
     return QFile::exists(configFilePath);
 }
 
 
 /**
- * @brief ConfigFileOperator::getProjectFilePath
- * @return
- */
-QString ConfigFileOperator::getProjectFilePath() {
-    return projectFilePath;
-}
-
-
-/**
- * @brief ConfigFileOperator::getCellMarkersFilePath
- * @return
- */
-QString ConfigFileOperator::getCellMarkersFilePath() {
-    return cellMarkersFilePath;
-}
-
-
-/**
- * @brief ConfigFileOperator::getCellMarkersFilePath
- * @return
- */
-QString ConfigFileOperator::getClusterExpressionFilePath() {
-    return clusterExpressionFilePath;
-}
-
-
-/**
- * @brief ConfigFileOperator::readConfigFile
+ * @brief readConfigFile
  * @param configFilePath
  */
-void ConfigFileOperator::readConfigFile(QString configFilePath) {
+ConfigFile readConfigFile(QString configFilePath) {
     // Open file
     QFile csvFile(configFilePath);
 
@@ -68,6 +44,10 @@ void ConfigFileOperator::readConfigFile(QString configFilePath) {
     QString projectLocation       = "project_location",
             markerFile            = "marker_file",
             clusterExpressionFile = "cluster_expression_file";
+
+    // Gather information from config file
+    QString cellMarkersFilePath,
+            clusterExpressionFilePath;
 
     // Start parsing cluster file
     while (!csvFile.atEnd()) {
@@ -89,22 +69,39 @@ void ConfigFileOperator::readConfigFile(QString configFilePath) {
         else if (identifier == clusterExpressionFile)
             clusterExpressionFilePath = value;
     }
+
+    // Assemble config file and return it
+    ConfigFile configFile(cellMarkersFilePath, clusterExpressionFilePath);
+    return configFile;
 }
 
 /**
  * @brief createConfigFile - Creates a txt file for usage later on
  * @param configFilePath - Full file path to config file
  */
-void ConfigFileOperator::createConfigFile(QString configFilePath) {
+void createConfigFile(QString configFilePath) {
 //    QDir directory;
 
 //    // Create the directory if it does not exist
 //    if (!directory.exists(configFilePath))
 //        directory.mkpath(configFilePath);
 
-    if (Q_UNLIKELY(this->isConfigFileExists(configFilePath)))
+    if (Q_UNLIKELY(isConfigFileExists(configFilePath)))
         return;
 
     QFile configFile(configFilePath);
     configFile.open(QIODevice::WriteOnly);
+}
+
+
+/**
+ * @brief initializeConfigFile
+ * @return
+ */
+ConfigFile initializeConfigFile() {
+    //REMEMBER: A default value should be used for the marker file here
+    ConfigFile configFile("nAn", "nAn");
+    return configFile;
+}
+
 }

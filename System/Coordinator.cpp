@@ -4,13 +4,17 @@
 #include <QStringList>
 #include <QDebug>
 
+#include "System/InformationCenter.h"
 
 /**
  * @brief Coordinator::Coordinator
  */
-Coordinator::Coordinator() {}
+Coordinator::Coordinator(InformationCenter informationCenter)
+    : informationCenter {informationCenter}
+{}
 
 
+// ################### INTERACTION WITH MAIN WINDOW ########################
 /**
  * @brief Coordinator::on_filesUploaded
  * @param filePaths
@@ -25,5 +29,6 @@ void Coordinator::on_filesUploaded(QStringList filePaths) {
  * @param filePath
  */
 void Coordinator::on_projectFileUploaded(QStringList filePath) {
-    qDebug() << "on_filesUploaded: received" << filePath;
+    qDebug() << "on_projectFileUploaded: received" << filePath;
 }
+// ################### INTERACTION WITH MAIN WINDOW ########################
