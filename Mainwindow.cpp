@@ -13,6 +13,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // Remove default window frame
+    //REMEMBER: Which one is better for windows?
+    this->setWindowFlags(Qt::FramelessWindowHint);
+//    this->setWindowFlags(Qt::CustomizeWindowHint);
+
 //    ui->plotWidget->setVisible(false);
 }
 
@@ -150,7 +155,7 @@ QStringList MainWindow::openFileDialog(QStringList validMimeTypeExtensions) {
 /**
  * @brief MainWindow::on_buttonExit_clicked - Shutdown the program
  */
-void MainWindow::on_buttonExit_clicked() {
+__attribute__((noreturn)) void MainWindow::on_buttonExit_clicked() {
     qDebug() << "Exiting";
     exit(0);
 }

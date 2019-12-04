@@ -27,7 +27,7 @@ signals:
     void projectFileUploaded(QStringList filePath);
 
 private slots:
-    void on_buttonExit_clicked();
+    __attribute__((noreturn)) void on_buttonExit_clicked();
 
     void on_buttonMaximize_clicked();
 
