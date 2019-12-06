@@ -7,6 +7,8 @@
 #include <QPair>
 #include <QString>
 
+#include "StartDialog.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -39,6 +41,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    StartDialog * startDialog;
 
     QStringList openFileDialog(QStringList validMimeTypeExtensions);
 };

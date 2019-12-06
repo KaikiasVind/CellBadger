@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
     // Main Window -> Coordinator
     QObject::connect(&w, &MainWindow::filesUploaded, &coordinator, &Coordinator::on_filesUploaded);
     QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
+
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
     // At this point, the complete control over the system workflow is handed over to Coordinator

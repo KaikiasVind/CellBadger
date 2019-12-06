@@ -20,6 +20,7 @@ SOURCES += \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
     Graphics/qcustomplot.cpp \
+    StartDialog.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
     System/ConfigFile.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     BioModels/FeatureCollection.h \
     Graphics/qcustomplot.h \
     Mainwindow.h \
+    StartDialog.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
     System/ConfigFile.h \
@@ -49,7 +51,8 @@ HEADERS += \
     Utils/Sorter.h
 
 FORMS += \
-    Mainwindow.ui
+    Mainwindow.ui \
+    StartDialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

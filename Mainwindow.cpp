@@ -8,6 +8,8 @@
 #include <QDir>
 #include <QDebug>
 
+#include "StartDialog.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -19,6 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
 //    this->setWindowFlags(Qt::CustomizeWindowHint);
 
 //    ui->plotWidget->setVisible(false);
+
+    // Fire up start dialog
+    startDialog = new StartDialog();
+
+//    connect(&startDialog, StartDialog::projectFileUploaded,)
+    startDialog->show();
+    this->hide(); // Why doesnt this work?
 }
 
 MainWindow::~MainWindow()
