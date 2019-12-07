@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QStringList>
 #include <QPushButton>
+#include <QHBoxLayout>
 
 namespace Ui {
 class StartDialog;
@@ -39,11 +40,21 @@ private slots:
 
      void on_buttonLoadCustom_clicked();
 
+     void on_buttonAddDataset_clicked();
+
+     void on_buttonRemoveDataset_clicked();
+
 private:
     Ui::StartDialog *ui;
 
     QPushButton * createPushButton();
+    void addDatasetToLayout(QString filePath);
+    void removeDataSetFromLayout(QString name);
+
     QStringList openFileDialog(QStringList validMimetypeExtensions);
+    QString getFileName(QString filePath);
+
+    QStringList uploadedDatasets;
 };
 
 #endif // STARTDIALOG_H

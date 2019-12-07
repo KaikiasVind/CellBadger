@@ -7,6 +7,9 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QLabel>
+#include <QObject>
+#include <QAction>
+
 
 StartDialog::StartDialog(QWidget *parent) :
     QDialog(parent),
@@ -27,6 +30,10 @@ QPushButton * StartDialog::createPushButton() {
     return button;
 }
 
+QString StartDialog::getFileName(QString filePath) {
+    return filePath.split(QDir::separator()).last();
+}
+
 /**
  * @brief StartDialog::openFileDialog - Opens a file dialog specific to files with given type to files with given type
  * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
@@ -43,6 +50,16 @@ QStringList StartDialog::openFileDialog(QStringList validMimeTypeExtensions) {
         fileNames = fileDialog.selectedFiles();
 
     return fileNames;
+}
+
+/**
+ * @brief StartDialog::addDatasetToLayout
+ * @param name
+ */
+void StartDialog::addDatasetToLayout(QString filePath) {
+    QString fileName = getFileName(filePath);
+    QListWidgetItem * item = new QListWidgetItem(fileName);
+    ui->listDatasets->addItem(item);
 }
 
 // ++++++++++++++++++++++++++++++++ SLOTS ++++++++++++++++++++++++++++++++
@@ -88,8 +105,6 @@ __attribute__((noreturn)) void StartDialog::on_buttonMenuBarExit_2_clicked() {
     exit(0);
 }
 
-// ++++++++++++++++++++++++++++++++ SLOTS ++++++++++++++++++++++++++++++++
-
 void StartDialog::on_buttonLoadCustom_clicked()
 {
     QStringList csvMimeTypes = { "text/csv" };
@@ -100,3 +115,35 @@ void StartDialog::on_buttonLoadCustom_clicked()
 
     qDebug() << "Uploaded" << fileNames[0];
 }
+
+void StartDialog::on_buttonAddDataset_clicked() {
+    QStringList csvMimeTypes = { "text/csv" };
+    QStringList fileNames = openFileDialog(csvMimeTypes);
+
+    if (fileNames.empty())
+        return;
+
+    for (int i = 0; i < fileNames.length(); i++) {
+        QString fileName = getFileName(fileNames[i]);
+
+        // If file has already been uploaded, skip it
+        if (uploadedDatasets.contains(fileName)) {
+            continue;
+        }
+
+        uploadedDatasets.append(fileName);
+        addDatasetToLayout(fileName);
+        qDebug() << "Uploaded" << fileName;
+    }
+}
+
+void StartDialog::on_buttonRemoveDataset_clicked() {
+    qDebug() << uploadedDatasets;
+    for (QListWidgetItem * item : ui->listDatasets->selectedItems()) {
+        uploadedDatasets.removeOne(item->text());
+        delete ui->listDatasets->takeItem(ui->listDatasets->row(item));
+    }
+    qDebug() << uploadedDatasets;
+}
+
+// ++++++++++++++++++++++++++++++++ SLOTS ++++++++++++++++++++++++++++++++

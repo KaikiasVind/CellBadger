@@ -145,6 +145,9 @@
              <property name="text">
               <string>&lt;</string>
              </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -171,23 +174,65 @@
              <property name="text">
               <string>X</string>
              </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
             </widget>
            </item>
           </layout>
          </item>
          <item>
           <widget class="QLabel" name="labelDatasets">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+             <underline>false</underline>
+            </font>
+           </property>
            <property name="text">
             <string>Datasets</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="buttonAddDataset">
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
+          <layout class="QGridLayout" name="layoutDatasets"/>
+         </item>
+         <item>
+          <widget class="QListWidget" name="listDatasets"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="layoutDatasetButtons">
+           <item>
+            <widget class="QPushButton" name="buttonAddDataset">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>+</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonRemoveDataset">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QLabel" name="labelMarkerFile">
@@ -210,6 +255,9 @@
           <widget class="QPushButton" name="buttonLoadCustom">
            <property name="text">
             <string>Load custom dataset</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
