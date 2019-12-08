@@ -20,6 +20,7 @@ public:
 
 signals:
     void projectFileUploaded(QStringList fileNames);
+    void runNewProject(QStringList datasetFileNames);
 
 private slots:
     // STACKED WIDGET PAGE ONE
@@ -44,8 +45,11 @@ private slots:
 
      void on_buttonRemoveDataset_clicked();
 
+     void on_buttonRun_clicked();
+
 private:
     Ui::StartDialog *ui;
+    QStringList uploadedDatasets;
 
     QPushButton * createPushButton();
     void addDatasetToLayout(QString filePath);
@@ -54,7 +58,7 @@ private:
     QStringList openFileDialog(QStringList validMimetypeExtensions);
     QString getFileName(QString filePath);
 
-    QStringList uploadedDatasets;
+    void enableRunButtonIfReady();
 };
 
 #endif // STARTDIALOG_H

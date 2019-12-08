@@ -6,6 +6,7 @@
 #include <QString>
 #include <QFileDialog>
 #include <QDir>
+#include <QObject>
 #include <QDebug>
 
 #include "StartDialog.h"
@@ -21,13 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
 //    this->setWindowFlags(Qt::CustomizeWindowHint);
 
 //    ui->plotWidget->setVisible(false);
-
-    // Fire up start dialog
-    startDialog = new StartDialog();
-
-//    connect(&startDialog, StartDialog::projectFileUploaded,)
-    startDialog->show();
-    this->hide(); // Why doesnt this work?
 }
 
 MainWindow::~MainWindow()
@@ -210,3 +204,10 @@ void MainWindow::on_buttonLoadProject_clicked() {
     qDebug() << "Sent project file name.";
     emit projectFileUploaded(fileNames);
 }
+
+void MainWindow::on_newProjectStarted(QStringList datasetFileNames) {
+    this->show();
+    qDebug() << "Uploaded datasets:" << datasetFileNames;
+}
+
+// ############################################### SLOTS ###############################################

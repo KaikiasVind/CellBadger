@@ -24,6 +24,9 @@ public:
 //    void plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorrelations);
 //    void plotHeatMap();
 
+public slots:
+    void on_newProjectStarted(QStringList datasetFilePaths);
+
 signals:
     void filesUploaded(QStringList filePaths);
     void projectFileUploaded(QStringList filePath);

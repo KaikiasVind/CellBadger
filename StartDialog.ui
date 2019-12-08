@@ -196,9 +196,6 @@
           </widget>
          </item>
          <item>
-          <layout class="QGridLayout" name="layoutDatasets"/>
-         </item>
-         <item>
           <widget class="QListWidget" name="listDatasets"/>
          </item>
          <item>
@@ -260,6 +257,30 @@
             <bool>false</bool>
            </property>
           </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="layoutRunButton">
+           <item>
+            <spacer name="spacerRunButton">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonRun">
+             <property name="text">
+              <string>Run</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <spacer name="spacerBottomButtons">

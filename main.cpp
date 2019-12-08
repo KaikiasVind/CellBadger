@@ -1,10 +1,9 @@
-﻿#include "Mainwindow.h"
-
-#include <QApplication>
+﻿#include <QApplication>
 #include <QFileDialog>
 #include <QDir>
 #include <QDebug>
 
+#include "Mainwindow.h"
 #include "Utils/FileOperators/ConfigFileOperator.h"
 #include "Utils/FileOperators/CSVReader.h"
 #include "Utils/Sorter.h"
@@ -14,6 +13,7 @@
 #include "Utils/FileOperators/ConfigFileOperator.h"
 #include "System/Coordinator.h"
 #include "System/InformationCenter.h"
+#include "StartDialog.h"
 
 using namespace ConfigFileOperator;
 using namespace CSVReader;
@@ -28,8 +28,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
+    StartDialog startDialog;
 #if gui
-    w.show();
+    startDialog.show();
 #endif
 
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
@@ -54,10 +55,13 @@ int main(int argc, char *argv[])
     // ++++++++++++++++++++++++ CREATE PROGRAM BASICS +++++++++++++++++++++++++++++
 
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
-    // Main Window -> Coordinator
-    QObject::connect(&w, &MainWindow::filesUploaded, &coordinator, &Coordinator::on_filesUploaded);
-    QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
+    // StartDialog -> MainWindow
+    QObject::connect(&startDialog, &StartDialog::runNewProject, &w, &MainWindow::on_newProjectStarted);
 
+    // Main Window -> Coordinator
+
+//    QObject::connect(&w, &MainWindow::filesUploaded, &coordinator, &Coordinator::on_filesUploaded);
+//    QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
     // At this point, the complete control over the system workflow is handed over to Coordinator
