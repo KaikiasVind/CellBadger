@@ -65,16 +65,22 @@ int main(int argc, char *argv[])
 #if new_run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
+    QString defaultMarkerFilePath = QDir::homePath().append("/Desktop/gtex_analysis.csv");
     ConfigFile configFile;
 
     bool isConfigFileExits = ConfigFileOperator::isConfigFileExists(configFilePath);
 
     if (isConfigFileExits) {
+        qDebug() << "Found config file:" << configFilePath;
         configFile = ConfigFileOperator::readConfigFile(configFilePath);
     } else {
+        qDebug() << "No config file found.";
         ConfigFileOperator::createConfigFile(configFilePath);
         configFile = ConfigFileOperator::initializeConfigFile();
     }
+
+    //FIXME: THIS HAS TO BE DONE ELSEWHERE
+    configFile.cellMarkersFilePath = defaultMarkerFilePath;
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
     // ++++++++++++++++++++++++ CREATE PROGRAM BASICS +++++++++++++++++++++++++++++
@@ -92,7 +98,7 @@ int main(int argc, char *argv[])
     QObject::connect(&startDialog, &StartDialog::runNewProject, &mainWindow, &MainWindow::on_newProjectStarted);
 
     // Coordinator -> Main Window
-    QObject::connect(&coordinator, &Coordinator::finishedClusterFilesParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
+    QObject::connect(&coordinator, &Coordinator::finishedFileParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
 
     // Main Window -> Coordinator
 

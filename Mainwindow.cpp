@@ -166,7 +166,7 @@ void MainWindow::on_buttonMinimize_clicked() {
     this->setWindowState(Qt::WindowMinimized);
 }
 
-void MainWindow::on_newProjectStarted(QStringList datasetFilePaths) {
+void MainWindow::on_newProjectStarted(QString markerFilePath, QStringList datasetFilePaths) {
     this->show();
 
     // Get file names for column counts

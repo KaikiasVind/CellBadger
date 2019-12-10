@@ -65,8 +65,9 @@ void StartDialog::addDatasetToLayout(QString filePath) {
 void StartDialog::enableRunButtonIfReady() {
     bool isUploadedDataset = uploadedDatasets.length() > 0;
     bool isUseDefaultSelected = ui->checkBoxUseDefault->isChecked();
+    bool isCustomMarkerFileUploaded = !uploadedMarkerFile.isNull();
 
-    if (isUploadedDataset && isUseDefaultSelected) {
+    if (isUploadedDataset && (isUseDefaultSelected || isCustomMarkerFileUploaded)) {
         ui->buttonRun->setEnabled(true);
     }
 }
@@ -129,6 +130,9 @@ void StartDialog::on_buttonMenuBarBack_clicked() {
 void StartDialog::on_checkBoxUseDefault_stateChanged(int state) {
     if (state == Qt::CheckState::Checked) {
         ui->buttonLoadCustom->setDisabled(true);
+
+        // REMEMBER: This should be done differently
+        uploadedMarkerFile = "nAn";
         enableRunButtonIfReady();
     } else {
         ui->buttonLoadCustom->setDisabled(false);
@@ -155,6 +159,8 @@ void StartDialog::on_buttonLoadCustom_clicked() {
     if (fileNames.empty())
         return;
 
+    uploadedMarkerFile = fileNames.first();
+    enableRunButtonIfReady();
     qDebug() << "Uploaded" << fileNames[0];
 }
 
@@ -203,7 +209,7 @@ void StartDialog::on_buttonRemoveDataset_clicked() {
  * @brief StartDialog::on_buttonRun_clicked
  */
 void StartDialog::on_buttonRun_clicked() {
-    emit runNewProject(uploadedDatasets);
+    emit runNewProject(uploadedMarkerFile, uploadedDatasets);
     this->close();
     //REMEMBER: How to delete this the right way?
 //    this->deleteLater(); ?!

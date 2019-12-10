@@ -31,7 +31,7 @@ signals:
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
-    void on_newProjectStarted(QStringList filePaths);
+    void on_newProjectStarted(QString cellMarkerFilePath, QStringList filePaths);
     void on_filesUploaded(QStringList filePaths);
     void on_projectFileUploaded(QStringList filePaths);
     // ################### INTERACTION WITH START DIALOG ########################

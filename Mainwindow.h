@@ -25,7 +25,7 @@ public:
 //    void plotHeatMap();
 
 public slots:
-    void on_newProjectStarted(QStringList datasetFilePaths);
+    void on_newProjectStarted(QString markerFilePath, QStringList datasetFilePaths);
     void on_clusterFileParsed();
 
 signals:
