@@ -55,9 +55,6 @@ private:
     void addDatasetToLayout(QString filePath);
     void removeDataSetFromLayout(QString name);
 
-    QStringList openFileDialog(QStringList validMimetypeExtensions);
-    QString getFileName(QString filePath);
-
     void enableRunButtonIfReady();
 };
 

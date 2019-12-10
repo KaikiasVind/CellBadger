@@ -3,6 +3,11 @@
 #include <QDir>
 #include <QDebug>
 
+#include <QFutureWatcher>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QObject>
+
 #include "Mainwindow.h"
 #include "Utils/FileOperators/ConfigFileOperator.h"
 #include "Utils/FileOperators/CSVReader.h"
@@ -20,19 +25,44 @@ using namespace CSVReader;
 using namespace ExpressionComparator;
 using namespace Sorter;
 
-#define run 0
+#define testing 0
+#define old_run 0
+#define new_run 1
 #define gui 1
 #define verbose 0
 
+
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
+    QApplication application(argc, argv);
+    MainWindow mainWindow;
     StartDialog startDialog;
 #if gui
     startDialog.show();
 #endif
 
+#if testing
+#include "Test.h"
+    Test test;
+
+    auto bla = []() { qDebug() << "GEWITTER?!"; };
+    // Set up watcher that signals when parsing has been finished
+//    QFutureWatcher<QVector<FeatureCollection>> futureWatcher;
+    QFutureWatcher<void> futureWatcher;
+    // Connect the watcher with the connecter slot -> The watcher will report back when the parsing has finished
+    QObject::connect(&futureWatcher, SIGNAL(finished()), &test, SLOT(on_finished()));
+
+    // Parse the cluster file with default cutoff in another thread
+//    QFuture<QVector<FeatureCollection>> futureCellMarkersForTypes = QtConcurrent::run(CSVReader::getTissuesWithGeneExpression, datasetFilePath, 15);
+    QFuture<void> future = QtConcurrent::run(bla);
+    // Let the watcher watch over the new process
+    futureWatcher.setFuture(future);
+
+    // Wait for finished to avoid loosing scope before parsing has finished
+    futureWatcher.waitForFinished();
+#endif
+
+#if new_run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
     ConfigFile configFile;
@@ -55,19 +85,23 @@ int main(int argc, char *argv[])
     // ++++++++++++++++++++++++ CREATE PROGRAM BASICS +++++++++++++++++++++++++++++
 
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
+    // StartDialog -> Coordinator
+    QObject::connect(&startDialog, &StartDialog::runNewProject, &coordinator, &Coordinator::on_newProjectStarted);
+
     // StartDialog -> MainWindow
-    QObject::connect(&startDialog, &StartDialog::runNewProject, &w, &MainWindow::on_newProjectStarted);
+    QObject::connect(&startDialog, &StartDialog::runNewProject, &mainWindow, &MainWindow::on_newProjectStarted);
+
+    // Coordinator -> Main Window
+    QObject::connect(&coordinator, &Coordinator::finishedClusterFileParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
 
     // Main Window -> Coordinator
 
-//    QObject::connect(&w, &MainWindow::filesUploaded, &coordinator, &Coordinator::on_filesUploaded);
-//    QObject::connect(&w, &MainWindow::projectFileUploaded, &coordinator, &Coordinator::on_projectFileUploaded);
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
-    // At this point, the complete control over the system workflow is handed over to Coordinator
+    // At this point, the complete control over the system workflow is handed over to the Coordinator
+#endif
 
-
-#if run
+#if old_run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 //    QString configFilePath = QDir::homePath().append("/.badger.conf");
 //    ConfigFileOperator configFileOperator;
@@ -156,5 +190,5 @@ int main(int argc, char *argv[])
 //                    variableTwo = {14.61, 11.80, 14.34, 13.03, 14.18, 11.02};
 
 
-    return a.exec();
+    return application.exec();
 }

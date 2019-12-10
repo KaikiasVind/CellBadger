@@ -10,6 +10,11 @@
 #include <QObject>
 #include <QAction>
 
+#include "Utils/Helper.h"
+
+using Helper::chopFileName;
+using Helper::openFileDialog;
+
 
 /**
  * @brief StartDialog::StartDialog
@@ -28,10 +33,7 @@ StartDialog::StartDialog(QWidget *parent) :
 /**
  * @brief StartDialog::~StartDialog
  */
-StartDialog::~StartDialog() {
-    delete this->ui;
-    delete this;
-}
+StartDialog::~StartDialog() { /*REMEMBER: What should be done here?*/ }
 
 
 /**
@@ -45,39 +47,13 @@ QPushButton * StartDialog::createPushButton() {
 }
 
 
-/**
- * @brief StartDialog::getFileName
- * @param filePath
- * @return
- */
-QString StartDialog::getFileName(QString filePath) {
-    return filePath.split(QDir::separator()).last();
-}
-
-/**
- * @brief StartDialog::openFileDialog - Opens a file dialog specific to files with given type to files with given type
- * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
- * @return - List of user-selected files
- */
-QStringList StartDialog::openFileDialog(QStringList validMimeTypeExtensions) {
-    QFileDialog fileDialog(this);
-    fileDialog.setDirectory(QDir::home());
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setMimeTypeFilters(validMimeTypeExtensions);
-
-    QStringList fileNames;
-    if (fileDialog.exec())
-        fileNames = fileDialog.selectedFiles();
-
-    return fileNames;
-}
 
 /**
  * @brief StartDialog::addDatasetToLayout
  * @param name
  */
 void StartDialog::addDatasetToLayout(QString filePath) {
-    QString fileName = getFileName(filePath);
+    QString fileName = chopFileName(filePath);
     QListWidgetItem * item = new QListWidgetItem(fileName);
     ui->listDatasets->addItem(item);
 }
@@ -118,7 +94,7 @@ __attribute__((noreturn)) void StartDialog::on_buttonExit_clicked() {
  */
 void StartDialog::on_buttonLoadProject_clicked() {
     QStringList csvMimeTypes = { "text/plain" };
-    QStringList fileNames = this->openFileDialog(csvMimeTypes);
+    QStringList fileNames = openFileDialog(this, csvMimeTypes, false);
 
     if (fileNames.empty())
         return;
@@ -174,7 +150,7 @@ __attribute__((noreturn)) void StartDialog::on_buttonMenuBarExit_2_clicked() {
  */
 void StartDialog::on_buttonLoadCustom_clicked() {
     QStringList csvMimeTypes = { "text/csv" };
-    QStringList fileNames = this->openFileDialog(csvMimeTypes);
+    QStringList fileNames = openFileDialog(this, csvMimeTypes, false);
 
     if (fileNames.empty())
         return;
@@ -188,20 +164,21 @@ void StartDialog::on_buttonLoadCustom_clicked() {
  */
 void StartDialog::on_buttonAddDataset_clicked() {
     QStringList csvMimeTypes = { "text/csv" };
-    QStringList fileNames = openFileDialog(csvMimeTypes);
+    QStringList filePaths = openFileDialog(this, csvMimeTypes, true);
 
-    if (fileNames.empty())
+    if (filePaths.empty())
         return;
 
-    for (int i = 0; i < fileNames.length(); i++) {
-        QString fileName = getFileName(fileNames[i]);
+    for (int i = 0; i < filePaths.length(); i++) {
+        QString filePath = filePaths[i];
+        QString fileName = chopFileName(filePath);
 
         // If file has already been uploaded, skip it
-        if (uploadedDatasets.contains(fileName)) {
+        if (uploadedDatasets.contains(filePath)) {
             continue;
         }
 
-        uploadedDatasets.append(fileName);
+        uploadedDatasets.append(filePath);
         addDatasetToLayout(fileName);
         qDebug() << "Uploaded" << fileName;
     }

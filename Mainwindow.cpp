@@ -7,9 +7,16 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QObject>
+#include <QThread>
 #include <QDebug>
+#include <QListView>
 
 #include "StartDialog.h"
+#include "Utils/Helper.h"
+
+using Helper::chopFileName,
+      Helper::openFileDialog;
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -136,24 +143,6 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 #endif
 
 
-/**
- * @brief MainWindow::openFileDialog - Opens a file dialog specific for csv files
- * @return - List of user-selected files
- */
-QStringList MainWindow::openFileDialog(QStringList validMimeTypeExtensions) {
-    QFileDialog fileDialog(this);
-    fileDialog.setDirectory(QDir::home());
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setMimeTypeFilters(validMimeTypeExtensions);
-
-    QStringList fileNames;
-    if (fileDialog.exec())
-        fileNames = fileDialog.selectedFiles();
-
-    return fileNames;
-}
-
-
 // ############################################### SLOTS ###############################################
 /**
  * @brief MainWindow::on_buttonExit_clicked - Shutdown the program
@@ -177,37 +166,25 @@ void MainWindow::on_buttonMinimize_clicked() {
     this->setWindowState(Qt::WindowMinimized);
 }
 
-/**
- * @brief MainWindow::on_buttonUploadData_clicked - Opens a file dialog and lets the user select multiple csv files
- */
-void MainWindow::on_buttonUploadData_clicked() {
-    QStringList csvMimeTypes = { "text/csv" };
-    QStringList fileNames = this->openFileDialog(csvMimeTypes);
-
-    if (fileNames.empty())
-        return;
-
-    qDebug() << "Sent file names.";
-    emit filesUploaded(fileNames);
-}
-
-/**
- * @brief MainWindow::on_buttonLoadProject_clicked
- */
-void MainWindow::on_buttonLoadProject_clicked() {
-    QStringList csvMimeTypes = { "text/plain" };
-    QStringList fileNames = this->openFileDialog(csvMimeTypes);
-
-    if (fileNames.empty())
-        return;
-
-    qDebug() << "Sent project file name.";
-    emit projectFileUploaded(fileNames);
-}
-
-void MainWindow::on_newProjectStarted(QStringList datasetFileNames) {
+void MainWindow::on_newProjectStarted(QStringList datasetFilePaths) {
     this->show();
-    qDebug() << "Uploaded datasets:" << datasetFileNames;
+
+    // Get file names for column counts
+    QStringList fileNames;
+    std::transform(datasetFilePaths.begin(), datasetFilePaths.end(), std::back_inserter(fileNames), chopFileName);
+
+    // Set column count and add file names to column counts
+    ui->tableDatasets->setColumnCount(datasetFilePaths.length());
+    ui->tableDatasets->setHorizontalHeaderLabels(fileNames);
+
+    ui->tableDatasets->columnSpan(0, 50);
+
+    ui->labelStatus->setText("Parsing...");
+}
+
+// REACTING TO CONTROLLER
+void MainWindow::on_clusterFileParsed(QString name) {
+    ui->labelStatus->setText("Finished parsing.");
 }
 
 // ############################################### SLOTS ###############################################

@@ -26,8 +26,10 @@ SOURCES += \
     System/ConfigFile.cpp \
     System/Coordinator.cpp \
     System/InformationCenter.cpp \
+    Test.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
+    Utils/Helper.cpp \
     Utils/Math.cpp \
     Utils/Sorter.cpp \
     main.cpp \
@@ -45,8 +47,10 @@ HEADERS += \
     System/ConfigFile.h \
     System/Coordinator.h \
     System/InformationCenter.h \
+    Test.h \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
+    Utils/Helper.h \
     Utils/Math.h \
     Utils/Sorter.h
 

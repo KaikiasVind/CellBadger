@@ -26,6 +26,7 @@ public:
 
 public slots:
     void on_newProjectStarted(QStringList datasetFilePaths);
+    void on_clusterFileParsed(QString name);
 
 signals:
     void filesUploaded(QStringList filePaths);
@@ -38,15 +39,8 @@ private slots:
 
     void on_buttonMinimize_clicked();
 
-    void on_buttonUploadData_clicked();
-
-    void on_buttonLoadProject_clicked();
-
 private:
     Ui::MainWindow *ui;
-
-    StartDialog * startDialog;
-
-    QStringList openFileDialog(QStringList validMimeTypeExtensions);
+    QVector<QThread> workingThreads;
 };
 #endif // MAINWINDOW_H
