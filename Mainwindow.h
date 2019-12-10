@@ -26,7 +26,7 @@ public:
 
 public slots:
     void on_newProjectStarted(QStringList datasetFilePaths);
-    void on_clusterFileParsed(QString name);
+    void on_clusterFileParsed();
 
 signals:
     void filesUploaded(QStringList filePaths);

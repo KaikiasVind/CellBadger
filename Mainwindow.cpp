@@ -183,7 +183,7 @@ void MainWindow::on_newProjectStarted(QStringList datasetFilePaths) {
 }
 
 // REACTING TO CONTROLLER
-void MainWindow::on_clusterFileParsed(QString name) {
+void MainWindow::on_clusterFileParsed() {
     ui->labelStatus->setText("Finished parsing.");
 }
 

@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     QObject::connect(&startDialog, &StartDialog::runNewProject, &mainWindow, &MainWindow::on_newProjectStarted);
 
     // Coordinator -> Main Window
-    QObject::connect(&coordinator, &Coordinator::finishedClusterFileParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
+    QObject::connect(&coordinator, &Coordinator::finishedClusterFilesParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
 
     // Main Window -> Coordinator
 

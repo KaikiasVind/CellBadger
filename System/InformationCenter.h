@@ -10,10 +10,9 @@ struct InformationCenter
     ConfigFile configFile;
 
     QVector<FeatureCollection> cellMarkersForTypes;
-    QVector<FeatureCollection> xClusters;
+    QVector<QVector<FeatureCollection>> xClusterCollections;
 
     InformationCenter(ConfigFile configFile);
-
 };
 
 #endif // INFORMATIONCENTER_H

@@ -1,6 +1,7 @@
 #ifndef COORDINATOR_H
 #define COORDINATOR_H
 
+#include <QFutureSynchronizer>
 #include <QFutureWatcher>
 #include <QObject>
 
@@ -16,14 +17,17 @@ class Coordinator : public QObject
 private:
     InformationCenter informationCenter;
 
-    QFutureWatcher<QVector<FeatureCollection>> parsingThreadWatcher;
+    QFutureSynchronizer<QVector<FeatureCollection>> parsingThreadsWatcher;
+
+    void gatherInformationAfterParsingFinished();
 
 public:
     Coordinator(InformationCenter informationCenter);
 
 signals:
+    void finishedFileParsing();
     void finishedCellMarkerFileParsing();
-    void finishedClusterFileParsing(QString name);
+    void finishedClusterFilesParsing();
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
@@ -33,7 +37,6 @@ public slots:
     // ################### INTERACTION WITH START DIALOG ########################
 
     // ######################### FILE PROCESSING ################################
-    void on_datasetFileParsed();
     // ######################### FILE PROCESSING ################################
 };
 
