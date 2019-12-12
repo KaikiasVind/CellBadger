@@ -180,11 +180,11 @@ void StartDialog::on_buttonAddDataset_clicked() {
         QString fileName = chopFileName(filePath);
 
         // If file has already been uploaded, skip it
-        if (uploadedDatasets.contains(filePath)) {
+        if (uploadedDatasets.contains(fileName)) {
             continue;
         }
 
-        uploadedDatasets.append(filePath);
+        uploadedDatasets.append(fileName);
         addDatasetToLayout(fileName);
         qDebug() << "Uploaded" << fileName;
     }
