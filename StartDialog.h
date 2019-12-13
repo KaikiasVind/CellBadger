@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QHash>
 
 namespace Ui {
 class StartDialog;
@@ -49,7 +50,8 @@ private slots:
 
 private:
     Ui::StartDialog *ui;
-    QStringList uploadedDatasets;
+    //REMEMBER: Isn't a hashmap an overkill here?
+    QHash<QString, QString> uploadedDatasets;
     QString uploadedMarkerFile;
 
     QPushButton * createPushButton();

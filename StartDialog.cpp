@@ -63,7 +63,7 @@ void StartDialog::addDatasetToLayout(QString filePath) {
  * @brief StartDialog::enableRunButtonIfReady - If every requirement is set, enable the run button
  */
 void StartDialog::enableRunButtonIfReady() {
-    bool isUploadedDataset = uploadedDatasets.length() > 0;
+    bool isUploadedDataset = !uploadedDatasets.isEmpty();
     bool isUseDefaultSelected = ui->checkBoxUseDefault->isChecked();
     bool isCustomMarkerFileUploaded = !uploadedMarkerFile.isNull();
 
@@ -184,7 +184,7 @@ void StartDialog::on_buttonAddDataset_clicked() {
             continue;
         }
 
-        uploadedDatasets.append(fileName);
+        uploadedDatasets.insert(fileName, filePath);
         addDatasetToLayout(fileName);
         qDebug() << "Uploaded" << fileName;
     }
@@ -198,7 +198,7 @@ void StartDialog::on_buttonAddDataset_clicked() {
 void StartDialog::on_buttonRemoveDataset_clicked() {
     qDebug() << uploadedDatasets;
     for (QListWidgetItem * item : ui->listDatasets->selectedItems()) {
-        uploadedDatasets.removeOne(item->text());
+        uploadedDatasets.remove(item->text());
         delete ui->listDatasets->takeItem(ui->listDatasets->row(item));
     }
     qDebug() << uploadedDatasets;
@@ -209,7 +209,7 @@ void StartDialog::on_buttonRemoveDataset_clicked() {
  * @brief StartDialog::on_buttonRun_clicked
  */
 void StartDialog::on_buttonRun_clicked() {
-    emit runNewProject(uploadedMarkerFile, uploadedDatasets);
+    emit runNewProject(uploadedMarkerFile, uploadedDatasets.values());
     this->close();
     //REMEMBER: How to delete this the right way?
 //    this->deleteLater(); ?!
