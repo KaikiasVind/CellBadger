@@ -147,7 +147,21 @@
     <item>
      <layout class="QVBoxLayout" name="layoutMainLayout">
       <item>
-       <layout class="QHBoxLayout" name="layoutDatasets"/>
+       <widget class="QTabWidget" name="tabWidgetDatasets">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tabFirstDataset">
+         <attribute name="title">
+          <string>Tab 1</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabAddDataset">
+         <attribute name="title">
+          <string>+</string>
+         </attribute>
+        </widget>
+       </widget>
       </item>
      </layout>
     </item>

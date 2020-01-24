@@ -13,7 +13,9 @@
 #include <QTableWidget>
 
 #include "StartDialog.h"
+#include "TabWidget.h"
 #include "Utils/Helper.h"
+#include "System/InformationCenter.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    this->setWindowFlags(Qt::CustomizeWindowHint);
 
 //    ui->plotWidget->setVisible(false);
+    this->ui->tabWidgetDatasets->removeTab(0);
 }
 
 MainWindow::~MainWindow()
@@ -140,27 +143,23 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 #endif
 
 
-void MainWindow::createDatasetItem() {
-    qDebug() << "Creating window.";
+void MainWindow::createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation) {
+//    // Create new layout
+//    QVBoxLayout * verticalLayout = new QVBoxLayout();
 
-    // Create new layout
-    QVBoxLayout * verticalLayout = new QVBoxLayout();
+//    // Create new text label for the title
+//    QLabel * label = new QLabel(datasetName);
+//    label->setAlignment(Qt::AlignCenter);
 
-    // Create new text label for the title
-    QLabel * label = new QLabel("Dataset");
-    label->setAlignment(Qt::AlignCenter);
+//    correlation.mid(0, 5);
 
-//    QLine * line = new QLine();
+////    fiveMostCorrelatedTypes.reserve(5);
+////    fiveMostCorrelatedTypes.append(correlation.mid(0, 5));
 
-    // Create new table for the
-    QTableWidget * table = new QTableWidget();
+    TabWidget * tabWidget = new TabWidget();
 
-    // Add every item to the new layout
-    verticalLayout->addWidget(label);
-//    verticalLayout->addWidget(line);
-    verticalLayout->addWidget(table);
-
-    ui->layoutDatasets->addLayout(verticalLayout);
+    this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
+    this->ui->tabWidgetDatasets->setCurrentIndex(0);
 }
 
 // ############################################### SLOTS ###############################################
@@ -207,12 +206,19 @@ void MainWindow::on_clusterFileParsed() {
     ui->labelStatus->setText("Finished parsing.");
 }
 
-void MainWindow::on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets) {
+//void MainWindow::on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets) {
+void MainWindow::on_correlatingFinished(InformationCenter informationCenter) {
     qDebug() << "Received signal after correlation finished.";
 
-    for (int i = 0; i < correlatedDatasets.length(); i++) {
-        this->createDatasetItem();
+//    for (int i = 0; i < correlatedDatasets.length(); i++) {
+    for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
+        this->createDatasetItem("Bla" , informationCenter.correlatedDatasets.first());
     }
 }
 
-// ############################################### SLOTS ###############################################
+void MainWindow::on_tabWidgetDatasets_currentChanged(int index)
+{
+    if (index == this->ui->tabWidgetDatasets->count() - 1) {
+        qDebug() << "Trigger upload new dataset";
+    }
+}

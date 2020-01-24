@@ -26,6 +26,7 @@ SOURCES += \
     System/ConfigFile.cpp \
     System/Coordinator.cpp \
     System/InformationCenter.cpp \
+    TabWidget.cpp \
     Test.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     System/ConfigFile.h \
     System/Coordinator.h \
     System/InformationCenter.h \
+    TabWidget.h \
     Test.h \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
@@ -56,7 +58,8 @@ HEADERS += \
 
 FORMS += \
     Mainwindow.ui \
-    StartDialog.ui
+    StartDialog.ui \
+    TabWidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

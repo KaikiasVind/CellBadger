@@ -39,7 +39,8 @@ signals:
     void finishedFileParsing();
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
-    void finishedCorrelating(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
+//    void finishedCorrelating(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
+    void finishedCorrelating(InformationCenter informationCenter);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################

@@ -8,6 +8,7 @@
 #include <QString>
 
 #include "StartDialog.h"
+#include "System/InformationCenter.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -27,7 +28,8 @@ public:
 public slots:
     void on_newProjectStarted(QString markerFilePath, QStringList datasetFilePaths);
     void on_clusterFileParsed();
-    void on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
+//    void on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
+    void on_correlatingFinished(InformationCenter informationCenter);
 
 signals:
     void filesUploaded(QStringList filePaths);
@@ -40,10 +42,13 @@ private slots:
 
     void on_buttonMinimize_clicked();
 
+    void on_tabWidgetDatasets_currentChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     QVector<QThread> workingThreads;
 
-    void createDatasetItem();
+//    void createDatasetItem();
+    void createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
 };
 #endif // MAINWINDOW_H
