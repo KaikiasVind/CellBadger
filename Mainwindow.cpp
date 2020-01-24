@@ -10,13 +10,10 @@
 #include <QThread>
 #include <QDebug>
 #include <QListView>
+#include <QTableWidget>
 
 #include "StartDialog.h"
 #include "Utils/Helper.h"
-
-using Helper::chopFileName;
-using Helper::openFileDialog;
-
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -143,6 +140,29 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 #endif
 
 
+void MainWindow::createDatasetItem() {
+    qDebug() << "Creating window.";
+
+    // Create new layout
+    QVBoxLayout * verticalLayout = new QVBoxLayout();
+
+    // Create new text label for the title
+    QLabel * label = new QLabel("Dataset");
+    label->setAlignment(Qt::AlignCenter);
+
+//    QLine * line = new QLine();
+
+    // Create new table for the
+    QTableWidget * table = new QTableWidget();
+
+    // Add every item to the new layout
+    verticalLayout->addWidget(label);
+//    verticalLayout->addWidget(line);
+    verticalLayout->addWidget(table);
+
+    ui->layoutDatasets->addLayout(verticalLayout);
+}
+
 // ############################################### SLOTS ###############################################
 /**
  * @brief MainWindow::on_buttonExit_clicked - Shutdown the program
@@ -170,21 +190,29 @@ void MainWindow::on_newProjectStarted(QString markerFilePath, QStringList datase
     this->show();
 
     // Get file names for column counts
-    QStringList fileNames;
-    std::transform(datasetFilePaths.begin(), datasetFilePaths.end(), std::back_inserter(fileNames), chopFileName);
+//    QStringList fileNames;
+//    std::transform(datasetFilePaths.begin(), datasetFilePaths.end(), std::back_inserter(fileNames), Helper::chopFileName);
 
     // Set column count and add file names to column counts
-    ui->tableDatasets->setColumnCount(datasetFilePaths.length());
-    ui->tableDatasets->setHorizontalHeaderLabels(fileNames);
+//    ui->tableDatasets->setColumnCount(datasetFilePaths.length());
+//    ui->tableDatasets->setHorizontalHeaderLabels(fileNames);
 
-    ui->tableDatasets->columnSpan(0, 50);
+//    ui->tableDatasets->columnSpan(0, 50);
 
-    ui->labelStatus->setText("Parsing...");
+//    ui->labelStatus->setText("Parsing...");
 }
 
 // REACTING TO CONTROLLER
 void MainWindow::on_clusterFileParsed() {
     ui->labelStatus->setText("Finished parsing.");
+}
+
+void MainWindow::on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets) {
+    qDebug() << "Received signal after correlation finished.";
+
+    for (int i = 0; i < correlatedDatasets.length(); i++) {
+        this->createDatasetItem();
+    }
 }
 
 // ############################################### SLOTS ###############################################

@@ -27,6 +27,7 @@ public:
 public slots:
     void on_newProjectStarted(QString markerFilePath, QStringList datasetFilePaths);
     void on_clusterFileParsed();
+    void on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
 
 signals:
     void filesUploaded(QStringList filePaths);
@@ -42,5 +43,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QVector<QThread> workingThreads;
+
+    void createDatasetItem();
 };
 #endif // MAINWINDOW_H

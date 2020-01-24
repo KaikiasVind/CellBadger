@@ -59,10 +59,6 @@ void Coordinator::saveInformationAfterParsingFinished() {
         // and report it the the information center
         informationCenter.xClusterCollections.append(parsingThreadsWatcher.futures()[i].result());
     }
-
-    for (FeatureCollection collection : informationCenter.cellMarkersForTypes) {
-        qDebug() << "ID:" << collection.ID << "# features:" << collection.getNumberOfFeatures();
-    }
 }
 
 
@@ -89,7 +85,22 @@ void Coordinator::saveInformationAfterCorrelatingFinished() {
     // Gather the results from every finished thread
     for (int i = 0; i < correlatorThreadsWatcher.futures().length(); i++) {
         // and report it to the information center
-        this->informationCenter.clustersWithTissueCorrelations.append(correlatorThreadsWatcher.futures()[i].result());
+        this->informationCenter.correlatedDatasets.append(correlatorThreadsWatcher.futures()[i].result());
+    }
+}
+
+void Coordinator::printResults() {
+    int i = 0;
+    int j = 0;
+    for (QVector<QVector<QPair<QString, double>>> correlatedDataset : informationCenter.correlatedDatasets) {
+        qDebug() << "\n########################### DATASET:" << i++ << "###########################\n";
+        j = 0;
+        for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : correlatedDataset) {
+            qDebug() << "\nCLUSTER:" << j++ << "\n";
+            for (QPair<QString, double> correlation : clusterWithTissueCorrelations) {
+                qDebug() << correlation.first << ":" << correlation.second;
+            }
+        }
     }
 }
 
@@ -112,6 +123,7 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
     cellMarkerFilePaths.reserve(1);
     cellMarkerFilePaths.append(cellMarkerFilePath);
 
+    qDebug() << "Parsing:" << cellMarkerFilePaths.first();
     // Parse the cell marker file in separate thread
     cout << "Parsing cell marker file." << endl;
     this->parseFiles(cellMarkerFilePaths, CSVReader::getTissuesWithGeneExpression, 100);
@@ -128,20 +140,6 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
     this->saveInformationAfterParsingFinished();
     cout << "Saving information successfull." << endl;
 
-//    for (FeatureCollection featureCollection : informationCenter.cellMarkersForTypes) {
-//        cout << "FEATURE COLLECTION: " << featureCollection.ID.toStdString() << endl;
-//        for (Feature feature : featureCollection.getFeatures()) {
-//            cout << feature.ID.toStdString() << " : " << feature.count << endl;
-//        }
-//    }
-
-    for (FeatureCollection featureCollection : informationCenter.xClusterCollections[0]) {
-        cout << "FEATURE COLLECTION: " << featureCollection.ID.toStdString() << endl;
-        for (Feature feature : featureCollection.getFeatures()) {
-            cout << feature.ID.toStdString() << " : " << feature.count << endl;
-        }
-    }
-
     // Report that the last parsing thread has finished to the main window
     emit finishedFileParsing();
 
@@ -155,23 +153,9 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
     cout << "Saving correlation data successfull." << endl;
 
     // Report that the last correlation thread has finished to the main window
-    emit finishedCorrelating();
+    emit finishedCorrelating(informationCenter.correlatedDatasets);
 
-    cout << "Finished workflow. YEAY." << endl;
-
-#if 0
-    int i = 0;
-    int j = 0;
-    for (QVector<QVector<QPair<QString, double>>> correlatedDataset : informationCenter.clustersWithTissueCorrelations) {
-        std::cout << "DATASET: " << i++ << std::endl;
-        for (QVector<QPair<QString, double>> clusterWithTypeCorrelations : correlatedDataset) {
-            cout << "cluster: " << j++ << endl;
-            for (QPair<QString, double> typeCorrelation : clusterWithTypeCorrelations) {
-                cout << typeCorrelation.first.toStdString() << " - " << typeCorrelation.second << endl;
-            }
-        }
-    }
-#endif
+    qDebug() << "Finished workflow. YEAY." << endl;
 }
 
 

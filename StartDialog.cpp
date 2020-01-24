@@ -109,7 +109,6 @@ void StartDialog::on_buttonLoadProject_clicked() {
  * @brief StartDialog::on_buttonNewProject_clicked
  */
 void StartDialog::on_buttonNewProject_clicked() {
-    qDebug() << "New Project.";
     ui->stackedWidget->setCurrentIndex(1);
 }
 

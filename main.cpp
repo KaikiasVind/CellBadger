@@ -27,7 +27,7 @@ using namespace Sorter;
 
 #define run 1
 #define old_run 0
-#define testing !run
+#define testing 0
 #define gui 1
 #define verbose 0
 
@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
     if (isConfigFileExits) {
         qDebug() << "Found config file:" << configFilePath;
         configFile = ConfigFileOperator::readConfigFile(configFilePath);
+        qDebug() << "Found marker file:" << configFile.cellMarkersFilePath;
     } else {
         qDebug() << "No config file found.";
         ConfigFileOperator::createConfigFile(configFilePath);
@@ -102,7 +103,8 @@ int main(int argc, char *argv[])
     // Coordinator -> Main Window
     QObject::connect(&coordinator, &Coordinator::finishedFileParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
 
-    // Main Window -> Coordinator
+    // Coordinator -> Main Window
+    QObject::connect(&coordinator, &Coordinator::finishedCorrelating, &mainWindow, &MainWindow::on_correlatingFinished);
 
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
@@ -111,31 +113,34 @@ int main(int argc, char *argv[])
 
 #if old_run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
-//    QString configFilePath = QDir::homePath().append("/.badger.conf");
-//    ConfigFileOperator configFileOperator;
+    QString configFilePath = QDir::homePath().append("/.badger.conf");
+    QString defaultMarkerFilePath = QDir::homePath().append("/Desktop/gtex_analysis.csv");
+    ConfigFile configFile;
 
-//    bool isConfigFileExits = configFileOperator.isConfigFileExists(configFilePath);
+    bool isConfigFileExits = ConfigFileOperator::isConfigFileExists(configFilePath);
 
-//    QString cellMarkersFilePath,
-//            clusterExpressionFilePath;
-
-//    if (isConfigFileExits) {
-//        qDebug() << "Reading config file:" << configFilePath;
-//        configFileOperator.readConfigFile(configFilePath);
-//        cellMarkersFilePath = configFileOperator.getCellMarkersFilePath();
-//        clusterExpressionFilePath = configFileOperator.getClusterExpressionFilePath();
-//    } else {
-//        qDebug() << "No config file found under:" << configFilePath;
-//        configFileOperator.createConfigFile(configFilePath);
-//    InformationCenter
+    if (isConfigFileExits) {
+        qDebug() << "Found config file:" << configFilePath;
+        configFile = ConfigFileOperator::readConfigFile(configFilePath);
+        qDebug() << "Found marker file:" << configFile.cellMarkersFilePath;
+    } else {
+        qDebug() << "No config file found.";
+        ConfigFileOperator::createConfigFile(configFilePath);
+        configFile = ConfigFileOperator::initializeConfigFile();
+        //FIXME: THIS HAS TO BE DONE ELSEWHERE
+        configFile.cellMarkersFilePath = defaultMarkerFilePath;
+    }
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
+    // InformationCenter is used to store all relevant software data
+    InformationCenter informationCenter(configFile);
+
     qDebug() << "Reading 10x cluster expression file.";
-    QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(clusterExpressionFilePath, 15);
+    QVector<FeatureCollection> xClusterGeneExpressions = CSVReader::getClusterFeatureExpressions(configFile.clusterExpressionFilePath, 15);
     qDebug() << "Done";
 
     qDebug() << "Reading marker expression file.";
-    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(cellMarkersFilePath, 100);
+    QVector<FeatureCollection> tissues = CSVReader::getTissuesWithGeneExpression(configFile.cellMarkersFilePath, 100);
     qDebug() << "Done";
 
     qDebug() << xClusterGeneExpressions[0].getNumberOfFeatures() << ":" << tissues[0].getNumberOfFeatures();

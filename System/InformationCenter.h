@@ -17,7 +17,7 @@ struct InformationCenter
     QVector<QVector<FeatureCollection>> xClusterCollections;
 
     // FIXME: This looks very ugly!
-    QVector<QVector<QVector<QPair<QString, double>>>> clustersWithTissueCorrelations;
+    QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets;
 
     InformationCenter(ConfigFile configFile);
 };
