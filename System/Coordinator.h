@@ -4,6 +4,8 @@
 #include <QFutureSynchronizer>
 #include <QFutureWatcher>
 #include <QObject>
+#include <QString>
+#include <QStringList>
 
 #include "System/InformationCenter.h"
 
@@ -18,8 +20,16 @@ private:
     InformationCenter informationCenter;
 
     QFutureSynchronizer<QVector<FeatureCollection>> parsingThreadsWatcher;
+    QFutureSynchronizer<QVector<QVector<QPair<QString, double>>>> correlatorThreadsWatcher;
 
-    void gatherInformationAfterParsingFinished();
+//    void parseCellMarkerFile(const QString )
+    void parseDatasetFiles(const QStringList datasetFilePaths);
+
+    template<typename F>
+    void parseFiles(const QStringList filePaths, const F & parsingFunction, const double cutoff);
+    void saveInformationAfterParsingFinished();
+    void correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes);
+    void saveInformationAfterCorrelatingFinished();
 
 public:
     Coordinator(InformationCenter informationCenter);
@@ -28,6 +38,7 @@ signals:
     void finishedFileParsing();
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
+    void finishedCorrelating();
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################

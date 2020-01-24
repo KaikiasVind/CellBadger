@@ -17,7 +17,8 @@ private:
 public:
     QString ID;
 
-    FeatureCollection(QString collectionID);
+    FeatureCollection();
+    FeatureCollection(const QString collectionID);
 //    FeatureCollection(FeatureCollection & featureCollection);
 
     void addFeature(QString featureID, double expressionCount);

@@ -13,7 +13,8 @@ struct CellType
     QString associatedTissueType;
     QStringList associatedMarkers;
 
-    CellType(QString ID, QString associatedTissueType, QStringList associatedMarkers);
+    CellType();
+    CellType(const QString ID, const QString associatedTissueType, const QStringList associatedMarkers);
 };
 
 #endif // CELLTYPE_H

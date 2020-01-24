@@ -25,12 +25,14 @@ using namespace CSVReader;
 using namespace ExpressionComparator;
 using namespace Sorter;
 
-#define testing 0
+#define run 1
 #define old_run 0
-#define new_run 1
+#define testing !run
 #define gui 1
 #define verbose 0
 
+#include <iostream>
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {
@@ -42,27 +44,27 @@ int main(int argc, char *argv[])
 #endif
 
 #if testing
-#include "Test.h"
-    Test test;
+//#include "Test.h"
+//    Test test;
 
-    auto bla = []() { qDebug() << "GEWITTER?!"; };
-    // Set up watcher that signals when parsing has been finished
-//    QFutureWatcher<QVector<FeatureCollection>> futureWatcher;
-    QFutureWatcher<void> futureWatcher;
-    // Connect the watcher with the connecter slot -> The watcher will report back when the parsing has finished
-    QObject::connect(&futureWatcher, SIGNAL(finished()), &test, SLOT(on_finished()));
+//    auto bla = []() { qDebug() << "GEWITTER?!"; };
+//    // Set up watcher that signals when parsing has been finished
+////    QFutureWatcher<QVector<FeatureCollection>> futureWatcher;
+//    QFutureWatcher<void> futureWatcher;
+//    // Connect the watcher with the connecter slot -> The watcher will report back when the parsing has finished
+//    QObject::connect(&futureWatcher, SIGNAL(finished()), &test, SLOT(on_finished()));
 
-    // Parse the cluster file with default cutoff in another thread
-//    QFuture<QVector<FeatureCollection>> futureCellMarkersForTypes = QtConcurrent::run(CSVReader::getTissuesWithGeneExpression, datasetFilePath, 15);
-    QFuture<void> future = QtConcurrent::run(bla);
-    // Let the watcher watch over the new process
-    futureWatcher.setFuture(future);
+//    // Parse the cluster file with default cutoff in another thread
+////    QFuture<QVector<FeatureCollection>> futureCellMarkersForTypes = QtConcurrent::run(CSVReader::getTissuesWithGeneExpression, datasetFilePath, 15);
+//    QFuture<void> future = QtConcurrent::run(bla);
+//    // Let the watcher watch over the new process
+//    futureWatcher.setFuture(future);
 
-    // Wait for finished to avoid loosing scope before parsing has finished
-    futureWatcher.waitForFinished();
+//    // Wait for finished to avoid loosing scope before parsing has finished
+//    futureWatcher.waitForFinished();
 #endif
 
-#if new_run
+#if run
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
     QString defaultMarkerFilePath = QDir::homePath().append("/Desktop/gtex_analysis.csv");
@@ -77,10 +79,10 @@ int main(int argc, char *argv[])
         qDebug() << "No config file found.";
         ConfigFileOperator::createConfigFile(configFilePath);
         configFile = ConfigFileOperator::initializeConfigFile();
+        //FIXME: THIS HAS TO BE DONE ELSEWHERE
+        configFile.cellMarkersFilePath = defaultMarkerFilePath;
     }
 
-    //FIXME: THIS HAS TO BE DONE ELSEWHERE
-    configFile.cellMarkersFilePath = defaultMarkerFilePath;
     // ++++++++++++++++++++++++ CHECK FOR CONFIG FILE +++++++++++++++++++++++++++++
 
     // ++++++++++++++++++++++++ CREATE PROGRAM BASICS +++++++++++++++++++++++++++++

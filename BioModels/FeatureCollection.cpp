@@ -6,6 +6,8 @@
 
 #include "BioModels/Feature.h"
 
+FeatureCollection::FeatureCollection(){};
+
 /**
  * @brief Cluster::Cluster - Only container class - only default constructor
  */

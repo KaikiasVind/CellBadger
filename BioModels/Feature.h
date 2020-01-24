@@ -11,7 +11,8 @@ struct Feature
     QString ID;
     double count;
 
-    Feature(QString ID, double count);
+    Feature();
+    Feature(const QString ID, const double count);
 };
 
 #endif // FEATURE_H

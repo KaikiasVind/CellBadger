@@ -14,8 +14,8 @@
 #include "StartDialog.h"
 #include "Utils/Helper.h"
 
-using Helper::chopFileName,
-      Helper::openFileDialog;
+using Helper::chopFileName;
+using Helper::openFileDialog;
 
 
 MainWindow::MainWindow(QWidget *parent)

@@ -1,13 +1,19 @@
 #include "Coordinator.h"
 
 #include <QObject>
+#include <QString>
 #include <QStringList>
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
 #include <QDebug>
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #include "System/InformationCenter.h"
 #include "Utils/FileOperators/CSVReader.h"
+#include "Statistics/Expressioncomparator.h"
 
 /**
  * @brief Coordinator::Coordinator
@@ -17,10 +23,28 @@ Coordinator::Coordinator(InformationCenter informationCenter)
 {}
 
 
+template<typename F>
+/**
+ * @brief Coordinator::parseFile - Parse the given dataset files with the corresponding function in separate threads and hand them over to the thread watcher
+ * @param filePaths - List of file paths corresponding to the dataset / marker files
+ * @param parsingFunction - The function with which the given file(s) can be parsed properly
+ * @param cutoff - The cutoff that should be used for parsing
+ */
+void Coordinator::parseFiles(const QStringList filePaths, const F & parsingFunction, const double cutoff) {
+    for (QString filePath: filePaths) {
+        // Parse the file with given cutoff in a new thread with given function
+        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(parsingFunction, filePath, cutoff);
+
+        // And let the multi-thread-watcher watch over the new process
+        parsingThreadsWatcher.addFuture(futureParsedFile);
+    }
+}
+
+
 /**
  * @brief Coordinator::gatherInformationAfterParsingFinished - Gathers the parsed information from the opened threads and reports it to the information center
  */
-void Coordinator::gatherInformationAfterParsingFinished() {
+void Coordinator::saveInformationAfterParsingFinished() {
     qDebug() << "Finished parsing.";
 
     // The first thread has been reserved for the marker file -> Report the result to the information center
@@ -39,11 +63,35 @@ void Coordinator::gatherInformationAfterParsingFinished() {
     for (FeatureCollection collection : informationCenter.cellMarkersForTypes) {
         qDebug() << "ID:" << collection.ID << "# features:" << collection.getNumberOfFeatures();
     }
-
-    // Report that the last parsing thread has finished to the main window
-    emit finishedFileParsing();
 }
 
+
+/**
+ * @brief Coordinator::correlateDatasets - Correlates the given datasets with the given set of cell markers in separate threads and hands them over to the thread watcher
+ * @param xClusterDatasets - List of cluster datasets that are to be correlated
+ * @param cellMarkersForTypes - Cell type cell markers that are used to correlate against
+ */
+void Coordinator::correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes) {
+    for (QVector<FeatureCollection> xClusterDataset : xClusterDatasets) {
+        // Correlate the single dataset with the given set of cell type markers
+        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findClusterTissueCorrelations, xClusterDataset, cellMarkersForTypes);
+
+        // And let the corresponding multi-thread-watcher watch over the new process
+        this->correlatorThreadsWatcher.addFuture(futureCorrelations);
+    }
+}
+
+
+/**
+ * @brief Coordinator::saveInformationAfterCorrelatingFinished - Gathers the information from the finished correlation from the opened threads and reports it to the information center
+ */
+void Coordinator::saveInformationAfterCorrelatingFinished() {
+    // Gather the results from every finished thread
+    for (int i = 0; i < correlatorThreadsWatcher.futures().length(); i++) {
+        // and report it to the information center
+        this->informationCenter.clustersWithTissueCorrelations.append(correlatorThreadsWatcher.futures()[i].result());
+    }
+}
 
 // ###################################### INTERACTION WITH START DIALOG ###########################################
 
@@ -59,26 +107,71 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
         cellMarkerFilePath = informationCenter.configFile.cellMarkersFilePath;
     }
 
-    // Parse the cell marker file with default cutoff in a new thread
-    QFuture<QVector<FeatureCollection>> futureCellMarkersForTypes = QtConcurrent::run(CSVReader::getTissuesWithGeneExpression, cellMarkerFilePath, 100);
+    // REMEMBER: Find another way to do this -> Another typename and type deduction?
+    QStringList cellMarkerFilePaths;
+    cellMarkerFilePaths.reserve(1);
+    cellMarkerFilePaths.append(cellMarkerFilePath);
 
-    // Let the multi-thread-watcher watch over the new process -> The first thread has been reserved for the marker file
-    parsingThreadsWatcher.addFuture(futureCellMarkersForTypes );
+    // Parse the cell marker file in separate thread
+    cout << "Parsing cell marker file." << endl;
+    this->parseFiles(cellMarkerFilePaths, CSVReader::getTissuesWithGeneExpression, 100);
 
-    // Do the same for all datasets that were uploaded
-    for (QString datasetFilePath : datasetFilePaths) {
-        // Parse the cluster file with default cutoff in a new thread
-        QFuture<QVector<FeatureCollection>> futureClusters = QtConcurrent::run(CSVReader::getClusterFeatureExpressions, datasetFilePath, 15);
-
-        // Let the multi-thread-watcher watch over the new process
-        parsingThreadsWatcher.addFuture(futureClusters);
-    }
+    // Parse the dataset files in separate threads
+    cout << "Parsing datasets." << endl;
+    this->parseFiles(datasetFilePaths, CSVReader::getClusterFeatureExpressions, 15);
 
     // Wait for finished to avoid loosing scope before parsing has finished
-    parsingThreadsWatcher.waitForFinished();
+    this->parsingThreadsWatcher.waitForFinished();
+    cout << "Finished parsing. Gathering information" << endl;
 
-    // Gather the information that was parsed from the different threads
-    gatherInformationAfterParsingFinished();
+    // Gather and save the information that was parsed from the different threads
+    this->saveInformationAfterParsingFinished();
+    cout << "Saving information successfull." << endl;
+
+//    for (FeatureCollection featureCollection : informationCenter.cellMarkersForTypes) {
+//        cout << "FEATURE COLLECTION: " << featureCollection.ID.toStdString() << endl;
+//        for (Feature feature : featureCollection.getFeatures()) {
+//            cout << feature.ID.toStdString() << " : " << feature.count << endl;
+//        }
+//    }
+
+    for (FeatureCollection featureCollection : informationCenter.xClusterCollections[0]) {
+        cout << "FEATURE COLLECTION: " << featureCollection.ID.toStdString() << endl;
+        for (Feature feature : featureCollection.getFeatures()) {
+            cout << feature.ID.toStdString() << " : " << feature.count << endl;
+        }
+    }
+
+    // Report that the last parsing thread has finished to the main window
+    emit finishedFileParsing();
+
+    cout << "Correlating datasets" << endl;
+    // Correlate the datasets with the given cell type markers in separate threads
+    this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
+    cout << "Finished correlating. Gathering information" << endl;
+
+    // Gather and save the information from the correlation from the different threads
+    this->saveInformationAfterCorrelatingFinished();
+    cout << "Saving correlation data successfull." << endl;
+
+    // Report that the last correlation thread has finished to the main window
+    emit finishedCorrelating();
+
+    cout << "Finished workflow. YEAY." << endl;
+
+#if 0
+    int i = 0;
+    int j = 0;
+    for (QVector<QVector<QPair<QString, double>>> correlatedDataset : informationCenter.clustersWithTissueCorrelations) {
+        std::cout << "DATASET: " << i++ << std::endl;
+        for (QVector<QPair<QString, double>> clusterWithTypeCorrelations : correlatedDataset) {
+            cout << "cluster: " << j++ << endl;
+            for (QPair<QString, double> typeCorrelation : clusterWithTypeCorrelations) {
+                cout << typeCorrelation.first.toStdString() << " - " << typeCorrelation.second << endl;
+            }
+        }
+    }
+#endif
 }
 
 
