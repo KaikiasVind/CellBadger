@@ -34,6 +34,7 @@ public slots:
 signals:
     void filesUploaded(QStringList filePaths);
     void projectFileUploaded(QStringList filePath);
+    void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
 
 private slots:
     __attribute__((noreturn)) void on_buttonExit_clicked();
@@ -48,7 +49,6 @@ private:
     Ui::MainWindow *ui;
     QVector<QThread> workingThreads;
 
-//    void createDatasetItem();
-    void createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
+    void createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations);
 };
 #endif // MAINWINDOW_H

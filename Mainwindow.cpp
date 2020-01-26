@@ -143,7 +143,7 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 #endif
 
 
-void MainWindow::createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation) {
+void MainWindow::createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations) {
 //    // Create new layout
 //    QVBoxLayout * verticalLayout = new QVBoxLayout();
 
@@ -160,6 +160,8 @@ void MainWindow::createDatasetItem(const QString datasetName, const QVector<QVec
 
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
+
+    tabWidget->populateTableTypeCorrelations(correlations, 5);
 }
 
 // ############################################### SLOTS ###############################################
@@ -212,7 +214,8 @@ void MainWindow::on_correlatingFinished(InformationCenter informationCenter) {
 
 //    for (int i = 0; i < correlatedDatasets.length(); i++) {
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-        this->createDatasetItem("Bla" , informationCenter.correlatedDatasets.first());
+        this->createDatasetItem("Dataset", informationCenter.correlatedDatasets[0]);
+//        emit newDatasetTabCreated("Bla", informationCenter.correlatedDatasets.first());
     }
 }
 

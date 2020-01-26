@@ -9,6 +9,8 @@
 #include <QObject>
 
 #include "Mainwindow.h"
+#include "StartDialog.h"
+#include "TabWidget.h"
 #include "Utils/FileOperators/ConfigFileOperator.h"
 #include "Utils/FileOperators/CSVReader.h"
 #include "Utils/Sorter.h"
@@ -18,7 +20,6 @@
 #include "Utils/FileOperators/ConfigFileOperator.h"
 #include "System/Coordinator.h"
 #include "System/InformationCenter.h"
-#include "StartDialog.h"
 
 using namespace ConfigFileOperator;
 using namespace CSVReader;
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
     QApplication application(argc, argv);
     MainWindow mainWindow;
     StartDialog startDialog;
+    TabWidget tabWidget;
 #if gui
     startDialog.show();
 #endif
@@ -105,6 +107,9 @@ int main(int argc, char *argv[])
 
     // Coordinator -> Main Window
     QObject::connect(&coordinator, &Coordinator::finishedCorrelating, &mainWindow, &MainWindow::on_correlatingFinished);
+
+    // Main Window -> Tab Widget
+    QObject::connect(&mainWindow, &MainWindow::newDatasetTabCreated, &tabWidget, &TabWidget::on_newDatasetTabItemCreated);
 
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
