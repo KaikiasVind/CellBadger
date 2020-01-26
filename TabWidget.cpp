@@ -3,6 +3,7 @@
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
+#include "BioModels/FeatureCollection.h"
 
 TabWidget::TabWidget(QWidget *parent) :
     QWidget(parent),
@@ -56,9 +57,9 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
  * @brief TabWidget::populateTableGeneExpressions - Populates the gene expression table with the gene expression counts
  * * @param geneExpressions - list of clusters with corresponding gene expression counts - unsorted.
  */
-void TabWidget::populateTableGeneExpressions(QVector<QVector<QPair<QString, double>>> geneExpressions) {
+void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions) {
     int numberOfClusters = geneExpressions.length();
-    int numberOfGeneIDs = geneExpressions[0].length();
+    int numberOfGeneIDs = geneExpressions[0].getNumberOfFeatures();
 
     this->ui->tableWidgetGeneExpressions->setColumnCount(numberOfClusters);
     this->ui->tableWidgetGeneExpressions->setRowCount(numberOfGeneIDs);
@@ -66,13 +67,13 @@ void TabWidget::populateTableGeneExpressions(QVector<QVector<QPair<QString, doub
     // Create header with cluster numbers
     QStringList clusterNameHeaderItems;
     for (int i = 1; i < numberOfClusters + 1; i++) {
-        clusterNameHeaderItems.append("Cluster" + QString::number(i));
+        clusterNameHeaderItems.append("Cluster " + QString::number(i));
     }
 
     // Create header with cluster numbers
     QStringList geneIDHeaderItems;
     for (int i = 1; i < numberOfGeneIDs; i++) {
-        geneIDHeaderItems.append(geneExpressions[0][i].first);
+        geneIDHeaderItems.append(geneExpressions[0].getFeatureID(i));
     }
 
     // Add it to the table
@@ -80,9 +81,9 @@ void TabWidget::populateTableGeneExpressions(QVector<QVector<QPair<QString, doub
     this->ui->tableWidgetGeneExpressions->setVerticalHeaderLabels(geneIDHeaderItems);
 
     // Go through  every cluster and populate the table with the gene expression counts
-    for (int i = 0; i < geneExpressions.length(); i++) {
-        for (int j = 0; j < geneExpressions[i].length(); j++) {
-            double geneExpressionCount = geneExpressions[i][j].second;
+    for (int i = 0; i < geneExpressions.length() - 1; i++) {
+        for (int j = 0; j < geneExpressions[i].getNumberOfFeatures() - 1; j++) {
+            double geneExpressionCount = geneExpressions[i].getFeatureExpressionCount(j);
 
             QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
             tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);

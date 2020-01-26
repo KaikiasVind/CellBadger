@@ -6,6 +6,8 @@
 #include <QPair>
 #include <QString>
 
+#include "BioModels/FeatureCollection.h"
+
 namespace Ui {
 class TabWidget;
 }
@@ -20,7 +22,7 @@ public:
 
     void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems);
 
-    void populateTableGeneExpressions(QVector<QVector<QPair<QString, double>>> geneExpressions);
+    void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions);
 
 private:
     Ui::TabWidget *ui;

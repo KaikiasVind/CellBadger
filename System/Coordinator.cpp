@@ -52,9 +52,6 @@ void Coordinator::saveInformationAfterParsingFinished() {
 
     // Gather the results from the other finished threads,
     for (int i = 1; i < parsingThreadsWatcher.futures().length(); i++) {
-        // put it together
-//        QVector<FeatureCollection> parsedCollections;
-//        parsedCollections.append(parsingThreadsWatcher.futures()[i].result());
 
         // and report it the the information center
         informationCenter.xClusterCollections.append(parsingThreadsWatcher.futures()[i].result());
