@@ -92,3 +92,31 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
         }
     }
 }
+
+
+/**
+ * @brief TabWidget::on_lineEditGeneID_textEdited - When the line edit text has been edited the corresponding table is filtered according to the line edit content
+ * @param lineEditContent - The string that is currently written in the line edit - Used to filter the table
+ */
+void TabWidget::on_lineEditGeneID_textEdited(const QString & lineEditContent) {
+    // Reset the previously hidden rows
+    for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
+        this->ui->tableWidgetGeneExpressions->setRowHidden(i, false);
+    }
+
+    // Read search string from line edit
+    QString searchString = lineEditContent.toLower();
+
+    // In case the user deleted the search string, just unhide the rows and return
+    if (searchString == " ") {
+        return;
+    }
+
+    // Filter list of gene IDs for search string and hide rows that don't contain it
+    for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount() - 1; i++) {
+        if (!this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(searchString)) {
+            this->ui->tableWidgetGeneExpressions->setRowHidden(i, true);
+        }
+    }
+
+}

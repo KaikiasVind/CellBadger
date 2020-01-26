@@ -24,6 +24,9 @@ public:
 
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions);
 
+private slots:
+    void on_lineEditGeneID_textEdited(const QString &arg1);
+
 private:
     Ui::TabWidget *ui;
 };
