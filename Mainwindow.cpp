@@ -143,25 +143,21 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
 #endif
 
 
+/**
+ * @brief MainWindow::createDatasetItem - Generates a new tab and calls the new tab to populate its table-widgets
+ * @param datasetName - File name of the given dataset
+ * @param correlations - List of clusters with corresponding correlated types
+ */
 void MainWindow::createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations) {
-//    // Create new layout
-//    QVBoxLayout * verticalLayout = new QVBoxLayout();
-
-//    // Create new text label for the title
-//    QLabel * label = new QLabel(datasetName);
-//    label->setAlignment(Qt::AlignCenter);
-
-//    correlation.mid(0, 5);
-
-////    fiveMostCorrelatedTypes.reserve(5);
-////    fiveMostCorrelatedTypes.append(correlation.mid(0, 5));
-
     TabWidget * tabWidget = new TabWidget();
 
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
 
+    // Call the given tab widget to populate its table widgets with the given correlations.
+    // The number stands for the top n most correlated types to be shown in the correlation table widget
     tabWidget->populateTableTypeCorrelations(correlations, 5);
+    tabWidget->populateTableGeneExpressions(correlations);
 }
 
 // ############################################### SLOTS ###############################################
@@ -187,6 +183,7 @@ void MainWindow::on_buttonMinimize_clicked() {
     this->setWindowState(Qt::WindowMinimized);
 }
 
+// REMEMBER: Do I need this function?
 void MainWindow::on_newProjectStarted(QString markerFilePath, QStringList datasetFilePaths) {
     this->show();
 
@@ -212,10 +209,8 @@ void MainWindow::on_clusterFileParsed() {
 void MainWindow::on_correlatingFinished(InformationCenter informationCenter) {
     qDebug() << "Received signal after correlation finished.";
 
-//    for (int i = 0; i < correlatedDatasets.length(); i++) {
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-        this->createDatasetItem("Dataset", informationCenter.correlatedDatasets[0]);
-//        emit newDatasetTabCreated("Bla", informationCenter.correlatedDatasets.first());
+        this->createDatasetItem("Dataset", informationCenter.correlatedDatasets[i]);
     }
 }
 

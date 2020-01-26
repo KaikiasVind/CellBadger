@@ -34,7 +34,6 @@ public slots:
 signals:
     void filesUploaded(QStringList filePaths);
     void projectFileUploaded(QStringList filePath);
-    void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
 
 private slots:
     __attribute__((noreturn)) void on_buttonExit_clicked();

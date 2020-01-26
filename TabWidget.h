@@ -20,8 +20,7 @@ public:
 
     void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems);
 
-public slots:
-    void on_newDatasetTabItemCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
+    void populateTableGeneExpressions(QVector<QVector<QPair<QString, double>>> geneExpressions);
 
 private:
     Ui::TabWidget *ui;

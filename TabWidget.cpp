@@ -16,60 +16,78 @@ TabWidget::~TabWidget()
     delete ui;
 }
 
-
-void TabWidget::on_newDatasetTabItemCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation) {
-    int numberOfRows = correlation.length(), // Number of clusters
-        numberOfColumns = correlation[0].length(); // Number of features used in correlation
-
-    this->ui->tableWidgetTypeCorrelations->setRowCount(numberOfRows);
-    this->ui->tableWidgetTypeCorrelations->setColumnCount(numberOfColumns);
-
-    QStringList horizontalHeaderItems;
-    for (int i = 0; i < numberOfRows; i++) {
-        horizontalHeaderItems.append("Cluster" + QString::number(i));
-        this->ui->tableWidgetTypeCorrelations->insertRow(0);
-    }
-
-    QStringList verticalHeaderItems;
-    for (QPair<QString, double> correlatedFeature : correlation[0]) {
-        verticalHeaderItems.append(correlatedFeature.first);
-        this->ui->tableWidgetTypeCorrelations->insertColumn(0);
-    }
-
-    this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(horizontalHeaderItems);
-    this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(verticalHeaderItems);
-
-    QTableWidgetItem * qTableWidgetItem = new QTableWidgetItem(0);
-    this->ui->tableWidgetTypeCorrelations->setItem(0, 0, qTableWidgetItem);
-
-    this->ui->tableWidgetTypeCorrelations->setSortingEnabled(true);
-}
-
-
+/**
+ * @brief TabWidget::populateTableTypeCorrelations - Populates the table showing the top n correlations for each cluster.
+ * @param correlations - List of clusters with corresponding type corrlations - sorted.
+ * @param numberOfItems - Number of items that should be shown in the table.
+ */
 void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems) {
-    int numberOfClusters = correlations.length(); // Number of clusters
+    int numberOfClusters = correlations.length();
 
     this->ui->tableWidgetTypeCorrelations->setColumnCount(numberOfClusters);
     this->ui->tableWidgetTypeCorrelations->setRowCount(numberOfItems);
 
-    QStringList horizontalHeaderItems;
+    // Create header with cluster numbers
+    QStringList clusterNameHeaderItems;
     for (int i = 1; i < numberOfClusters + 1; i++) {
-        horizontalHeaderItems.append("Cluster" + QString::number(i));
+        clusterNameHeaderItems.append("Cluster " + QString::number(i));
     }
 
-    this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(horizontalHeaderItems);
+    // Add it to the table
+    this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(clusterNameHeaderItems);
 
+    // Go through the top n of every cluster and populate the table with it
     for (int i = 0; i < correlations.length(); i++) {
-        qDebug() << "CLUSTER " << i << ":";
         for (int j = 0; j < numberOfClusters; j++) {
             QPair<QString, double> type = correlations[i][j];
             QString cell = QString::number(type.second) + ": " + type.first;
 
+            // A TableWidgetItem is needed for every cell
             QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
             tableWidgetItem->setData(Qt::DisplayRole, cell);
 
             this->ui->tableWidgetTypeCorrelations->setItem(i, j, tableWidgetItem);
-            qDebug() << correlations[i][j].first << ":" << correlations[i][j].second;
+        }
+    }
+}
+
+
+/**
+ * @brief TabWidget::populateTableGeneExpressions - Populates the gene expression table with the gene expression counts
+ * * @param geneExpressions - list of clusters with corresponding gene expression counts - unsorted.
+ */
+void TabWidget::populateTableGeneExpressions(QVector<QVector<QPair<QString, double>>> geneExpressions) {
+    int numberOfClusters = geneExpressions.length();
+    int numberOfGeneIDs = geneExpressions[0].length();
+
+    this->ui->tableWidgetGeneExpressions->setColumnCount(numberOfClusters);
+    this->ui->tableWidgetGeneExpressions->setRowCount(numberOfGeneIDs);
+
+    // Create header with cluster numbers
+    QStringList clusterNameHeaderItems;
+    for (int i = 1; i < numberOfClusters + 1; i++) {
+        clusterNameHeaderItems.append("Cluster" + QString::number(i));
+    }
+
+    // Create header with cluster numbers
+    QStringList geneIDHeaderItems;
+    for (int i = 1; i < numberOfGeneIDs; i++) {
+        geneIDHeaderItems.append(geneExpressions[0][i].first);
+    }
+
+    // Add it to the table
+    this->ui->tableWidgetGeneExpressions->setHorizontalHeaderLabels(clusterNameHeaderItems);
+    this->ui->tableWidgetGeneExpressions->setVerticalHeaderLabels(geneIDHeaderItems);
+
+    // Go through  every cluster and populate the table with the gene expression counts
+    for (int i = 0; i < geneExpressions.length(); i++) {
+        for (int j = 0; j < geneExpressions[i].length(); j++) {
+            double geneExpressionCount = geneExpressions[i][j].second;
+
+            QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
+            tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);
+
+            this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
         }
     }
 }

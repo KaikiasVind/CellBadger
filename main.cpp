@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     QObject::connect(&coordinator, &Coordinator::finishedCorrelating, &mainWindow, &MainWindow::on_correlatingFinished);
 
     // Main Window -> Tab Widget
-    QObject::connect(&mainWindow, &MainWindow::newDatasetTabCreated, &tabWidget, &TabWidget::on_newDatasetTabItemCreated);
+//    QObject::connect(&mainWindow, &MainWindow::newDatasetTabCreated, &tabWidget, &TabWidget::on_newDatasetTabItemCreated);
 
     // +++++++++++++++++++++++++++++++ BUILD SIGNAL AND SLOT LOGIC +++++++++++++++++++++++++++++++
 
