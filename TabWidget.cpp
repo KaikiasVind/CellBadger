@@ -50,6 +50,9 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
             this->ui->tableWidgetTypeCorrelations->setItem(i, j, tableWidgetItem);
         }
     }
+
+    this->ui->tableWidgetGeneExpressions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 
@@ -72,7 +75,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 
     // Create header with cluster numbers
     QStringList geneIDHeaderItems;
-    for (int i = 1; i < numberOfGeneIDs; i++) {
+    for (int i = 0; i < numberOfGeneIDs; i++) {
         geneIDHeaderItems.append(geneExpressions[0].getFeatureID(i));
     }
 
@@ -113,7 +116,7 @@ void TabWidget::on_lineEditGeneID_textEdited(const QString & lineEditContent) {
     }
 
     // Filter list of gene IDs for search string and hide rows that don't contain it
-    for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount() - 1; i++) {
+    for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
         if (!this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(searchString)) {
             this->ui->tableWidgetGeneExpressions->setRowHidden(i, true);
         }
