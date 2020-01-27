@@ -104,4 +104,17 @@ ConfigFile initializeConfigFile() {
     return configFile;
 }
 
+
+/**
+ * @brief isFilesExist - Goes through every given file and returns whether all files exist on the filesystem
+ * @param filePaths - List of directory paths for the corresponding files
+ * @return - One of true or false. True if EVERY file exists, false if at least one file does not exist.
+ */
+bool isFileExists(QString filePath) {
+    if (!QFile::exists(filePath)) {
+        return false;
+    }
+    return true;
+}
+
 }

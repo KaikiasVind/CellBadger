@@ -20,6 +20,8 @@ public:
     explicit StartDialog(QWidget *parent = nullptr);
     ~StartDialog();
 
+    void disableUseDefaultButton();
+
 signals:
     void projectFileUploaded(QStringList fileNames);
     void runNewProject(QString markerFilePath, QStringList datasetFileNames);

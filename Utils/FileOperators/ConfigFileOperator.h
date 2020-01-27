@@ -13,6 +13,7 @@ namespace ConfigFileOperator
     extern ConfigFile initializeConfigFile();
 
     extern bool isConfigFileExists(QString configFilePath);
+    extern bool isFileExists(QString filePaths);
 };
 
 #endif // CONFIGFILEOPERATOR_H

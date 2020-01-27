@@ -74,6 +74,13 @@ void StartDialog::enableRunButtonIfReady() {
     }
 }
 
+/**
+ * @brief StartDialog::disableUseDefaultButton - Disables the default button (in case no valid default file was found)
+ */
+void StartDialog::disableUseDefaultButton() {
+    this->ui->checkBoxUseDefault->setDisabled(true);
+}
+
 // ++++++++++++++++++++++++++++++++ SLOTS ++++++++++++++++++++++++++++++++
 // STACKED WIDGET PAGE ONE
 /**

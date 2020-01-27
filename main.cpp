@@ -78,6 +78,12 @@ int main(int argc, char *argv[])
         qDebug() << "Found config file:" << configFilePath;
         configFile = ConfigFileOperator::readConfigFile(configFilePath);
         qDebug() << "Found marker file:" << configFile.cellMarkersFilePath;
+        bool isDefaultMarkerFileExists = ConfigFileOperator::isFileExists(configFile.cellMarkersFilePath);
+
+        if (!isDefaultMarkerFileExists) {
+            startDialog.disableUseDefaultButton();
+        }
+
     } else {
         qDebug() << "No config file found.";
         ConfigFileOperator::createConfigFile(configFilePath);
