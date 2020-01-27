@@ -24,12 +24,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    // Remove default window frame
-    //REMEMBER: Which one is better for windows?
-    this->setWindowFlags(Qt::FramelessWindowHint);
-//    this->setWindowFlags(Qt::CustomizeWindowHint);
 
-//    ui->plotWidget->setVisible(false);
+    // Remove default window frame
+    this->setWindowFlags(Qt::FramelessWindowHint);
+
+    // Set default maximized state
+    this->setWindowState(Qt::WindowMaximized);
+
+    // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
 }
 
@@ -99,7 +101,8 @@ void MainWindow::plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorr
     colorMap->rescaleDataRange(true);
     colorMap->setInterpolate(false);
     colorMap->setAntialiased(false);
-//    colorMap->setAntialiasedFill(true);
+mi
+        /    colorMap->setAntialiasedFill(true);
 //    colorMap->setAntialiasedScatters(false);
     ui->plotWidget->rescaleAxes();
     ui->plotWidget->replot();
@@ -175,7 +178,12 @@ __attribute__((noreturn)) void MainWindow::on_buttonExit_clicked() {
  * @brief MainWindow::on_buttonMaximize_clicked - Minimises the main window
  */
 void MainWindow::on_buttonMaximize_clicked() {
-    this->setWindowState(Qt::WindowMaximized);
+    // Allow maximize and unmaximize
+    if (this->windowState() == Qt::WindowMaximized) {
+        this->setWindowState(Qt::WindowNoState);
+    } else {
+        this->setWindowState(Qt::WindowMaximized);
+    }
 }
 
 /**
