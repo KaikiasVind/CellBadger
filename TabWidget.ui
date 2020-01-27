@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>386</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,11 +68,11 @@
      <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
-     <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>25</number>
-     </attribute>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>100</number>
+     </attribute>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>25</number>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
@@ -115,7 +115,13 @@
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
      <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="dragDropOverwriteMode">
       <bool>false</bool>
      </property>
      <property name="alternatingRowColors">
