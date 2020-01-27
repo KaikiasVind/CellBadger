@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QHash>
+#include <QMouseEvent>
 
 namespace Ui {
 class StartDialog;
@@ -59,6 +60,12 @@ private:
     void removeDataSetFromLayout(QString name);
 
     void enableRunButtonIfReady();
+
+    // Mouse interaction - Necessary for frameless windows
+    void mousePressEvent(QMouseEvent * mousePressEvent);
+    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
+    int mouseClickXCoordinate;
+    int mouseClickYCoordinate;
 };
 
 #endif // STARTDIALOG_H

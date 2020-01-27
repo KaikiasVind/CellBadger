@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QPair>
 #include <QString>
+#include <QMouseEvent>
 
 #include "StartDialog.h"
 #include "System/InformationCenter.h"
@@ -51,5 +52,11 @@ private:
     QVector<QThread> workingThreads;
 
     void createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations, QVector<FeatureCollection> geneExpressions);
+
+    // Mouse interaction - Necessary for frameless windows
+    void mousePressEvent(QMouseEvent * mousePressEvent);
+    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
+    int mouseClickXCoordinate;
+    int mouseClickYCoordinate;
 };
 #endif // MAINWINDOW_H

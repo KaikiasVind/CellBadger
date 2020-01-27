@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QObject>
 #include <QAction>
+#include <QMouseEvent>
 
 #include "Utils/Helper.h"
 
@@ -25,6 +26,7 @@ StartDialog::StartDialog(QWidget *parent) :
     ui(new Ui::StartDialog)
 {
     ui->setupUi(this);
+    this->setWindowFlags(Qt::FramelessWindowHint);
     ui->stackedWidget->setCurrentIndex(0);
     ui->buttonRun->setDisabled(true);
 }
@@ -216,3 +218,14 @@ void StartDialog::on_buttonRun_clicked() {
 }
 
 // ++++++++++++++++++++++++++++++++ SLOTS ++++++++++++++++++++++++++++++++
+
+
+// ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
+void StartDialog::mousePressEvent(QMouseEvent * mousePressEvent) {
+this->mouseClickXCoordinate = mousePressEvent->x();
+this->mouseClickYCoordinate = mousePressEvent->y();
+}
+
+void StartDialog::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
+this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
+}

@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QListView>
 #include <QTableWidget>
+#include <QMouseEvent>
 
 #include "StartDialog.h"
 #include "TabWidget.h"
@@ -220,4 +221,15 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index)
     if (index == this->ui->tabWidgetDatasets->count() - 1) {
         qDebug() << "Trigger upload new dataset";
     }
+}
+
+
+// ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
+void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
+    this->mouseClickXCoordinate = mousePressEvent->x();
+    this->mouseClickYCoordinate = mousePressEvent->y();
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
+    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
 }
