@@ -1,5 +1,6 @@
 #include <QTableWidgetItem>
 #include <QDebug>
+#include <QString>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
@@ -47,11 +48,10 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
             QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
             tableWidgetItem->setData(Qt::DisplayRole, cell);
 
-            this->ui->tableWidgetTypeCorrelations->setItem(i, j, tableWidgetItem);
+            this->ui->tableWidgetTypeCorrelations->setItem(j, i, tableWidgetItem);
         }
     }
 
-    this->ui->tableWidgetGeneExpressions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
@@ -84,16 +84,18 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->ui->tableWidgetGeneExpressions->setVerticalHeaderLabels(geneIDHeaderItems);
 
     // Go through  every cluster and populate the table with the gene expression counts
-    for (int i = 0; i < geneExpressions.length() - 1; i++) {
-        for (int j = 0; j < geneExpressions[i].getNumberOfFeatures() - 1; j++) {
+    for (int i = 0; i < geneExpressions.length(); i++) {
+        for (int j = 0; j < geneExpressions[i].getNumberOfFeatures(); j++) {
             double geneExpressionCount = geneExpressions[i].getFeatureExpressionCount(j);
 
             QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
             tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);
 
-            this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
+            this->ui->tableWidgetGeneExpressions->setItem(j, i, tableWidgetItem);
         }
     }
+
+    this->ui->tableWidgetGeneExpressions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 

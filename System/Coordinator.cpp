@@ -154,6 +154,8 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
     emit finishedCorrelating(this->informationCenter);
 
     qDebug() << "Finished workflow. YEAY." << endl;
+
+    this->printResults();
 }
 
 
