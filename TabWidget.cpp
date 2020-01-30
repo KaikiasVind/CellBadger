@@ -112,7 +112,7 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
     }
 
     // Read search string from line edit
-    QString searchString = lineEditContent.toLower();
+    QString searchString = lineEditContent.toUpper();
 
     // In case the user deleted the search string, just unhide the rows and return
     if (searchString == " ") {
@@ -125,7 +125,7 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
         bool isContainsAtLeastOneSearchString = false;
         for (QString string : searchStrings) {
-            if (this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(string)) {
+            if (this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toUpper().contains(string)) {
                 isContainsAtLeastOneSearchString = true;
             }
         }
@@ -143,13 +143,13 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
  */
 void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column) {
     QString currentLineEditText = this->ui->lineEditGeneID->text(),
-            headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(row)->text().toLower(),
+            headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(row)->text().toUpper(),
             newLineEditText;
 
     QStringList currentGeneIDs = currentLineEditText.split(",");
 
     for (int i = 0; i < currentGeneIDs.length(); i++) {
-        QString geneID = currentGeneIDs[i].toLower();
+        QString geneID = currentGeneIDs[i].toUpper();
 
         // If the user clicks on an item that is already selected, return to prevent doubled items
         if (geneID == headerItemForSelectedRow) {
