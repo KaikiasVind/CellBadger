@@ -121,10 +121,6 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
 
     QStringList searchStrings = searchString.split(",");
 
-    for (QString string : searchStrings) {
-        std::cout << string.toStdString() << std::endl;
-    }
-
     // Filter list of gene IDs for search string and hide rows that don't contain it
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
         bool isContainsAtLeastOneSearchString = false;
@@ -152,7 +148,6 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
 
     QStringList currentGeneIDs = currentLineEditText.split(",");
 
-
     for (int i = 0; i < currentGeneIDs.length(); i++) {
         QString geneID = currentGeneIDs[i].toLower();
 
@@ -177,11 +172,12 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
     // If neither duplicates were found nor autocomplete could be done just add the item
     newLineEditText = currentLineEditText;
 
+    // Remove lasst space to avoid confusion with table - line edit comparisons
     if (currentLineEditText.endsWith(" ")) {
-        newLineEditText .chop(1);
+        newLineEditText.chop(1);
     }
 
-    newLineEditText  += headerItemForSelectedRow + ",";
+    newLineEditText += headerItemForSelectedRow + ",";
 
     this->ui->lineEditGeneID->setText(newLineEditText);
 }
