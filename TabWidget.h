@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QPair>
 #include <QString>
+#include <QTableWidgetItem>
 
 #include "BioModels/FeatureCollection.h"
 
@@ -25,7 +26,9 @@ public:
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions);
 
 private slots:
-    void on_lineEditGeneID_textEdited(const QString &arg1);
+    void on_lineEditGeneID_textChanged(const QString &arg1);
+
+    void on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column);
 
 private:
     Ui::TabWidget *ui;
