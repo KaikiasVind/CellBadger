@@ -99,11 +99,13 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 }
 
 
+#include <iostream>
+
 /**
  * @brief TabWidget::on_lineEditGeneID_textEdited - When the line edit text has been edited the corresponding table is filtered according to the line edit content
  * @param lineEditContent - The string that is currently written in the line edit - Used to filter the table
  */
-void TabWidget::on_lineEditGeneID_textEdited(const QString & lineEditContent) {
+void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
     // Reset the previously hidden rows
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
         this->ui->tableWidgetGeneExpressions->setRowHidden(i, false);
@@ -117,11 +119,70 @@ void TabWidget::on_lineEditGeneID_textEdited(const QString & lineEditContent) {
         return;
     }
 
+    QStringList searchStrings = searchString.split(",");
+
+    for (QString string : searchStrings) {
+        std::cout << string.toStdString() << std::endl;
+    }
+
     // Filter list of gene IDs for search string and hide rows that don't contain it
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
-        if (!this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(searchString)) {
+        bool isContainsAtLeastOneSearchString = false;
+        for (QString string : searchStrings) {
+            if (this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(string)) {
+                isContainsAtLeastOneSearchString = true;
+            }
+        }
+        if (!isContainsAtLeastOneSearchString) {
             this->ui->tableWidgetGeneExpressions->setRowHidden(i, true);
         }
     }
 
+}
+
+
+/**
+ * @brief TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked - Adds the gene ID (header item) for the clicked item to the list of selected IDs - handles duplicates and autocomplete
+ * @param row - Index of row that was clicked - used to get the corresponding header item (gene ID)
+ * @param column - Unused
+ */
+void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column) {
+    QString currentLineEditText = this->ui->lineEditGeneID->text(),
+            headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(row)->text().toLower(),
+            newLineEditText;
+
+    QStringList currentGeneIDs = currentLineEditText.split(",");
+
+
+    for (int i = 0; i < currentGeneIDs.length(); i++) {
+        QString geneID = currentGeneIDs[i].toLower();
+
+        // If the user clicks on an item that is already selected, return to prevent doubled items
+        if (geneID == headerItemForSelectedRow) {
+            qDebug() << "Duplicate item";
+            return;
+        }
+
+        // If the user clicks on an item that he / she was beginning to type beforehand,
+        // exchange the typed ID with the clicked ID to prevent doubled entries -> Autocomplete
+        if (headerItemForSelectedRow.contains(geneID)) {
+            qDebug() << "Found started item:" << geneID;
+            currentGeneIDs.removeAt(i);
+            currentGeneIDs.insert(i, headerItemForSelectedRow);
+            newLineEditText = currentGeneIDs.join(",").append(",");
+            this->ui->lineEditGeneID->setText(newLineEditText);
+            return;
+        }
+    }
+
+    // If neither duplicates were found nor autocomplete could be done just add the item
+    newLineEditText = currentLineEditText;
+
+    if (currentLineEditText.endsWith(" ")) {
+        newLineEditText .chop(1);
+    }
+
+    newLineEditText  += headerItemForSelectedRow + ",";
+
+    this->ui->lineEditGeneID->setText(newLineEditText);
 }
