@@ -119,7 +119,7 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
         return;
     }
 
-    QStringList searchStrings = searchString.split(", ");
+    QStringList searchStrings = searchString.split(",");
 
     for (QString string : searchStrings) {
         std::cout << string.toStdString() << std::endl;
@@ -141,21 +141,47 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
 }
 
 /**
- * @brief TabWidget::on_tableWidgetGeneExpressions_itemDoubleClicked
- * @param item
+ * @brief TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked - Adds the gene ID (header item) for the clicked item to the list of selected IDs - handles duplicates and autocomplete
+ * @param row - Index of row that was clicked - used to get the corresponding header item (gene ID)
+ * @param column - Unused
  */
-void TabWidget::on_tableWidgetGeneExpressions_itemDoubleClicked(QTableWidgetItem * item) {
-    QString currentLineEditText = this->ui->lineEditGeneID->text();
-    int rowNumberForSelectedItem = this->ui->tableWidgetGeneExpressions->row(item);
-    QString headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(rowNumberForSelectedItem)->text();
+void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column) {
+    QString currentLineEditText = this->ui->lineEditGeneID->text(),
+            headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(row)->text().toLower(),
+            newLineEditText;
 
-    QString newItem = currentLineEditText;
+    QStringList currentGeneIDs = currentLineEditText.split(",");
 
-    if (currentLineEditText.endsWith(" ")) {
-        newItem.chop(1);
+
+    for (int i = 0; i < currentGeneIDs.length(); i++) {
+        QString geneID = currentGeneIDs[i].toLower();
+
+        // If the user clicks on an item that is already selected, return to prevent doubled items
+        if (geneID == headerItemForSelectedRow) {
+            qDebug() << "Duplicate item";
+            return;
+        }
+
+        // If the user clicks on an item that he / she was beginning to type beforehand,
+        // exchange the typed ID with the clicked ID to prevent doubled entries -> Autocomplete
+        if (headerItemForSelectedRow.contains(geneID)) {
+            qDebug() << "Found started item:" << geneID;
+            currentGeneIDs.removeAt(i);
+            currentGeneIDs.append(headerItemForSelectedRow);
+            newLineEditText = currentGeneIDs.join(",").append(",");
+            this->ui->lineEditGeneID->setText(newLineEditText);
+            return;
+        }
     }
 
-    newItem = newItem + headerItemForSelectedRow + ", ";
+    // If neither duplicates were found nor autocomplete could be done just add the item
+    newLineEditText = currentLineEditText;
 
-    this->ui->lineEditGeneID->setText(newItem);
+    if (currentLineEditText.endsWith(" ")) {
+        newLineEditText .chop(1);
+    }
+
+    newLineEditText  += headerItemForSelectedRow + ",";
+
+    this->ui->lineEditGeneID->setText(newLineEditText);
 }

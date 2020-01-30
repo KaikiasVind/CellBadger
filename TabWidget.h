@@ -28,8 +28,7 @@ public:
 private slots:
     void on_lineEditGeneID_textChanged(const QString &arg1);
 
-    void on_tableWidgetGeneExpressions_itemDoubleClicked(QTableWidgetItem *item);
-
+    void on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column);
 
 private:
     Ui::TabWidget *ui;
