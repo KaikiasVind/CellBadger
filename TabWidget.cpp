@@ -99,11 +99,13 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 }
 
 
+#include <iostream>
+
 /**
  * @brief TabWidget::on_lineEditGeneID_textEdited - When the line edit text has been edited the corresponding table is filtered according to the line edit content
  * @param lineEditContent - The string that is currently written in the line edit - Used to filter the table
  */
-void TabWidget::on_lineEditGeneID_textEdited(const QString & lineEditContent) {
+void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
     // Reset the previously hidden rows
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
         this->ui->tableWidgetGeneExpressions->setRowHidden(i, false);
@@ -117,11 +119,43 @@ void TabWidget::on_lineEditGeneID_textEdited(const QString & lineEditContent) {
         return;
     }
 
+    QStringList searchStrings = searchString.split(", ");
+
+    for (QString string : searchStrings) {
+        std::cout << string.toStdString() << std::endl;
+    }
+
     // Filter list of gene IDs for search string and hide rows that don't contain it
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
-        if (!this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(searchString)) {
+        bool isContainsAtLeastOneSearchString = false;
+        for (QString string : searchStrings) {
+            if (this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(string)) {
+                isContainsAtLeastOneSearchString = true;
+            }
+        }
+        if (!isContainsAtLeastOneSearchString) {
             this->ui->tableWidgetGeneExpressions->setRowHidden(i, true);
         }
     }
 
+}
+
+/**
+ * @brief TabWidget::on_tableWidgetGeneExpressions_itemDoubleClicked
+ * @param item
+ */
+void TabWidget::on_tableWidgetGeneExpressions_itemDoubleClicked(QTableWidgetItem * item) {
+    QString currentLineEditText = this->ui->lineEditGeneID->text();
+    int rowNumberForSelectedItem = this->ui->tableWidgetGeneExpressions->row(item);
+    QString headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(rowNumberForSelectedItem)->text();
+
+    QString newItem = currentLineEditText;
+
+    if (currentLineEditText.endsWith(" ")) {
+        newItem.chop(1);
+    }
+
+    newItem = newItem + headerItemForSelectedRow + ", ";
+
+    this->ui->lineEditGeneID->setText(newItem);
 }
