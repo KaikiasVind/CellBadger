@@ -7,6 +7,7 @@
 #include <QString>
 #include <QTableWidgetItem>
 #include <QStringList>
+#include <QObject>
 
 #include "BioModels/FeatureCollection.h"
 
