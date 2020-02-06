@@ -20,8 +20,8 @@ Accepted format for CSV marker files with delimiter "," :
 
 ---
 ## Known bugs
-- Currently only works on Cell Ranger 3.0.2 - 5k_Pbmc dataset
-- Table for cluster-wise gene epxression doesn't show the relative gene expression IDs but generalized ones -> Incorrect mapping
+- Currently only positively tested on the Cell Ranger 3.0.2 - 5k_Pbmc dataset with the [GTeX_Analysis marker file](https://gtexportal.org/home/datasets). 
+- Other datasets like Cell Ranger 3.0.2 - 5k_Neuron don't work with the marker file provided by GTex because the marker file doesn't seem to cover any markers present in the Neuron dataset.
 - The correlation method used so far doesn't seem to be sufficient enough to produce valid output. (e.g. mapping to obviously wrong tissues with low affinity)
 
 ---
