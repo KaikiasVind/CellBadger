@@ -29,6 +29,7 @@ Gene name | Gene ID | Cell / tissue-type | Cell / tissue-type |  ..  |
 - Refinement of the correlation method (e.g. with prioritization of markers with [PanglaoDB](https://panglaodb.se/markers.html?cell_type=%27all_cells%27) and usage of other base cell-marker data specialized for expected tissues)
 - Generalization of marker file input
 - Reanalyzation with user-given values (e.g. different correlation method, different cutoffs for gene expressions, different marker file, ...)
+- Sorting of the gene expression table
 
 #### Default software-workflow features
 - Uploading of new datasets / cell-marker files after initial software startup
