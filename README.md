@@ -18,11 +18,11 @@ Gene name | Gene ID | Cell / tissue-type | Cell / tissue-type |  ..  |
 | GENE NAME | GENE ID | Gene expression count | Gene expression count |  ..  |
 |    ..   |    ..   |          ..           |          ..           |  ..  |
 
----
 ## Known bugs
 - The correlation method used so far doesn't seem to be sufficient enough to produce valid output, e.g. mapping to obviously wrong tissues with low affinity.
+- Somewhat slow runtime. The algorithms used for correlation and for populating the tables are not efficient and therefore create computational bottlenecks.
+- Loading time: ~3s / given dataset
 
----
 ## Planned Features
 #### Major features
 - "Analysis tab" that shows the comparison between different datasets.
@@ -35,6 +35,5 @@ Gene name | Gene ID | Cell / tissue-type | Cell / tissue-type |  ..  |
 - Implementing a project file that can be used to save and load the current project
 - Exporting of certain data (e.g. selected gene expressions in certain clusters)
 
----
 ## Project structure
 - An illustration that explains the basic code structure will be provided later on
