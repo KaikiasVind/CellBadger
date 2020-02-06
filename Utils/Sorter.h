@@ -11,10 +11,8 @@
  */
 namespace Sorter
 {
-//    extern void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods);
     extern void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods);
 
-//    extern void rankFeaturesByExpression(FeatureCollection& featureCollection);
     extern FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection);
 
     template <typename T, typename R, typename Compare>

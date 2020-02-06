@@ -54,7 +54,7 @@ QPushButton * StartDialog::createPushButton() {
  * @brief StartDialog::addDatasetToLayout
  * @param name
  */
-void StartDialog::addDatasetToLayout(QString filePath) {
+void StartDialog::addDatasetToLayout(const QString filePath) {
     QString fileName = chopFileName(filePath);
     QListWidgetItem * item = new QListWidgetItem(fileName);
     ui->listDatasets->addItem(item);
@@ -110,7 +110,6 @@ void StartDialog::on_buttonLoadProject_clicked() {
         return;
 
     qDebug() << "Sent project file name.";
-    emit projectFileUploaded(fileNames);
 }
 
 

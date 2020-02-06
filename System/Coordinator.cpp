@@ -48,13 +48,25 @@ void Coordinator::saveInformationAfterParsingFinished() {
     qDebug() << "Finished parsing.";
 
     // The first thread has been reserved for the marker file -> Report the result to the information center
-    informationCenter.cellMarkersForTypes = parsingThreadsWatcher.futures()[0].result();
+    this->informationCenter.cellMarkersForTypes = parsingThreadsWatcher.futures()[0].result();
+
+    // Get the first marker-FeatureCollection that is only used to store the IDs for genes expressed by at least one cluster
+    FeatureCollection completeSetOfGeneIDs = this->informationCenter.cellMarkersForTypes.first();
+    this->informationCenter.completeSetOfGeneIDs.reserve(completeSetOfGeneIDs.getNumberOfFeatures());
+
+    // Gather all gene IDs from the FeatureCollection and report them to the information center
+    for (Feature feature : completeSetOfGeneIDs.getFeatures()) {
+        this->informationCenter.completeSetOfGeneIDs.append(feature.ID);
+    }
+
+    // Removing of the marker-FeatureCollection leaves only the "real" FeatureCollections parsed from the files
+    this->informationCenter.cellMarkersForTypes.removeFirst();
 
     // Gather the results from the other finished threads,
-    for (int i = 1; i < parsingThreadsWatcher.futures().length(); i++) {
+    for (int i = 1; i < this->parsingThreadsWatcher.futures().length(); i++) {
 
         // and report it the the information center
-        informationCenter.xClusterCollections.append(parsingThreadsWatcher.futures()[i].result());
+        this->informationCenter.xClusterCollections.append(this->parsingThreadsWatcher.futures()[i].result());
     }
 }
 
@@ -86,16 +98,17 @@ void Coordinator::saveInformationAfterCorrelatingFinished() {
     }
 }
 
+
 void Coordinator::printResults() {
     int i = 0;
     int j = 0;
     for (QVector<QVector<QPair<QString, double>>> correlatedDataset : informationCenter.correlatedDatasets) {
-        qDebug() << "\n########################### DATASET:" << i++ << "###########################\n";
+        cout << "\n########################### DATASET:" << i++ << "###########################\n";
         j = 0;
         for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : correlatedDataset) {
-            qDebug() << "\nCLUSTER:" << j++ << "\n";
+            cout << "\nCLUSTER:" << j++ << "\n";
             for (QPair<QString, double> correlation : clusterWithTissueCorrelations) {
-                qDebug() << correlation.first << ":" << correlation.second;
+                cout << correlation.first.toStdString() << ":" << correlation.second << endl;
             }
         }
     }
@@ -108,17 +121,20 @@ void Coordinator::printResults() {
  * @param datasetFilePaths - List of file-paths that have been uploaded
  * @param cellMarkerFilePath - One of: File path to cell marker file OR "nAn" if none was given
  */
-void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList datasetFilePaths) {
+void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const QStringList datasetFilePaths) {
+    // Add file-paths of newly uploaded datasets to file-path list
+    this->informationCenter.datasetFilePaths = datasetFilePaths;
+
+    // REMEMBER: Find another way to do this -> Maybe another typename and type deduction?
+    QStringList cellMarkerFilePaths;
+    cellMarkerFilePaths.reserve(1);
 
     // If no cell marker file was uploaded, use the default one
     if (cellMarkerFilePath == "nAn") { //REMEMBER: Is that really a nice thing to do?
-        cellMarkerFilePath = informationCenter.configFile.cellMarkersFilePath;
+        cellMarkerFilePaths.append(informationCenter.configFile.cellMarkersFilePath);
+    } else {
+        cellMarkerFilePaths.append(cellMarkerFilePath);
     }
-
-    // REMEMBER: Find another way to do this -> Another typename and type deduction?
-    QStringList cellMarkerFilePaths;
-    cellMarkerFilePaths.reserve(1);
-    cellMarkerFilePaths.append(cellMarkerFilePath);
 
     qDebug() << "Parsing:" << cellMarkerFilePaths.first();
     // Parse the cell marker file in separate thread
@@ -154,8 +170,6 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
     emit finishedCorrelating(this->informationCenter);
 
     qDebug() << "Finished workflow. YEAY." << endl;
-
-    this->printResults();
 }
 
 
@@ -164,7 +178,7 @@ void Coordinator::on_newProjectStarted(QString cellMarkerFilePath, QStringList d
  * @brief Coordinator::on_filesUploaded
  * @param filePaths
  */
-void Coordinator::on_filesUploaded(QStringList filePaths) {
+void Coordinator::on_filesUploaded(const QStringList filePaths) {
     qDebug() << "on_filesUploaded: received" << filePaths;
     //REMEMBER: How to handle the cutoff here -> Should the user be able to change the value beforehand?
     // Parse the cluster file with default cutoff
@@ -178,6 +192,6 @@ void Coordinator::on_filesUploaded(QStringList filePaths) {
  * @brief Coordinator::on_projectFileUploaded
  * @param filePath
  */
-void Coordinator::on_projectFileUploaded(QStringList filePath) {
+void Coordinator::on_projectFileUploaded(const QStringList filePath) {
     qDebug() << "on_projectFileUploaded: received" << filePath;
 }

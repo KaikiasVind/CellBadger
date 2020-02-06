@@ -7,6 +7,7 @@
 #include <QPair>
 #include <QString>
 #include <QMouseEvent>
+#include <QStringList>
 
 #include "StartDialog.h"
 #include "System/InformationCenter.h"
@@ -24,18 +25,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-//    void plotHeatMap(QVector<QVector<QPair<QString, double>>> tissueCorrelations);
-//    void plotHeatMap();
-
 public slots:
-    void on_newProjectStarted(QString markerFilePath, QStringList datasetFilePaths);
     void on_clusterFileParsed();
-//    void on_correlatingFinished(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
-    void on_correlatingFinished(InformationCenter informationCenter);
+    void on_correlatingFinished(const InformationCenter informationCenter);
 
 signals:
-    void filesUploaded(QStringList filePaths);
-    void projectFileUploaded(QStringList filePath);
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
 
 private slots:
@@ -51,7 +45,8 @@ private:
     Ui::MainWindow *ui;
     QVector<QThread> workingThreads;
 
-    void createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations, QVector<FeatureCollection> geneExpressions);
+    void createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlations,
+                           const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);
 
     // Mouse interaction - Necessary for frameless windows
     void mousePressEvent(QMouseEvent * mousePressEvent);

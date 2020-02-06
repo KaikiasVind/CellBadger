@@ -156,11 +156,6 @@
           <string>Tab 1</string>
          </attribute>
         </widget>
-        <widget class="QWidget" name="tabAddDataset">
-         <attribute name="title">
-          <string>+</string>
-         </attribute>
-        </widget>
        </widget>
       </item>
      </layout>

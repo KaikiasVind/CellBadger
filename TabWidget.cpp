@@ -1,6 +1,7 @@
 #include <QTableWidgetItem>
 #include <QDebug>
 #include <QString>
+#include <QStringList>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
@@ -60,10 +61,11 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
  * @brief TabWidget::populateTableGeneExpressions - Populates the gene expression table with the gene expression counts
  * * @param geneExpressions - list of clusters with corresponding gene expression counts - unsorted.
  */
-void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions) {
+void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs) {
     int numberOfClusters = geneExpressions.length();
-    int numberOfGeneIDs = geneExpressions[0].getNumberOfFeatures();
+    int numberOfGeneIDs = completeGeneIDs.length();
 
+    // Resize the table according to the given number of clusters and gene IDs
     this->ui->tableWidgetGeneExpressions->setColumnCount(numberOfClusters);
     this->ui->tableWidgetGeneExpressions->setRowCount(numberOfGeneIDs);
 
@@ -73,25 +75,44 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
         clusterNameHeaderItems.append("Cluster " + QString::number(i));
     }
 
-    // Create header with cluster numbers
-    QStringList geneIDHeaderItems;
-    for (int i = 0; i < numberOfGeneIDs; i++) {
-        geneIDHeaderItems.append(geneExpressions[0].getFeatureID(i));
-    }
-
-    // Add it to the table
+    // Add the headers to the table
     this->ui->tableWidgetGeneExpressions->setHorizontalHeaderLabels(clusterNameHeaderItems);
-    this->ui->tableWidgetGeneExpressions->setVerticalHeaderLabels(geneIDHeaderItems);
+    this->ui->tableWidgetGeneExpressions->setVerticalHeaderLabels(completeGeneIDs);
 
-    // Go through  every cluster and populate the table with the gene expression counts
-    for (int i = 0; i < geneExpressions.length(); i++) {
-        for (int j = 0; j < geneExpressions[i].getNumberOfFeatures(); j++) {
-            double geneExpressionCount = geneExpressions[i].getFeatureExpressionCount(j);
+    // Go through the list of all gathered gene IDs
+    // REMEMBER: UAGH 3 for loops
+    for (int i = 0; i < numberOfGeneIDs; i++) {
+        QString currentHeaderGeneID = completeGeneIDs[i];
 
-            QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
-            tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);
+        // And go through every cluster and check whether the gene is expressed or not
+        for (int j = 0; j < numberOfClusters; j++) {
+            bool isGeneExpressed = false;
 
-            this->ui->tableWidgetGeneExpressions->setItem(j, i, tableWidgetItem);
+            // Search for the current gene ID in the cluster -> Only contains IDs of expressed genes
+            for (int k = 0; k < geneExpressions[j].getNumberOfFeatures(); k++) {
+                QString currentClusterGeneID = geneExpressions[j].getFeature(k).ID;
+                bool isSameString = currentHeaderGeneID.compare(currentClusterGeneID) == 0;
+
+                // If the ID has been found (which means it is expressed in the cluster)
+                if (isSameString) {
+                    isGeneExpressed = true;
+                    double geneExpressionCount = geneExpressions[j].getFeatureExpressionCount(k);
+
+                    // Add a new TableWidgetItem to the corresponding cell containing the gene expression count
+                    QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
+                    tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);
+
+                    this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
+                }
+            }
+
+            // If the gene is not found (which means its not expressed in the cluster), add a placeholder to the cell
+            if (!isGeneExpressed) {
+                QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
+                tableWidgetItem->setData(Qt::DisplayRole, "< 1");
+
+                this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
+            }
         }
     }
 

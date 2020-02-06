@@ -6,6 +6,7 @@
 #include <QPair>
 #include <QString>
 #include <QTableWidgetItem>
+#include <QStringList>
 
 #include "BioModels/FeatureCollection.h"
 
@@ -23,7 +24,7 @@ public:
 
     void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems);
 
-    void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions);
+    void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
 
 private slots:
     void on_lineEditGeneID_textChanged(const QString &arg1);

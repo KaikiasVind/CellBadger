@@ -63,7 +63,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
 
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
-                QString featureID = splitLine.at(1);
+                QString featureID = splitLine.at(1).toUpper();
                 clustersWithExpressedFeatures[i].addFeature(featureID, featureMeanCount);
             }
         }
@@ -191,6 +191,12 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
     QStringList tissueIDs;
     QVector<FeatureCollection> tissues;
 
+    // Create a list to collect the ID of every gene that is expressed at least in one cluster.
+    // This is neccessary to have a complete list of existing gene IDs for comparison between clusters
+    // with differing expressed genes
+    FeatureCollection completeGeneIDCollection("completeGeneIDCollection");
+    QStringList completeGeneIDs;
+
     // The tissue names start at column 2
     int tissueIDsOffset = 2;
 
@@ -213,15 +219,29 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
         splitLine = line.split('\t');
 
         for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
-            QString featureID = splitLine[1];
+            QString featureID = splitLine[1].toUpper();
             double featureExpressionCount = splitLine[i].toDouble();
             bool isFeatureExpressed = featureExpressionCount > cutOff;
+
+            // Add gene ID to the list of seen gene ids (see above for further information)
+            if (featureExpressionCount > 1.0) {
+                completeGeneIDCollection.addFeature(featureID, -1);
+            }
 
             // Add expressed feature to tissue
             if (isFeatureExpressed) {
                 tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount);
             }
         }
+    }
+
+    // Remove all duplicates that were created due to genes being expressed in multiple clusters
+    completeGeneIDs.removeDuplicates();
+
+    // Generate a feature collection out of the collected gene IDs for easy transition
+    // REMEMBER: This is not clean
+    for (QString geneID : completeGeneIDs) {
+        completeGeneIDCollection.addFeature(geneID, -1);
     }
 
     return tissues;

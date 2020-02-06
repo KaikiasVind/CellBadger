@@ -23,8 +23,7 @@ public:
     void disableUseDefaultButton();
 
 signals:
-    void projectFileUploaded(QStringList fileNames);
-    void runNewProject(QString markerFilePath, QStringList datasetFileNames);
+    void runNewProject(const QString markerFilePath, const QStringList datasetFileNames);
 
 private slots:
     // STACKED WIDGET PAGE ONE
@@ -58,8 +57,7 @@ private:
     QString uploadedMarkerFile;
 
     QPushButton * createPushButton();
-    void addDatasetToLayout(QString filePath);
-    void removeDataSetFromLayout(QString name);
+    void addDatasetToLayout(const QString filePath);
 
     void enableRunButtonIfReady();
 

@@ -39,14 +39,13 @@ signals:
     void finishedFileParsing();
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
-//    void finishedCorrelating(QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets);
-    void finishedCorrelating(InformationCenter informationCenter);
+    void finishedCorrelating(const InformationCenter informationCenter);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
-    void on_newProjectStarted(QString cellMarkerFilePath, QStringList filePaths);
-    void on_filesUploaded(QStringList filePaths);
-    void on_projectFileUploaded(QStringList filePaths);
+    void on_newProjectStarted(const QString cellMarkerFilePath, const QStringList filePaths);
+    void on_filesUploaded(const QStringList filePaths);
+    void on_projectFileUploaded(const QStringList filePaths);
     // ################### INTERACTION WITH START DIALOG ########################
 
     // ######################### FILE PROCESSING ################################

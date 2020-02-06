@@ -2,7 +2,6 @@
 
 #include <QStringList>
 #include <QVector>
-#include <QDebug>
 
 #include "BioModels/Feature.h"
 
@@ -61,7 +60,6 @@ bool FeatureCollection::isFeatureExpressed(QString markerID) {
     //REMEMBER: MAYBE -> WOULDTHAT WORK?
 //    Feature feature(markerID, COUNT);
 //    return features.contains(feature);
-    //REMEMBER: MAYBE -> WOULDTHAT WORK?
     for (Feature feature : features) {
         bool isSameFeature = feature.ID == markerID;
         if (isSameFeature)

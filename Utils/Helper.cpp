@@ -3,11 +3,8 @@
 #include <QString>
 #include <QDir>
 #include <QFileDialog>
-#include <QDebug>
-
 
 namespace Helper {
-
 
 /**
  * @brief chopFileName - Chops the file name from the file path
@@ -18,7 +15,10 @@ namespace Helper {
 QString chopFileName(QString filepath) {
     // Split by os specific directory separater.
     // The last entry is the file name with extension
-    return filepath.split(QDir::separator()).last();
+    QString fileNameWithExtension = filepath.split(QDir::separator()).last();
+
+    // Split extension and file name. The first one is the file name
+    return fileNameWithExtension.split(".").first();
 }
 
 

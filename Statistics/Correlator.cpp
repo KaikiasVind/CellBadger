@@ -1,8 +1,8 @@
 #include "Correlator.h"
 
 #include <QVector>
-#include <QDebug>
 #include <math.h>
+#include <QDebug>
 
 #include "Utils/Math.h"
 
@@ -11,7 +11,7 @@ namespace Correlator {
 /**
  * @brief calculateSpearmanCorrelation - Calculates the spearman correlation coefficient for two given variables.
  * @param variableOne - Vector of numbers representing the attributes of the first variable
- * @param variableTwo - Vector of numbers representing the attributes of the first variable
+ * @param variableTwo - Vector of numbers representing the attributes of the second variable
  * @return - Correlation coefficient in range [0,1] with 1 = full correlation.
  */
 double calculateSpearmanCorrelation(QVector<double> variableOne, QVector<double> variableTwo) {
@@ -19,7 +19,7 @@ double calculateSpearmanCorrelation(QVector<double> variableOne, QVector<double>
     // What to do if the length is not equal?
     if (variableOne.length() != variableTwo.length()) {
         qDebug() << "Variables do not have the same length.";
-        exit(0);
+        exit(1);
     }
 
     auto getRanks = [](QVector<double> collection) {
@@ -34,13 +34,13 @@ double calculateSpearmanCorrelation(QVector<double> variableOne, QVector<double>
         return ranks;
     };
 
+    // Get ranks (indizes) of the variable counts
     QVector<int> variableOneRanks = getRanks(variableOne),
                  variableTwoRanks = getRanks(variableTwo);
 
     // Counter and denominator are calculated independently and divided later on
     double counter = .0, denominator = .0;
 
-    // Get ranks (indizes) of the expression counts (+1 because index starts at 0)
 
     // Calculate the mean for the expression count ranks
     double variableOneRankMean = Math::mean(variableOneRanks),

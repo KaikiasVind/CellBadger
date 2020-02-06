@@ -72,25 +72,10 @@ FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection) 
     return sortedCollection;
 }
 
-//void rankFeaturesByExpression(FeatureCollection featureCollection) {
-//FeatureCollection rankFeaturesByExpression(FeatureCollection featureCollection) {
-    // Copy collection that is to be sorted
-//    FeatureCollection sortedCollection(featureCollection);
-
-    // Use custom sorting function to sort features decreasing by expression count
-//    std::sort(featureCollection.getFeature(0), featureCollection.getFeature(featureCollection.getNumberOfFeatures()),
-//              [](const Feature featureOne, const Feature featureTwo) {
-//                        return featureOne.count > featureTwo.count;
-//    });
-
-//    return featureCollection;
-//}
-
 /**
  * @brief Sorter::findHighestLikelyCellTypeMapping
  * @param clustersWithCellTypeMappingLikelihoods
  */
-//void Sorter::findHighestLikelyCellTypeMapping(QVector<QVector<QPair<QPair<QString, QString>, double>>> clustersWithCellTypeMappingLikelihoods) {
 void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods) {
     qDebug() << "Start sorting.";
     double highestLikelyCellTypeMapping;
@@ -117,7 +102,7 @@ void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> 
     }
 }
 
-// This is too waaaaay fucking slow.
+// FIXME: This is waaaaay too slow!!
 /**
  * @brief findEquallyExpressedFeatures
  * @param collectionOne
@@ -181,16 +166,6 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
         // Add these as pair to result vector
         equallyExpressedFeatures.append(qMakePair(featureCollectionOne, featureCollectionTwo));
     }
-
-//    for (int i = 0; i < collectionOne.getNumberOfFeatures(); i++) {
-//        Feature currentFeature = collectionOne.getFeature(i);
-//        bool isFeatureExpressedEqually = collectionTwo.isFeatureExpressed(currentFeature);
-
-//        if (isFeatureExpressedEqually) {
-//            equallyExpressedFeatures.append(qMakePair(currentFeature, collectionTwo.getFeature(currentFeature.ID)));
-//        }
-//    }
-
 
     // ############################################# REMAINS #############################################
 //    for (Feature feature : featuresCollectionOne) {

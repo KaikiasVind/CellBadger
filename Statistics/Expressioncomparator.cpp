@@ -6,12 +6,17 @@
 #include <QString>
 #include <QStringList>
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Sorter.h"
 #include "Statistics/Correlator.h"
 
 namespace ExpressionComparator {
 
+// REMEMBER: Refactor and add comments!!!!
 /**
  * @brief findClusterTissueCorrelations
  * @param clusters

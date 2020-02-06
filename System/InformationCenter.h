@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QPair>
 #include <QString>
+#include <QStringList>
 
 #include "System/ConfigFile.h"
 #include "BioModels/FeatureCollection.h"
@@ -13,6 +14,9 @@ struct InformationCenter
 
     ConfigFile configFile;
 
+    QStringList datasetFilePaths;
+
+    QStringList completeSetOfGeneIDs;
     QVector<FeatureCollection> cellMarkersForTypes;
     QVector<QVector<FeatureCollection>> xClusterCollections;
 
