@@ -12,17 +12,15 @@
 
 Accepted format for CSV marker files with delimiter "," :
 
-| Cell markers | Cell / tissue-type | Cell / tissue-type |  ..  |
-| ------ | ------ | ------ |  ------  |
-| GENE ID | Gene expression count | Gene expression count |  ..  |
-| GENE ID | Gene expression count | Gene expression count |  ..  |
-|    ..   |          ..           |          ..           |  ..  |
+Gene name | Gene ID | Cell / tissue-type | Cell / tissue-type |  ..  |
+| ------ | ------ | ------ | ------ |  ------  |
+| GENE NAME | GENE ID | Gene expression count | Gene expression count |  ..  |
+| GENE NAME | GENE ID | Gene expression count | Gene expression count |  ..  |
+|    ..   |    ..   |          ..           |          ..           |  ..  |
 
 ---
 ## Known bugs
-- Currently only positively tested on the Cell Ranger 3.0.2 - 5k_Pbmc dataset with the [GTeX_Analysis marker file](https://gtexportal.org/home/datasets). 
-- Other datasets like Cell Ranger 3.0.2 - 5k_Neuron don't work with the marker file provided by GTex because the marker file doesn't seem to cover any markers present in the Neuron dataset.
-- The correlation method used so far doesn't seem to be sufficient enough to produce valid output. (e.g. mapping to obviously wrong tissues with low affinity)
+- The correlation method used so far doesn't seem to be sufficient enough to produce valid output, e.g. mapping to obviously wrong tissues with low affinity.
 
 ---
 ## Planned Features
