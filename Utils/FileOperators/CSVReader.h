@@ -20,6 +20,8 @@ namespace CSVReader
     extern QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath);
 
     extern QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, double cutOff);
-};
+
+//    extern QHash <QString, QVector<double>> getUIAndSensitivityAndSpecicifityForMarkers(QString csvFilePath);
+}
 
 #endif // CSVREADER_H

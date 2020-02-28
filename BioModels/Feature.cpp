@@ -2,7 +2,9 @@
 
 #include <QString>
 
-Feature::Feature() {};
+Feature::Feature()
+    :ID  {"nAn"}, count {-1}
+{}
 
 /**
  * @brief Feature::Feature - Container class serving as a feature - expression-count pair

@@ -247,4 +247,55 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
     return tissues;
 }
 
+///**
+// * @brief getSensitivityAndSpecicifityForMarkers
+// * @param csvFilePath
+// * @return
+// */
+//QHash <QString, QVector<double>> getUIAndSensitivityAndSpecicifityForMarkers(QString csvFilePath) {
+
+//    // Open fil
+//    QFile csvFile(csvFilePath);
+
+//    // Throw error in case opening the file fails
+//    if (!csvFile.open(QIODevice::ReadOnly)) {
+//        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
+//        exit(1);
+//    }
+
+//    QHash <QString, QVector<double>> markersWithUIAndSensitivityAndSpecicifity;
+
+//    // Skip the title line
+//    QByteArray line = csvFile.readLine();
+//    QList<QByteArray> splitLine;
+
+//    // Go through the rest of the file
+//    while (!csvFile.atEnd()) {
+//        line = csvFile.readLine();
+//        splitLine = line.split('\t');
+
+//        // If marker is a mouse only marker, skip it
+//        bool isMouseOnlyMarker = !splitLine[0].contains("Hs");
+//        if (isMouseOnlyMarker)
+//            continue;
+
+//        // Otherwise extract data from line
+//        QString markerID = splitLine[1];
+//        double markerUbiquitousnessIndex = splitLine.at(2),
+//               markerSensitivity = splitLine[3],
+//               markerSpecicifity = splitLine[5];
+
+//        // Bundle the three indizes together
+//        QVector<double> markerUIAndSensitivityAndSpecicifity;
+//        markerUIAndSensitivityAndSpecicifity.append(markerUbiquitousnessIndex);
+//        markerUIAndSensitivityAndSpecicifity.append(markerSensitivity);
+//        markerUIAndSensitivityAndSpecicifity.append(markerSpecicifity);
+
+//        // And add them to the hash map that is going to be returned after parsing
+//        markersWithUIAndSensitivityAndSpecicifity[markerID] = markerUIAndSensitivityAndSpecicifity;
+//    }
+
+//    return markersWithUIAndSensitivityAndSpecicifity;
+//}
+
 }

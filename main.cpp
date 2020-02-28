@@ -10,10 +10,30 @@
 #include "System/Coordinator.h"
 #include "System/InformationCenter.h"
 
+#define run 1
+#define gui 1
+
+#if !run
+#include "Utils/FileOperators/CSVReader.h"
+#endif
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
+#if !run
+    QString path = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Cell Marker/Human_cell_markers.csv";
+    QHash <QString, QVector<QPair<QString, QString>>> markerTypeHashes = CSVReader::sortCsvByMarker(path);
+
+    for (QString key : markerTypeHashes.keys()) {
+        qDebug() << "\n##################" << key.toUpper() << "##################\n";
+        QVector<QPair<QString, QString>> valuesForKey = markerTypeHashes[key];
+        for (QPair<QString, QString> value : valuesForKey) {
+            qDebug() << value.first << " - " << value.second;
+        }
+    }
+#endif
+
+#if gui
     // Declaration of the used widgets
     MainWindow mainWindow;
     StartDialog startDialog;
@@ -21,7 +41,8 @@ int main(int argc, char *argv[])
 
     // Start of the main software - The start dialog is the first that is shown to the user
     startDialog.show();
-
+#endif
+#if run
     // ++++++++++++++++++++++++++++++++++++++++  CHECK FOR CONFIG FILE ++++++++++++++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
     ConfigFile configFile;
@@ -61,5 +82,6 @@ int main(int argc, char *argv[])
 
     // At this point, the complete control over the system workflow is handed over to the Coordinator
 
+#endif
     return application.exec();
 }

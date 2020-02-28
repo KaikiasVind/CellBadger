@@ -120,12 +120,14 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
                      featureIDsCollectionTwo,
                      // This vector is used to store the intersected elements
                      intersectedCollection;
+
     featureIDsCollectionOne.reserve(numberOfFeaturesCollectionOne);
     featureIDsCollectionTwo.reserve(numberOfFeaturesCollectionTwo);
 
     // Create hash-map to easily look up Features
     QHash<QString, double> featuresCollectionOne,
                            featuresCollectionTwo;
+
     featuresCollectionOne.reserve(numberOfFeaturesCollectionOne);
     featuresCollectionTwo.reserve(numberOfFeaturesCollectionTwo);
 
