@@ -23,21 +23,36 @@ Coordinator::Coordinator(InformationCenter informationCenter)
 {}
 
 
-template<typename F>
 /**
- * @brief Coordinator::parseFile - Parse the given dataset files with the corresponding function in separate threads and hand them over to the thread watcher
- * @param filePaths - List of file paths corresponding to the dataset / marker files
- * @param parsingFunction - The function with which the given file(s) can be parsed properly
- * @param cutoff - The cutoff that should be used for parsing
+ * @brief parseClusterFiles
+ * @param filePaths
+ * @param meanCountCutOff
+ * @param foldChangeCutOff
  */
-void Coordinator::parseFiles(const QStringList filePaths, const F & parsingFunction, const double cutoff) {
+void Coordinator::parseClusterFiles(const QStringList filePaths, const double meanCountCutOff, const double foldChangeCutOff) {
     for (QString filePath: filePaths) {
         // Parse the file with given cutoff in a new thread with given function
-        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(parsingFunction, filePath, cutoff);
+        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(CSVReader::getClusterFeatures, filePath, meanCountCutOff, foldChangeCutOff);
 
         // And let the multi-thread-watcher watch over the new process
         parsingThreadsWatcher.addFuture(futureParsedFile);
     }
+}
+
+
+/**
+ * @brief Coordinator::parseMarkerFile
+ * @param filePaths
+ * @param expressionCountCutOff
+ */
+void Coordinator::parseMarkerFile(const QString filePath, const double expressionCountCutOff) {
+    qDebug() << "FUNKTION FEHLT!!!";
+    exit(1);
+    // Parse the file with given cutoff in a new thread with given function
+//	QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(CSVReader::, filePath, meanCountCutOff, foldChangeCutOff);
+
+    // And let the multi-thread-watcher watch over the new process
+//    parsingThreadsWatcher.addFuture(futureParsedFile);
 }
 
 
@@ -125,25 +140,22 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
     // Add file-paths of newly uploaded datasets to file-path list
     this->informationCenter.datasetFilePaths = datasetFilePaths;
 
-    // REMEMBER: Find another way to do this -> Maybe another typename and type deduction?
-    QStringList cellMarkerFilePaths;
-    cellMarkerFilePaths.reserve(1);
+    // Working with copy fur purity
+    QString markerFilePath;
 
     // If no cell marker file was uploaded, use the default one
     if (cellMarkerFilePath == "nAn") { //REMEMBER: Is that really a nice thing to do?
-        cellMarkerFilePaths.append(informationCenter.configFile.cellMarkersFilePath);
-    } else {
-        cellMarkerFilePaths.append(cellMarkerFilePath);
+        markerFilePath = informationCenter.configFile.cellMarkersFilePath;
     }
 
-    qDebug() << "Parsing:" << cellMarkerFilePaths.first();
-    // Parse the cell marker file in separate thread
+    qDebug() << "Parsing:" << markerFilePath;
+    // Parse the cell marker file in separate threads
     cout << "Parsing cell marker file." << endl;
-    this->parseFiles(cellMarkerFilePaths, CSVReader::getTissuesWithGeneExpression, 100);
+    this->parseMarkerFile(markerFilePath, 100);
 
     // Parse the dataset files in separate threads
     cout << "Parsing datasets." << endl;
-    this->parseFiles(datasetFilePaths, CSVReader::getClusterFeatureExpressionFoldChanges, 15);
+    this->parseClusterFiles(datasetFilePaths, 15, 40);
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();

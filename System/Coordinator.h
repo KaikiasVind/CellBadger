@@ -22,12 +22,10 @@ private:
     QFutureSynchronizer<QVector<FeatureCollection>> parsingThreadsWatcher;
     QFutureSynchronizer<QVector<QVector<QPair<QString, double>>>> correlatorThreadsWatcher;
 
-    void parseDatasetFiles(const QStringList datasetFilePaths);
-
     void printResults(); //REMEBER: DELETE ME!!!!
 
-    template<typename F>
-    void parseFiles(const QStringList filePaths, const F & parsingFunction, const double cutoff);
+    void parseClusterFiles(const QStringList filePaths, const double meanCountCutOff, const double foldChangeCutOff);
+    void parseMarkerFile(const QString filePath, const double expressionCountCutOff);
     void saveInformationAfterParsingFinished();
     void correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes);
     void saveInformationAfterCorrelatingFinished();

@@ -66,7 +66,7 @@ FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection) 
 
     // Readd sorted Features to collection
     for (int i = 0; i < pairedCollection.length(); i++) {
-        sortedCollection.addFeature(pairedCollection[i].first, pairedCollection[i].second);
+        sortedCollection.addFeature(pairedCollection[i].first, pairedCollection[i].second, -1., -1.);
     }
 
     return sortedCollection;
@@ -162,8 +162,8 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
                collectionTwoExpressionCount = featuresCollectionTwo[featureID];
 
         // Reassamble Features with found feature expression counts from map and feature ID from intersection
-        Feature featureCollectionOne(featureID, collectionOneExpressionCount),
-                featureCollectionTwo(featureID, collectionTwoExpressionCount);
+        Feature featureCollectionOne(featureID, collectionOneExpressionCount, -1., -1.),
+                featureCollectionTwo(featureID, collectionTwoExpressionCount, -1., -1.);
 
         // Add these as pair to result vector
         equallyExpressedFeatures.append(qMakePair(featureCollectionOne, featureCollectionTwo));

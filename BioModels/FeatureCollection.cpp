@@ -5,7 +5,7 @@
 
 #include "BioModels/Feature.h"
 
-FeatureCollection::FeatureCollection(){};
+FeatureCollection::FeatureCollection(){}
 
 /**
  * @brief Cluster::Cluster - Only container class - only default constructor
@@ -27,9 +27,9 @@ FeatureCollection::FeatureCollection(QString collectionID)
  * @param featureID
  * @param expressionCount
  */
-void FeatureCollection::addFeature(QString featureID, double expressionCount) {
-    Feature feature(featureID, expressionCount);
-    features.append(feature);
+void FeatureCollection::addFeature(QString featureID, double featureMeanCount, double featureLog2FoldChange, double featureFoldChange) {
+    Feature feature(featureID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
+    this->features.append(feature);
 }
 
 /**
@@ -37,7 +37,7 @@ void FeatureCollection::addFeature(QString featureID, double expressionCount) {
  * @param feature
  */
 void FeatureCollection::addFeature(Feature feature) {
-    features.append(feature);
+    this->features.append(feature);
 }
 
 /**
@@ -60,7 +60,7 @@ bool FeatureCollection::isFeatureExpressed(QString markerID) {
     //REMEMBER: MAYBE -> WOULDTHAT WORK?
 //    Feature feature(markerID, COUNT);
 //    return features.contains(feature);
-    for (Feature feature : features) {
+    for (Feature feature : this->features) {
         bool isSameFeature = feature.ID == markerID;
         if (isSameFeature)
             return true;
@@ -91,7 +91,7 @@ Feature FeatureCollection::getFeature(QString featureID) {
         if (feature.ID == featureID)
             return feature;
     }
-    Feature noFeature("nAn", -1.);
+    Feature noFeature("nAn", -1., -1., -1.);
     return noFeature;
 }
 

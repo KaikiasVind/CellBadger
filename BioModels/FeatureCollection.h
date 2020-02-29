@@ -21,7 +21,7 @@ public:
     FeatureCollection(const QString collectionID);
 //    FeatureCollection(FeatureCollection & featureCollection);
 
-    void addFeature(QString featureID, double expressionCount);
+    void addFeature(QString featureID, double featureMeanCount, double featureLog2FoldChange, double featureFoldChange);
     void addFeature(Feature feature);
 
     bool isFeatureExpressed(QString markerID);

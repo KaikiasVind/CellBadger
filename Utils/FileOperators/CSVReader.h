@@ -12,8 +12,7 @@
 
 namespace CSVReader
 {
-    extern QVector<FeatureCollection> getClusterFeatureExpressionFoldChanges(QString csvFilePath, double cutOff);
-//  extern QVector<Cluster> getClusterFeatureExpressions(QString csvFilePath);
+    extern QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff);
 
     extern QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
 

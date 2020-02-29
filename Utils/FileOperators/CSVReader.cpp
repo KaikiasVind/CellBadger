@@ -20,8 +20,7 @@ namespace CSVReader {
  * @param cutOff
  * @return
  */
-QVector<FeatureCollection> getClusterFeatureExpressionFoldChanges(QString csvFilePath, double cutOff) {
-
+QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
     // Open file
     QFile csvFile(csvFilePath);
 
@@ -62,6 +61,10 @@ QVector<FeatureCollection> getClusterFeatureExpressionFoldChanges(QString csvFil
         // Check the fold change for each feature in each cluster and add the feature in case its high enough
         for (int i = 0; i < numberOfClusters; i++) {
 
+            // Read the mean count of the feature (-1 because the mean count is always one column prior to the log2 fold change)
+            //REMEMBER: Is this the expression or the UMI mean count?!
+            double featureMeanCount = splitLine.at(clusterColumnNumbers[i] - 1).toDouble();
+
             // Read the log 2 fold change of the feature
             // This represents the expression rate of the feature relative to all other clusters
             double featureLog2FoldChange = splitLine.at(clusterColumnNumbers[i]).toDouble();
@@ -72,12 +75,13 @@ QVector<FeatureCollection> getClusterFeatureExpressionFoldChanges(QString csvFil
             double featureFoldChange = Math::invertLog(2, featureLog2FoldChange);
 
             // The abs function is used here to check whether the fold change is high enough in any direction
-            bool isFeatureFoldChangeSignificant = abs(featureFoldChange) > cutOff;
+            bool isFeatureFoldChangeSignificant = abs(featureFoldChange) > foldChangeCutOff;
+            bool isFeatureMeanCountSignificant = featureMeanCount > meanCountCutOff;
 
             // Get feature name and append to the correct cluster list
-            if (isFeatureFoldChangeSignificant) {
+            if (isFeatureMeanCountSignificant && isFeatureFoldChangeSignificant) {
                 QString featureID = splitLine.at(1).toUpper();
-                clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureFoldChange);
+                clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
             }
         }
     }
@@ -91,7 +95,8 @@ QVector<FeatureCollection> getClusterFeatureExpressionFoldChanges(QString csvFil
  * @param csvFilePath
  * @return
  */
-QVector<CellType> getCellTypesWithMarkers(QString csvFilePath) {
+QVector<CellType> getCellTypesWithMarkers(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
+
     // Open file
     QFile csvFile(csvFilePath);
 
@@ -238,12 +243,12 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
 
             // Add gene ID to the list of seen gene ids (see above for further information)
             if (featureExpressionCount > 1.0) {
-                completeGeneIDCollection.addFeature(featureID, -1);
+                completeGeneIDCollection.addFeature(featureID, -1., -1., -1.);
             }
 
             // Add expressed feature to tissue
             if (isFeatureExpressed) {
-                tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount);
+                tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount, -1., -1.);
             }
         }
     }
@@ -254,7 +259,7 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
     // Generate a feature collection out of the collected gene IDs for easy transition
     // REMEMBER: This is not clean
     for (QString geneID : completeGeneIDs) {
-        completeGeneIDCollection.addFeature(geneID, -1);
+        completeGeneIDCollection.addFeature(geneID, -1, -1., -1.);
     }
 
     return tissues;
