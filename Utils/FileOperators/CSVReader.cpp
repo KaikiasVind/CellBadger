@@ -6,19 +6,21 @@
 #include <QByteArray>
 #include <QStringList>
 #include <QList>
+#include <math.h>
 
 #include "BioModels/FeatureCollection.h"
 #include "BioModels/Celltype.h"
+#include "Utils/Math.h"
 
 namespace CSVReader {
 
 /**
- * @brief CSVReader::getClusterFeatureExpressions
+ * @brief getClusterFeatureExpressionFoldChanges
  * @param csvFilePath
  * @param cutOff
  * @return
  */
-QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
+QVector<FeatureCollection> getClusterFeatureExpressionFoldChanges(QString csvFilePath, double cutOff) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -34,21 +36,22 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     QList<QByteArray> splitLine = line.split(',');
 
     // Each cluster contains its expressed features
-    QVector<FeatureCollection> clustersWithExpressedFeatures;
+    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges;
 
     int numberOfColumns = splitLine.length();
+
     // The cellranger cluster feature expression file is segmented into 3 rows per cluster
     // with two lines in the very beginning for the feature ID and for the feature name -> Hence numberOfColumns - 2
     int numberOfClusters = (numberOfColumns - 2) / 3;
 
-    // Add the culumn numbers for the cluster mean counts (always the first of the three columns per cluster)
+    // Add the culumn numbers for the cluster fold changes (always the second of the three columns per cluster)
     // and a new String list for each cluster. This list will later be filled with expressed features
     QVector<int> clusterColumnNumbers(numberOfClusters);
     for (int i = 0; i < numberOfClusters; i++) {
-        clusterColumnNumbers[i] = (i * 3 + 2);
+        clusterColumnNumbers[i] = (i * 3);
         QString clusterID = QString("Cluster").append(QString::number(i));
         FeatureCollection cluster(clusterID);
-        clustersWithExpressedFeatures.append(cluster);
+        clustersWithSignificantFeatureFoldChanges.append(cluster);
     }
 
     // Start parsing cluster file
@@ -56,20 +59,30 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
         line = csvFile.readLine();
         splitLine = line.split(',');
 
-        // Check the expression for each feature in the clusters and add the feature in case its expressed
+        // Check the fold change for each feature in each cluster and add the feature in case its high enough
         for (int i = 0; i < numberOfClusters; i++) {
-            double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
-            bool isFeatureExpressed = featureMeanCount > cutOff;
+
+            // Read the log 2 fold change of the feature
+            // This represents the expression rate of the feature relative to all other clusters
+            double featureLog2FoldChange = splitLine.at(clusterColumnNumbers[i]).toDouble();
+
+            // Calculate the original - non log fold change
+            // A high value corresponds to a high expression rate in comparison to other clusters
+            // Analog, a low value corresponds to a low expression rate in comparison to other clusters
+            double featureFoldChange = Math::invertLog(2, featureLog2FoldChange);
+
+            // The abs function is used here to check whether the fold change is high enough in any direction
+            bool isFeatureFoldChangeSignificant = abs(featureFoldChange) > cutOff;
 
             // Get feature name and append to the correct cluster list
-            if (isFeatureExpressed) {
+            if (isFeatureFoldChangeSignificant) {
                 QString featureID = splitLine.at(1).toUpper();
-                clustersWithExpressedFeatures[i].addFeature(featureID, featureMeanCount);
+                clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureFoldChange);
             }
         }
     }
 
-    return clustersWithExpressedFeatures;
+    return clustersWithSignificantFeatureFoldChanges;
 }
 
 

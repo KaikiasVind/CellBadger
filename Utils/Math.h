@@ -11,6 +11,7 @@ namespace Math {
     // REMEMBER: Exchange type specific mean functions with template
     extern double mean(QVector<double> numbers);
     extern double mean(QVector<int> numbers);
+    extern double invertLog(int base, double realNumber);
 }
 
 #endif // MATH_H

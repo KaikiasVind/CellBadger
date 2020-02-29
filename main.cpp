@@ -10,8 +10,7 @@
 #include "System/Coordinator.h"
 #include "System/InformationCenter.h"
 
-#define run 1
-#define gui 1
+#define run 0
 
 #if !run
 #include "Utils/FileOperators/CSVReader.h"
@@ -21,19 +20,35 @@ int main(int argc, char *argv[])
     QApplication application(argc, argv);
 
 #if !run
-    QString path = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Cell Marker/Human_cell_markers.csv";
-    QHash <QString, QVector<QPair<QString, QString>>> markerTypeHashes = CSVReader::sortCsvByMarker(path);
+//    QString path = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Cell Marker/Human_cell_markers.csv";
+//    QHash <QString, QVector<QPair<QString, QString>>> markerTypeHashes = CSVReader::sortCsvByMarker(path);
 
-    for (QString key : markerTypeHashes.keys()) {
-        qDebug() << "\n##################" << key.toUpper() << "##################\n";
-        QVector<QPair<QString, QString>> valuesForKey = markerTypeHashes[key];
-        for (QPair<QString, QString> value : valuesForKey) {
-            qDebug() << value.first << " - " << value.second;
-        }
-    }
+//    for (QString key : markerTypeHashes.keys()) {
+//        qDebug() << "\n##################" << key.toUpper() << "##################\n";
+//        QVector<QPair<QString, QString>> valuesForKey = markerTypeHashes[key];
+//        for (QPair<QString, QString> value : valuesForKey) {
+//            qDebug() << value.first << " - " << value.second;
+//        }
+//    }
+
+//    QString path = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+//    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
+
+//    for (FeatureCollection cluster : clustersWithSignificantFeatureFoldChanges) {
+//        qDebug() << "########################" << cluster.ID << "########################";
+//        for (Feature feature : cluster.getFeatures()) {
+//            qDebug() << "Feature:" << feature.ID << "- fold change:" << feature.count;
+//        }
+//    }
+
+//    QString clusterFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+//    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
+
+    QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+
 #endif
 
-#if gui
+#if run
     // Declaration of the used widgets
     MainWindow mainWindow;
     StartDialog startDialog;
@@ -41,8 +56,6 @@ int main(int argc, char *argv[])
 
     // Start of the main software - The start dialog is the first that is shown to the user
     startDialog.show();
-#endif
-#if run
     // ++++++++++++++++++++++++++++++++++++++++  CHECK FOR CONFIG FILE ++++++++++++++++++++++++++++++++++++++++
     QString configFilePath = QDir::homePath().append("/.badger.conf");
     ConfigFile configFile;
