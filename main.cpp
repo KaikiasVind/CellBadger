@@ -44,7 +44,51 @@ int main(int argc, char *argv[])
 //    QString clusterFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
 //    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
 
-    QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+    QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/PanglaoDB_markers_07_Feb_2020.tsv";
+    QString datasetFilepath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+
+//    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::getUIAndSensitivityAndSpecicifityForMarkers(markerFilePath);
+
+    QVector<FeatureCollection> clusterWithMarker = CSVReader::getClusterFeatures(datasetFilepath, 15, 5);
+
+    for (FeatureCollection cluster : clusterWithMarker) {
+        qDebug() << "\nCluster:" << cluster.ID;
+        for (Feature gene : cluster.getFeatures()) {
+            qDebug() << gene.ID << "-umi_count:" << gene.count << "-fold_change:" << gene.foldChange;
+        }
+    }
+
+//    QVector<QVector<QPair<QString, double>>> correlations;
+
+//    // Go through every cluster that was parsed from the 10x cluster file
+//    for (int i = 0; i < clusterWithMarker.length(); i++) {
+//        qDebug() << "cluster:" << clusterWithMarker.at(i).ID;
+
+//        // And go through every cell type that was taken from the pangloDB marker file
+//        for (int j = 0; j < cellTypesWithMarkers.length(); j++) {
+
+//            // Find genes that are expresed in the cluster and are found in the cell type
+//            FeatureCollection cluster = clusterWithMarker[i],
+//                              cellType = cellTypesWithMarkers[j];
+
+//            QVector<QPair<QString, double>> expressedGenesWithWeight;
+
+//            // For every feature in the current cluster
+//            for (int k = 0; k < cluster.getNumberOfFeatures(); k++) {
+//                QString geneID = cluster.getFeatureID(k);
+
+//                for (int l = 0; l < cellType.getNumberOfFeatures(); l++) {
+//                    bool isSameGeneID = cellType.getFeatureID(l).compare(geneID) == 0;
+
+//                    if (isSameGeneID) {
+//                        qDebug() << "Found equal gene:" << geneID;
+//    //                    double
+//                    }
+//                }
+//            }
+//        }
+//        break;
+//    }
 
 #endif
 

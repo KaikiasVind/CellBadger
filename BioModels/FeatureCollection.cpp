@@ -23,22 +23,50 @@ FeatureCollection::FeatureCollection(QString collectionID)
 //}
 
 /**
- * @brief Cluster::addFeature
- * @param featureID
- * @param expressionCount
+ * @brief FeatureCollection::addFeature
+ * @param feature
  */
-void FeatureCollection::addFeature(QString featureID, double featureMeanCount, double featureLog2FoldChange, double featureFoldChange) {
+void FeatureCollection::addFeature(const Feature feature) {
+    this->features.append(feature);
+}
+
+
+// REMEMBER: Do I need this one?
+/**
+ * @brief FeatureCollection::addFeature - The FeatureCollection that is appended to here represents a 10x Cluster and the new Feature represents an expressed gene in that cluster
+ * @param featureID - Gene ID
+ * @param featureMeanCount - Mean count of the expression of the selected gene / UMI count for the selected gene
+ */
+void FeatureCollection::addFeature(const QString featureID, const double featureMeanCount) {
+    Feature feature(featureID, featureMeanCount);
+    this->features.append(feature);
+}
+
+
+/**
+ * @brief FeatureCollection::addFeature - The FeatureCollection that is appended to here represents a cell type and the new Feature represents a gene / cell marker
+ * @param ID - Gene ID
+ * @param sensitivity - Gene expression sensitivity for the cell type it is appended to
+ * @param specifity - Gene expression specifity for the cell type it is appended to
+ */
+void FeatureCollection::addFeature(const QString featureID, const double featureSensitivity, const double featureSpecifity) {
+    Feature feature(featureID, featureSensitivity, featureSpecifity);
+    this->features.append(feature);
+}
+
+
+/**
+ * @brief FeatureCollection::addFeature - The FeatureCollection that is appended to here represents a 10x Cluster and the new Feature represents an expressed gene in that cluster
+ * @param featureID - Gene ID
+ * @param featureMeanCount - Mean count of the expression of the selected gene / UMI count for the selected gene
+ * @param featureLog2FoldChange - Log 2 of ratio of expression of the selected gene in comparison to the expression of this gene in every other cluster
+ * @param featureFoldChange - Actual ratio of expression of the selected gene in comparison to the expression of this gene in every other cluster
+ */
+void FeatureCollection::addFeature(const QString featureID, const double featureMeanCount, const double featureLog2FoldChange, const double featureFoldChange) {
     Feature feature(featureID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
     this->features.append(feature);
 }
 
-/**
- * @brief FeatureCollection::addFeature
- * @param feature
- */
-void FeatureCollection::addFeature(Feature feature) {
-    this->features.append(feature);
-}
 
 /**
  * @brief FeatureCollection::filterFeatures - Keep only $number most expressed features

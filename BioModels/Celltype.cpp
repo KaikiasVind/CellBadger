@@ -3,7 +3,7 @@
 #include <QString>
 #include <QStringList>
 
-CellType::CellType(){};
+CellType::CellType(){}
 
 /**
  * @brief CellType::CellType - Container class for cell / tissue - marker association

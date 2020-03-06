@@ -155,7 +155,7 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
 
     // Parse the dataset files in separate threads
     cout << "Parsing datasets." << endl;
-    this->parseClusterFiles(datasetFilePaths, 15, 40);
+    this->parseClusterFiles(datasetFilePaths, 15, 1);
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();

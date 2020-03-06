@@ -3,8 +3,11 @@
 #include <QString>
 #include <QDir>
 #include <QFileDialog>
+#include <QFile>
+#include <QDebug>
 
 namespace Helper {
+
 
 /**
  * @brief chopFileName - Chops the file name from the file path

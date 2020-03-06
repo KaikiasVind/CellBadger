@@ -14,6 +14,72 @@
 
 namespace CSVReader {
 
+
+QVector<FeatureCollection> getUIAndSensitivityAndSpecicifityForMarkers(QString csvFilePath) {
+
+    // Open file
+    QFile csvFile(csvFilePath);
+
+    // Throw error in case opening the file fails
+    if (!csvFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
+        exit(1);
+    }
+
+    // Skip title line
+    QByteArray line = csvFile.readLine();
+    QList<QByteArray> splitLine = line.split(',');
+
+    // Create list that will contain all cell types with all associated markers present in the given file
+    QVector<FeatureCollection> cellTypes;
+
+    // Create String that is used to check whether a new cell type is met whil parsing the file
+    // This is neccessary because the file is composed out of x lines per cell type with one cell type associated marker per line
+    FeatureCollection currentCellType("nAn");
+
+    // Start parsing cluster file
+    while (!csvFile.atEnd()) {
+        line = csvFile.readLine();
+        splitLine = line.split('\t');
+
+        // Check for gene species
+        QString species = splitLine[0];
+
+        bool isMouseOnlyGene = !species.contains("Hs");
+
+        // If the gene is annotated as only expressed in mice, skip it
+        if (isMouseOnlyGene)
+            continue;
+
+        // Otherwise, extract other data from line
+        QString geneID = splitLine[1],
+                cellType = splitLine[2],
+                tissueType = splitLine[9];
+
+        double ubiquitousnessIndex = splitLine[4].toDouble(),
+               geneSensitivity = splitLine[10].toDouble(),
+               geneSpecifity = splitLine[12].toDouble();
+
+        // Check if a new cell type is met while file parsing -> 0 means equal strings
+        bool isNewCellType = currentCellType.ID.compare(cellType) != 0;
+
+        // If a new cell type is met, append the cell type and clear the last one
+        if (isNewCellType) {
+            cellTypes.append(currentCellType);
+            currentCellType = FeatureCollection(cellType);
+        }
+
+        //REMEMBER: Do I need the UbIndex?
+        currentCellType.addFeature(geneID, geneSensitivity, geneSpecifity);
+    }
+
+    // Add the last cell type to the list. Otherwise the last one would be dropped
+    cellTypes.append(currentCellType);
+
+    return cellTypes;
+}
+
+
 /**
  * @brief getClusterFeatureExpressionFoldChanges
  * @param csvFilePath
@@ -47,7 +113,7 @@ QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCo
     // and a new String list for each cluster. This list will later be filled with expressed features
     QVector<int> clusterColumnNumbers(numberOfClusters);
     for (int i = 0; i < numberOfClusters; i++) {
-        clusterColumnNumbers[i] = (i * 3);
+        clusterColumnNumbers[i] = (2 + i * 3);
         QString clusterID = QString("Cluster").append(QString::number(i));
         FeatureCollection cluster(clusterID);
         clustersWithSignificantFeatureFoldChanges.append(cluster);
@@ -61,13 +127,13 @@ QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCo
         // Check the fold change for each feature in each cluster and add the feature in case its high enough
         for (int i = 0; i < numberOfClusters; i++) {
 
-            // Read the mean count of the feature (-1 because the mean count is always one column prior to the log2 fold change)
+            // Read the mean count of the feature
             //REMEMBER: Is this the expression or the UMI mean count?!
-            double featureMeanCount = splitLine.at(clusterColumnNumbers[i] - 1).toDouble();
+            double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
 
-            // Read the log 2 fold change of the feature
+            // Read the log 2 fold change of the feature (+1 because the mean count is always one column after the log2 fold change)
             // This represents the expression rate of the feature relative to all other clusters
-            double featureLog2FoldChange = splitLine.at(clusterColumnNumbers[i]).toDouble();
+            double featureLog2FoldChange = splitLine.at(clusterColumnNumbers[i] + 1).toDouble();
 
             // Calculate the original - non log fold change
             // A high value corresponds to a high expression rate in comparison to other clusters
