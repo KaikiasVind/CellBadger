@@ -13,12 +13,12 @@ struct Feature
     double log2FoldChange;
     double foldChange;
     double sensitivity;
-    double specifity;
+    double specificity;
 
     Feature();
     Feature(const QString ID, const double meanCount);
     Feature(const QString ID, const double meanCount, const double log2FoldChange, const double foldChange);
-    Feature(const QString ID, const double sensitivity, const double specifity);
+    Feature(const QString ID, const double sensitivity, const double specificity);
 };
 
 #endif // FEATURE_H

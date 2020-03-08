@@ -14,6 +14,7 @@
 
 #if !run
 #include "Utils/FileOperators/CSVReader.h"
+#include "Statistics/Expressioncomparator.h"
 #endif
 int main(int argc, char *argv[])
 {
@@ -44,51 +45,15 @@ int main(int argc, char *argv[])
 //    QString clusterFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
 //    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
 
-    QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/PanglaoDB_markers_07_Feb_2020.tsv";
-    QString datasetFilepath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+    QString markerFilePath = "/home/kademuni/Documents/Programming/PanglaoDB_markers_07_Feb_2020.csv";
+    QString datasetFilepath = "/home/kademuni/Documents/Programming/Pbmc_expression.csv";
+//    QString datasetFilepath = "/home/kademuni/Documents/Programming/Neuron_expression.csv";
 
-//    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::getUIAndSensitivityAndSpecicifityForMarkers(markerFilePath);
+    QVector<FeatureCollection> clustersWithMarkers = CSVReader::getClusterFeatures(datasetFilepath, 15, 0);
 
-    QVector<FeatureCollection> clusterWithMarker = CSVReader::getClusterFeatures(datasetFilepath, 15, 5);
+    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::getUIAndSensitivityAndSpecicifityForMarkers(markerFilePath);
 
-    for (FeatureCollection cluster : clusterWithMarker) {
-        qDebug() << "\nCluster:" << cluster.ID;
-        for (Feature gene : cluster.getFeatures()) {
-            qDebug() << gene.ID << "-umi_count:" << gene.count << "-fold_change:" << gene.foldChange;
-        }
-    }
-
-//    QVector<QVector<QPair<QString, double>>> correlations;
-
-//    // Go through every cluster that was parsed from the 10x cluster file
-//    for (int i = 0; i < clusterWithMarker.length(); i++) {
-//        qDebug() << "cluster:" << clusterWithMarker.at(i).ID;
-
-//        // And go through every cell type that was taken from the pangloDB marker file
-//        for (int j = 0; j < cellTypesWithMarkers.length(); j++) {
-
-//            // Find genes that are expresed in the cluster and are found in the cell type
-//            FeatureCollection cluster = clusterWithMarker[i],
-//                              cellType = cellTypesWithMarkers[j];
-
-//            QVector<QPair<QString, double>> expressedGenesWithWeight;
-
-//            // For every feature in the current cluster
-//            for (int k = 0; k < cluster.getNumberOfFeatures(); k++) {
-//                QString geneID = cluster.getFeatureID(k);
-
-//                for (int l = 0; l < cellType.getNumberOfFeatures(); l++) {
-//                    bool isSameGeneID = cellType.getFeatureID(l).compare(geneID) == 0;
-
-//                    if (isSameGeneID) {
-//                        qDebug() << "Found equal gene:" << geneID;
-//    //                    double
-//                    }
-//                }
-//            }
-//        }
-//        break;
-//    }
+    QVector<QVector<QPair<QString, double>>> bla = ExpressionComparator::findMostLikelyCellTypes(clustersWithMarkers, cellTypesWithMarkers, qMakePair(0.3, 0.8), qMakePair(0.1, 0.2), 0.3);
 
 #endif
 

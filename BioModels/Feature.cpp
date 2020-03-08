@@ -3,7 +3,7 @@
 #include <QString>
 
 Feature::Feature()
-    : ID {"nAn"}, count {-1.}, log2FoldChange {-1.}, foldChange {-1.}, sensitivity {-1.}, specifity {-1.}
+    : ID {"nAn"}, count {-1.}, log2FoldChange {-1.}, foldChange {-1.}, sensitivity {-1.}, specificity {-1.}
 {}
 
 /**
@@ -12,7 +12,7 @@ Feature::Feature()
  * @param count - Measurement for the expression of the given feature
  */
 Feature::Feature(const QString ID, const double meanCount)
-    : ID {ID}, count {meanCount}, log2FoldChange {-1.}, foldChange {-1.}, sensitivity {-1.}, specifity {-1.}
+    : ID {ID}, count {meanCount}, log2FoldChange {-1.}, foldChange {-1.}, sensitivity {-1.}, specificity {-1.}
 {}
 
 
@@ -24,7 +24,7 @@ Feature::Feature(const QString ID, const double meanCount)
  * @param foldChange
  */
 Feature::Feature(const QString ID, const double meanCount, const double log2FoldChange, const double foldChange)
-    : ID {ID}, count {meanCount}, log2FoldChange {log2FoldChange}, foldChange {foldChange}, sensitivity {-1.}, specifity {-1.}
+    : ID {ID}, count {meanCount}, log2FoldChange {log2FoldChange}, foldChange {foldChange}, sensitivity {-1.}, specificity {-1.}
 {}
 
 
@@ -36,5 +36,5 @@ Feature::Feature(const QString ID, const double meanCount, const double log2Fold
  * @param specifity - Specifity for the cell-type this gene belongs to
  */
 Feature::Feature(const QString ID, const double sensitivity, const double specifity)
-    : ID {ID}, sensitivity {sensitivity}, specifity {specifity}, count {-1.}, log2FoldChange {-1.}, foldChange {-1.}
+    : ID {ID}, sensitivity {sensitivity}, specificity {specifity}, count {-1.}, log2FoldChange {-1.}, foldChange {-1.}
 {}

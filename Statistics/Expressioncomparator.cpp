@@ -5,16 +5,132 @@
 #include <QPair>
 #include <QString>
 #include <QStringList>
-
-#include <iostream>
-using std::cout;
-using std::endl;
+#include <math.h>
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Sorter.h"
 #include "Statistics/Correlator.h"
 
 namespace ExpressionComparator {
+
+QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes, QPair<double, double> sensitivityRange, QPair<double, double> specificityRange, double minimumSpan) {
+    QVector<QVector<QPair<QString, double>>> mostLikelyCellTypes;
+
+    // Lay out information about sensitivity and specificity
+
+    // LowestHighSensitivity means that everything bigger than this value is regared as high sensitivity
+    double lowestAcceptedSensitivity = sensitivityRange.first,
+           lowestHighSensitivity = sensitivityRange.second;
+
+    // HighestLowSpecificity means that everything lower than this value is regarded as low specificity
+    double highestLowSpecificity = specificityRange.first,
+           highestAcceptedSpecificity = specificityRange.second;
+
+    QVector<QVector<Feature>> relevantGenesForCellTypes;
+
+    // Go through every cluster that was parsed from the 10x cluster file
+    for (int i = 0; i < clusters.length(); i++) {
+        qDebug() << "cluster:" << clusters.at(i).ID;
+
+        QString highestLikelyCellType;
+
+        // And go through every cell type that was taken from the pangloDB marker file
+        for (int j = 0; j < cellTypes.length(); j++) {
+
+            // Find genes that are expresed in the cluster and are found in the cell type
+            FeatureCollection cluster = clusters[i],
+                              cellType = cellTypes[j];
+
+//            QVector<QPair<QString, double>> expressedGenesWithWeight;
+
+            // For every feature in the current cluster
+            for (int k = 0; k < cluster.getNumberOfFeatures(); k++) {
+                QString geneID = cluster.getFeatureID(k);
+
+                int highestNumberOfRelevantGenes = 0,
+                    numberOfRelevantGenes = 0;
+
+                // Grab all genes that the current cluster and the current cell type have in common
+                for (int l = 0; l < cellType.getNumberOfFeatures(); l++) {
+                    bool isSameGeneID = cellType.getFeatureID(l).compare(geneID) == 0;
+
+
+                    // If a comman gene is found, check if it lies within the given range for sensitivity and specificity
+                    if (isSameGeneID) {
+                        Feature foundCommonGene = cellType.getFeature(l);
+
+                        // Collect the gene's sensitivity and specificity
+                        double sensitivity = foundCommonGene.sensitivity,
+                               specificity = foundCommonGene.specificity,
+                               sensitivitySpecificitySpan = abs((sensitivity > specificity) ? (sensitivity - specificity) : (specificity - sensitivity));
+
+                        // Check whether the gene's sensitivity for the current cell type is too high or too low
+                        // and whether the gene's values for sensitivity and specificity don't lie too close together
+                        bool isSensitivityTooLow = sensitivity < lowestAcceptedSensitivity,
+                             isSpecificityTooHigh = specificity > highestAcceptedSpecificity,
+                             isEnoughDistance = sensitivitySpecificitySpan > minimumSpan;
+
+                        // If that's the case, drop it
+                        if (isSensitivityTooLow || isSpecificityTooHigh) {
+//                            qDebug() << "Sensitivitiy too low or specificity too high.";
+                            continue;
+                        }
+
+                        // Check whether the gene's sensitivity for the current cell type would be considered high or low
+                        // regarding to the given ranges
+                        bool isHighSensitivity = sensitivity > lowestHighSensitivity,
+                             isLowSpecificity  = specificity < highestLowSpecificity;
+
+                        // If the gene's sensitivity and specificity are both considered high which means it is not
+                        // explicitly highly expressed in this celltype only, this could be a housekeeping gene
+                        // In this case, it won't bring valuable information, so drop it.
+                        if (isHighSensitivity && !isLowSpecificity) {
+//                            qDebug() << "Both high";
+                            continue;
+                        }
+
+                        // If the gene's sensitivity and specificity are both considered low which means it is neither
+                        // expressed explicitly anywhere, neither in this particular cell type nor in another, this won't
+                        // bring valuable information, so drop it. Otherwise it will add to potential background noise.
+                        else if (!isHighSensitivity && isLowSpecificity) {
+//                            qDebug() << "Both low";
+                            continue;
+                        }
+
+                        // If the gene's value for sensitivity and specificity lie too close together
+                        // the gene will not bring valuable information and only add up to potential background noise.
+                        // If that's the case, drop it.
+                        else if (!isEnoughDistance) {
+//                            qDebug() << "Values too close.";
+                            continue;
+                        }
+
+                        // If all of the above cases didn't lead to this gene being dropped,
+                        // this gene has a high sensitivity for the current cell type and a low
+                        // specificity for others, which means it is very much exclusively expressed in this
+                        // cell type which classifies it as a relevant cell marker gene
+                        else {
+                            numberOfRelevantGenes++;
+//                            qDebug() << "Relevant:" << foundCommonGene.ID << "-sens:" << foundCommonGene.sensitivity << "spec:" << foundCommonGene.specificity;
+                        }
+
+                        //REMEMBER: Was ist, wenn die beide nicht hoch sind, aber weit genug auseinander liegen?
+                    }
+                }
+
+                if (numberOfRelevantGenes > highestNumberOfRelevantGenes) {
+                    highestNumberOfRelevantGenes = numberOfRelevantGenes;
+                    highestLikelyCellType = cellTypes.at(j).ID;
+                }
+            }
+        }
+        qDebug() << "Most likely cell type:" << highestLikelyCellType;
+    }
+
+    return mostLikelyCellTypes;
+}
+
+
 
 // REMEMBER: Refactor!!!!
 /**
