@@ -13,6 +13,15 @@
 
 namespace ExpressionComparator {
 
+/**
+ * @brief findMostLikelyCellTypes - ...
+ * @param clusters - List of 10x Clusters
+ * @param cellTypes - List of panglaodb cell types
+ * @param sensitivityRange - (x,y) with x = lowest accepted sensitivity, y = lowest value still considered high sensitivity
+ * @param specificityRange - (x,y) with x = highest value still considered low specificity, y = highest accepted specificity
+ * @param minimumSpan - Minimum accepted distance between the sensitivity and specificity value
+ * @return
+ */
 QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes, QPair<double, double> sensitivityRange, QPair<double, double> specificityRange, double minimumSpan) {
     QVector<QVector<QPair<QString, double>>> mostLikelyCellTypes;
 
@@ -30,8 +39,8 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
 
     // Go through every cluster that was parsed from the 10x cluster file
     for (int i = 0; i < clusters.length(); i++) {
-        qDebug() << "cluster:" << clusters.at(i).ID;
 
+        // This is used to store the cell type ID that is currently considered most likely
         QString highestLikelyCellType;
 
         // And go through every cell type that was taken from the pangloDB marker file
@@ -41,22 +50,21 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
             FeatureCollection cluster = clusters[i],
                               cellType = cellTypes[j];
 
-//            QVector<QPair<QString, double>> expressedGenesWithWeight;
-
             // For every feature in the current cluster
             for (int k = 0; k < cluster.getNumberOfFeatures(); k++) {
-                QString geneID = cluster.getFeatureID(k);
 
+                // This is used to store the amount of genes in the clusters that are considered relevant
+                // And compare it with the cell type that - so far - has been considered most likely
+                // see far below for more
                 int highestNumberOfRelevantGenes = 0,
                     numberOfRelevantGenes = 0;
 
                 // Grab all genes that the current cluster and the current cell type have in common
                 for (int l = 0; l < cellType.getNumberOfFeatures(); l++) {
-                    bool isSameGeneID = cellType.getFeatureID(l).compare(geneID) == 0;
 
-
-                    // If a comman gene is found, check if it lies within the given range for sensitivity and specificity
-                    if (isSameGeneID) {
+                    // If a common gene is found, check if it lies within the given range for sensitivity and specificity
+                    // Otherwise it is dropped
+                    if (cellType.getFeatureID(l).compare(cluster.getFeatureID(k)) == 0) {
                         Feature foundCommonGene = cellType.getFeature(l);
 
                         // Collect the gene's sensitivity and specificity
@@ -72,7 +80,6 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
 
                         // If that's the case, drop it
                         if (isSensitivityTooLow || isSpecificityTooHigh) {
-//                            qDebug() << "Sensitivitiy too low or specificity too high.";
                             continue;
                         }
 
@@ -85,7 +92,6 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
                         // explicitly highly expressed in this celltype only, this could be a housekeeping gene
                         // In this case, it won't bring valuable information, so drop it.
                         if (isHighSensitivity && !isLowSpecificity) {
-//                            qDebug() << "Both high";
                             continue;
                         }
 
@@ -93,7 +99,6 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
                         // expressed explicitly anywhere, neither in this particular cell type nor in another, this won't
                         // bring valuable information, so drop it. Otherwise it will add to potential background noise.
                         else if (!isHighSensitivity && isLowSpecificity) {
-//                            qDebug() << "Both low";
                             continue;
                         }
 
@@ -101,7 +106,6 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
                         // the gene will not bring valuable information and only add up to potential background noise.
                         // If that's the case, drop it.
                         else if (!isEnoughDistance) {
-//                            qDebug() << "Values too close.";
                             continue;
                         }
 
@@ -111,13 +115,15 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
                         // cell type which classifies it as a relevant cell marker gene
                         else {
                             numberOfRelevantGenes++;
-//                            qDebug() << "Relevant:" << foundCommonGene.ID << "-sens:" << foundCommonGene.sensitivity << "spec:" << foundCommonGene.specificity;
                         }
 
                         //REMEMBER: Was ist, wenn die beide nicht hoch sind, aber weit genug auseinander liegen?
                     }
                 }
 
+                // If the number of relevant genes - that has so far been noted for the highest likely type
+                // is lower than the number of relevant genes that are noted for the current cell type
+                // mark the current cell type as new highest likely
                 if (numberOfRelevantGenes > highestNumberOfRelevantGenes) {
                     highestNumberOfRelevantGenes = numberOfRelevantGenes;
                     highestLikelyCellType = cellTypes.at(j).ID;

@@ -46,8 +46,9 @@ int main(int argc, char *argv[])
 //    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
 
     QString markerFilePath = "/home/kademuni/Documents/Programming/PanglaoDB_markers_07_Feb_2020.csv";
-    QString datasetFilepath = "/home/kademuni/Documents/Programming/Pbmc_expression.csv";
+//    QString datasetFilepath = "/home/kademuni/Documents/Programming/Pbmc_expression.csv";
 //    QString datasetFilepath = "/home/kademuni/Documents/Programming/Neuron_expression.csv";
+    QString datasetFilepath = "/home/kademuni/Documents/Programming/5k_neuron_v3_analysis/analysis/diffexp/kmeans_10_clusters/differential_expression.csv";
 
     QVector<FeatureCollection> clustersWithMarkers = CSVReader::getClusterFeatures(datasetFilepath, 15, 0);
 
