@@ -140,8 +140,9 @@ QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCo
             // Analog, a low value corresponds to a low expression rate in comparison to other clusters
             double featureFoldChange = Math::invertLog(2, featureLog2FoldChange);
 
-            // The abs function is used here to check whether the fold change is high enough in any direction
-            bool isFeatureFoldChangeSignificant = abs(featureFoldChange) > foldChangeCutOff;
+            // The abs function is used here to check whether the fold change is high enough in any directions
+            // REMEMBER: I removed it due to it leading to wrong results -> If the feature is strongly underrepresented, it is exactly NOT relevant for direct comparison with highly represented features
+            bool isFeatureFoldChangeSignificant = featureFoldChange > foldChangeCutOff;
             bool isFeatureMeanCountSignificant = featureMeanCount > meanCountCutOff;
 
             // Get feature name and append to the correct cluster list

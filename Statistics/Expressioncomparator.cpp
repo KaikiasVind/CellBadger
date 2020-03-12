@@ -26,7 +26,6 @@ QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<Feature
     QVector<QVector<QPair<QString, double>>> mostLikelyCellTypes;
 
     // Lay out information about sensitivity and specificity
-
     // LowestHighSensitivity means that everything bigger than this value is regared as high sensitivity
     double lowestAcceptedSensitivity = sensitivityRange.first,
            lowestHighSensitivity = sensitivityRange.second;
@@ -200,6 +199,8 @@ QVector<QVector<QPair<QString, double>>> findClusterTissueCorrelations(QVector<F
     // Return the final list including the correlations of all clusters with all tissues
     return tissueCorrelationsForAllClusters;
 }
+
+
 
 
 QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<FeatureCollection> clusters) {
