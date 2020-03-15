@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -20,6 +20,7 @@ SOURCES += \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
     Graphics/qcustomplot.cpp \
+    PlotWidget.cpp \
     StartDialog.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     BioModels/FeatureCollection.h \
     Graphics/qcustomplot.h \
     Mainwindow.h \
+    PlotWidget.h \
     StartDialog.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
@@ -58,6 +60,7 @@ HEADERS += \
 
 FORMS += \
     Mainwindow.ui \
+    PlotWidget.ui \
     StartDialog.ui \
     TabWidget.ui
 

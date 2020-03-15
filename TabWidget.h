@@ -32,6 +32,8 @@ private slots:
 
     void on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column);
 
+    void on_pushButtonPlot_clicked();
+
 private:
     Ui::TabWidget *ui;
 };

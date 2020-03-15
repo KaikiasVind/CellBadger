@@ -96,6 +96,20 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonPlot">
+       <property name="text">
+        <string>Plot</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonBoxPlot">
+       <property name="text">
+        <string>Boxplot</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacerGeneExpressions">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
