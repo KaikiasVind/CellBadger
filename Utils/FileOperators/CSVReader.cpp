@@ -15,7 +15,7 @@
 namespace CSVReader {
 
 
-QVector<FeatureCollection> getUIAndSensitivityAndSpecicifityForMarkers(QString csvFilePath) {
+QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -56,9 +56,25 @@ QVector<FeatureCollection> getUIAndSensitivityAndSpecicifityForMarkers(QString c
                 cellType = splitLine[2],
                 tissueType = splitLine[9];
 
-        double ubiquitousnessIndex = splitLine[4].toDouble(),
-               geneSensitivity = splitLine[10].toDouble(),
-               geneSpecifity = splitLine[12].toDouble();
+        QString ubiquitousnessIndex = splitLine[4],
+               geneSensitivity = splitLine[10],
+               geneSpecifity = splitLine[12];
+
+        bool isValuesInvalid = geneSensitivity == "NA" || geneSpecifity != "NA";
+
+        // If at least one of the values is marked as not existing in the file, drop it
+        if (isValuesInvalid)
+            continue;
+
+        // Otherwise parse the values
+        double geneSensitivityValue = geneSensitivity.toDouble(),
+               geneSpecifityValue = geneSpecifity.toDouble();
+
+        bool isAtLeastOneValueZero = geneSensitivityValue == 0 || geneSpecifityValue == 0;
+
+        // Zeros stand for nAn as well, so drop them
+        if (isAtLeastOneValueZero)
+            continue;
 
         // Check if a new cell type is met while file parsing -> 0 means equal strings
         bool isNewCellType = currentCellType.ID.compare(cellType) != 0;
@@ -70,7 +86,7 @@ QVector<FeatureCollection> getUIAndSensitivityAndSpecicifityForMarkers(QString c
         }
 
         //REMEMBER: Do I need the UbIndex?
-        currentCellType.addFeature(geneID, geneSensitivity, geneSpecifity);
+        currentCellType.addFeature(geneID, geneSensitivityValue, geneSpecifityValue);
     }
 
     // Add the last cell type to the list. Otherwise the last one would be dropped

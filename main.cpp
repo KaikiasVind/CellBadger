@@ -2,6 +2,8 @@
 #include <QDir>
 #include <QObject>
 
+#include <QPair>
+
 #include "Mainwindow.h"
 #include "StartDialog.h"
 #include "TabWidget.h"
@@ -21,41 +23,22 @@ int main(int argc, char *argv[])
     QApplication application(argc, argv);
 
 #if !run
-//    QString path = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Cell Marker/Human_cell_markers.csv";
-//    QHash <QString, QVector<QPair<QString, QString>>> markerTypeHashes = CSVReader::sortCsvByMarker(path);
-
-//    for (QString key : markerTypeHashes.keys()) {
-//        qDebug() << "\n##################" << key.toUpper() << "##################\n";
-//        QVector<QPair<QString, QString>> valuesForKey = markerTypeHashes[key];
-//        for (QPair<QString, QString> value : valuesForKey) {
-//            qDebug() << value.first << " - " << value.second;
-//        }
-//    }
-
-//    QString path = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
-//    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
-
-//    for (FeatureCollection cluster : clustersWithSignificantFeatureFoldChanges) {
-//        qDebug() << "########################" << cluster.ID << "########################";
-//        for (Feature feature : cluster.getFeatures()) {
-//            qDebug() << "Feature:" << feature.ID << "- fold change:" << feature.count;
-//        }
-//    }
-
-//    QString clusterFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
-//    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges = CSVReader::getClusterFeatureExpressionFoldChanges(path, 40);
-
-//    QString datasetFilepath = "/home/kademuni/Documents/Programming/Pbmc_expression.csv";
-//    QString datasetFilepath = "/home/kademuni/Documents/Programming/Neuron_expression.csv";
     QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/PanglaoDB_markers_07_Feb_2020.tsv";
     QString datasetFilepath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
-//    QString datasetFilepath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Neuron_expression.csv";
 
     QVector<FeatureCollection> clustersWithMarkers = CSVReader::getClusterFeatures(datasetFilepath, 15, 0);
 
-    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::getUIAndSensitivityAndSpecicifityForMarkers(markerFilePath);
+    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readPanglaoDBFile(markerFilePath);
 
-    QVector<QVector<QPair<QString, double>>> bla = ExpressionComparator::findMostLikelyCellTypes(clustersWithMarkers, cellTypesWithMarkers, qMakePair(0.3, 0.8), qMakePair(0.1, 0.2), 0.3);
+    QVector<QVector<QPair<QString, double>>> mostLikelyCellTypes = ExpressionComparator::findMostLikelyCellTypesWithFoldChange(clustersWithMarkers, cellTypesWithMarkers);
+
+    for (int i = 0; i < mostLikelyCellTypes.length(); i++) {
+        qDebug() << "Cluster:" << i;
+        for (int j = 0; j < mostLikelyCellTypes.at(i).length(); j++) {
+            qDebug() << mostLikelyCellTypes.at(i).at(j).first << "-" << mostLikelyCellTypes.at(i).at(j).second;
+        }
+        qDebug() << "\n";
+    }
 
 #endif
 

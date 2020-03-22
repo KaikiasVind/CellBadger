@@ -20,7 +20,7 @@ namespace CSVReader
 
     extern QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, double cutOff);
 
-    extern QVector<FeatureCollection> getUIAndSensitivityAndSpecicifityForMarkers(QString csvFilePath);
+    extern QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath);
 }
 
 #endif // CSVREADER_H

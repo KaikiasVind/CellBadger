@@ -2,6 +2,8 @@
 
 #include <QStringList>
 #include <QVector>
+#include <math.h>
+#include <QDebug>
 
 #include "BioModels/Feature.h"
 
@@ -51,6 +53,12 @@ void FeatureCollection::addFeature(const QString featureID, const double feature
  */
 void FeatureCollection::addFeature(const QString featureID, const double featureSensitivity, const double featureSpecifity) {
     Feature feature(featureID, featureSensitivity, featureSpecifity);
+    feature.foldChange = featureSensitivity / featureSpecifity;
+    feature.log2FoldChange = log2(feature.foldChange);
+
+    qDebug() << "Adding feature:" << feature.ID;
+    qDebug() << "Sens:" << featureSensitivity << "- Spec:" << featureSpecifity;
+    qDebug() << "With fold change:" << feature.foldChange;
     this->features.append(feature);
 }
 
