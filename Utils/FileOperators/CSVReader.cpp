@@ -201,8 +201,9 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
     int tissueIDsOffset = 2;
 
     // Get title line with tissue names
+    char columnDelimiter(',');
     QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split('\t');
+    QList<QByteArray> splitLine = line.split(columnDelimiter);
 
     // and add them to the list
     for (int i = tissueIDsOffset; i < splitLine.length(); i++) {
@@ -216,7 +217,7 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
     // Go through the rest of the file
     while (!csvFile.atEnd()) {
         line = csvFile.readLine();
-        splitLine = line.split('\t');
+        splitLine = line.split(columnDelimiter);
 
         for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
             QString featureID = splitLine[1].toUpper();
