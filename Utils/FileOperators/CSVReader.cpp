@@ -27,21 +27,19 @@ QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
     }
 
     // Skip title line
+    char columnDelimiter('\t');
     QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split(',');
+    QList<QByteArray> splitLine = line.split(columnDelimiter);
 
     // Create list that will contain all cell types with all associated markers present in the given file
     QVector<FeatureCollection> cellTypes;
 
-    // Create String that is used to check whether a new cell type is met whil parsing the file
-    // This is neccessary because the file is composed out of x lines per cell type with one cell type associated marker per line
-    FeatureCollection currentCellType("nAn");
-
     // Start parsing cluster file
     while (!csvFile.atEnd()) {
         line = csvFile.readLine();
-        splitLine = line.split('\t');
+        splitLine = line.split(columnDelimiter);
 
+        // ############################# FILTERING OUT INVALID VALUES #############################
         // Check for gene species
         QString species = splitLine[0];
 
@@ -53,14 +51,14 @@ QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
 
         // Otherwise, extract other data from line
         QString geneID = splitLine[1],
-                cellType = splitLine[2],
+                cellTypeID = splitLine[2],
                 tissueType = splitLine[9];
 
         QString ubiquitousnessIndex = splitLine[4],
                geneSensitivity = splitLine[10],
                geneSpecifity = splitLine[12];
 
-        bool isValuesInvalid = geneSensitivity == "NA" || geneSpecifity != "NA";
+        bool isValuesInvalid = geneSensitivity == "NA" || geneSpecifity == "NA";
 
         // If at least one of the values is marked as not existing in the file, drop it
         if (isValuesInvalid)
@@ -76,21 +74,20 @@ QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
         if (isAtLeastOneValueZero)
             continue;
 
-        // Check if a new cell type is met while file parsing -> 0 means equal strings
-        bool isNewCellType = currentCellType.ID.compare(cellType) != 0;
+        // ############################# FILTERING OUT INVALID VALUES #############################
 
-        // If a new cell type is met, append the cell type and clear the last one
+        // Check if a new cell type is met while file parsing -> 0 means equal strings
+        bool isNewCellType = cellTypes.isEmpty() || cellTypes.last().ID.compare(cellTypeID) != 0;
+
+        // If a new cell type is met, append it to the list of cell types
         if (isNewCellType) {
-            cellTypes.append(currentCellType);
-            currentCellType = FeatureCollection(cellType);
+            FeatureCollection cellType(cellTypeID);
+            cellTypes.append(cellType);
         }
 
         //REMEMBER: Do I need the UbIndex?
-        currentCellType.addFeature(geneID, geneSensitivityValue, geneSpecifityValue);
+        cellTypes.last().addFeature(geneID, geneSensitivityValue, geneSpecifityValue);
     }
-
-    // Add the last cell type to the list. Otherwise the last one would be dropped
-    cellTypes.append(currentCellType);
 
     return cellTypes;
 }

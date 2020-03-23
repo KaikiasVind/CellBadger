@@ -21,6 +21,8 @@ namespace Sorter
     extern QVector<int> calculateRanks(QVector<double> numbers);
 
     extern QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection collectionOne, FeatureCollection collecionTwo);
+
+    extern void sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(QVector<QVector<QPair<QString, QPair<double, double>>>> & cellTypeFoldChangeSumsFor10xClusters);
 };
 
 #endif // SORTER_H

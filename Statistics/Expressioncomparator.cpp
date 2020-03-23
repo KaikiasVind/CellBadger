@@ -14,65 +14,60 @@
 namespace ExpressionComparator {
 
 
-QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypesWithFoldChange(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes) {
+/**
+ * @brief calculateCellTypeFoldChangeSumsForClusters - For every cluster the the sum of all fold changes of every cell type is calculated
+ * @param clusters - List of 10xGenomics clusters
+ * @param cellTypes - List of GTEx cell types
+ * @return
+ */
+QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldChangeSumsForClusters(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes) {
 
-    QVector<QVector<QPair<QString, double>>> mostLikelyCellTypes;
-
-    auto sum = [](QVector<double> foldChanges) {
-        return std::accumulate(foldChanges.begin(), foldChanges.end(), 0.0);
-    };
-
-    auto calculateFoldChangeSum = [](FeatureCollection featureCollection) {
-        int sum = 0;
-        for (int i = 0; i < featureCollection.getNumberOfFeatures(); i++) {
-            sum += featureCollection.getFeature(i).foldChange;
-        }
-        return sum;
-    };
-
-    auto isGeneIDEqual = [](QString featureOneID, QString featureTwoID) {
-        return featureOneID.compare(featureTwoID) < 0;
-    };
+    // Create a list that will hold a list per cluster that itself holdes the fold change sums of all cell types regarding the current cluster
+    QVector<QVector<QPair<QString, QPair<double, double>>>> cellTypesWithFoldChangeSumsForClusters;
 
     // Go through every cluster in the given cluster file
     for (int i = 0; i < clusters.length(); i++) {
 
         // Calculate the fold change sum of the cluster for later comparison
-        double clusterFoldChangeSum = calculateFoldChangeSum(clusters[i]);
+        double clusterFoldChangeSum = clusters[i].getFoldChangeSum();
 
-        QVector<QPair<QString, double>> cellTypesWithFoldChangeSums;
+        QVector<QPair<QString, QPair<double, double>>> cellTypesWithFoldChangeSums;
 
         // Go through every cell type that is present in the PanglaoDB file
         for (int j = 0; j < cellTypes.length(); j++) {
 
             // Calculate the sum of all fold changes of all features in cluster i also expressed in the cell type j
-            double cellTypeGeneFoldChangeSum = 0.;
+            double cellTypeGeneFoldChangeSum = 0;
 
             // Go through every expressed feature in the cluster i and compute the fold change sums
             for (int k = 0; k < clusters[i].getNumberOfFeatures(); k++) {
 
                 // Go through every expressed feature in the cell type j and add the fold changes of those genes
                 // to the list, which can be found in the cluster
-                for (int l = 0; l < cellTypes[l].getNumberOfFeatures(); l++) {
+                for (int l = 0; l < cellTypes[j].getNumberOfFeatures(); l++) {
 
-                    qDebug() << cellTypes[j].getFeatureID(l);
+                    // Compare the gene IDs of the currently watched features
+                    bool isGeneIDEqual = clusters[i].getFeatureID(k).compare(cellTypes[j].getFeatureID(l)) < 0;
+
                     // If a gene with the same gene ID has been found, add it's fold change to the fold change sum
-                    if (isGeneIDEqual(clusters[i].getFeatureID(k), cellTypes[j].getFeatureID(l))) {
+                    if (isGeneIDEqual) {
                         cellTypeGeneFoldChangeSum += cellTypes[j].getFeature(l).foldChange;
-                        qDebug() << cellTypes[j].getFeature(l).foldChange;
                     }
                 }
             }
 
-            // Add the cell type ID and the cell type's fold change sum to the list
-            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, cellTypeGeneFoldChangeSum));
+            // Calculate distance of the fold change sum of the current cell type j to the fold change sum of the current cluster i
+            double distanceOfFoldChangeSum = fabs(clusterFoldChangeSum - cellTypeGeneFoldChangeSum);
+
+            // And add the cell type including it's fold change sum and distance to cluster fold change sum to the list
+            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(cellTypeGeneFoldChangeSum, distanceOfFoldChangeSum)));
         }
 
-        // Sort the list of fold change sums to get the most likely cell type by fold change sum
-        mostLikelyCellTypes.append(cellTypesWithFoldChangeSums);
+        // Add the list of cell types to the current cluster cell type list
+        cellTypesWithFoldChangeSumsForClusters.append(cellTypesWithFoldChangeSums);
     }
 
-    return mostLikelyCellTypes;
+    return cellTypesWithFoldChangeSumsForClusters;
 }
 
 /**

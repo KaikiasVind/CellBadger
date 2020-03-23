@@ -17,28 +17,38 @@
 #if !run
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
+#include "Utils/Sorter.h"
 #endif
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
 #if !run
-    QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/PanglaoDB_markers_07_Feb_2020.tsv";
-    QString datasetFilepath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+//    QString markerFilePath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/PanglaoDB_markers_07_Feb_2020.tsv";
+//    QString datasetFilepath = "/home/numelen/Documents/Vorlesungen/3-WS_19-20/Bachelorarbeit/Programming/Data/Pbmc_expression.csv";
+
+    // Windows
+    QString markerFilePath = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\PanglaoDB_markers_07_Feb_2020.tsv";
+    QString datasetFilepath  = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\Pbmc_expression.csv";
 
     QVector<FeatureCollection> clustersWithMarkers = CSVReader::getClusterFeatures(datasetFilepath, 15, 0);
 
     QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readPanglaoDBFile(markerFilePath);
 
-    QVector<QVector<QPair<QString, double>>> mostLikelyCellTypes = ExpressionComparator::findMostLikelyCellTypesWithFoldChange(clustersWithMarkers, cellTypesWithMarkers);
+    QVector<QVector<QPair<QString, QPair<double, double>>>> cellTypeFoldChangeSumsFor10xClusters = ExpressionComparator::calculateCellTypeFoldChangeSumsForClusters(clustersWithMarkers, cellTypesWithMarkers);
 
-    for (int i = 0; i < mostLikelyCellTypes.length(); i++) {
-        qDebug() << "Cluster:" << i;
-        for (int j = 0; j < mostLikelyCellTypes.at(i).length(); j++) {
-            qDebug() << mostLikelyCellTypes.at(i).at(j).first << "-" << mostLikelyCellTypes.at(i).at(j).second;
+    Sorter::sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(cellTypeFoldChangeSumsFor10xClusters);
+
+    qDebug() << "length:" << cellTypeFoldChangeSumsFor10xClusters.length();
+    int i = 0;
+    for (QVector<QPair<QString, QPair<double, double>>> cluster : cellTypeFoldChangeSumsFor10xClusters) {
+        qDebug() << "\nCluster" << i << ":" << clustersWithMarkers[i].getFoldChangeSum();
+        i++;
+        for (QPair<QString, QPair<double, double>> cellType : cluster) {
+            qDebug() << cellType.first << ":" << cellType.second.first << "-" << cellType.second.second;
         }
-        qDebug() << "\n";
     }
+
 
 #endif
 

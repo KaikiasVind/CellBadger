@@ -36,6 +36,7 @@ public:
     int getNumberOfFeatures();
     QVector<Feature> getFeatures();
     QVector<double> getMostExpressedFeaturesCounts(int number);
+    double getFoldChangeSum();
     //REMEMBER: Maybe write a function to get a vector of all feature expression counts?
 
 };

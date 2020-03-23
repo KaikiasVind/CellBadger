@@ -55,10 +55,6 @@ void FeatureCollection::addFeature(const QString featureID, const double feature
     Feature feature(featureID, featureSensitivity, featureSpecifity);
     feature.foldChange = featureSensitivity / featureSpecifity;
     feature.log2FoldChange = log2(feature.foldChange);
-
-    qDebug() << "Adding feature:" << feature.ID;
-    qDebug() << "Sens:" << featureSensitivity << "- Spec:" << featureSpecifity;
-    qDebug() << "With fold change:" << feature.foldChange;
     this->features.append(feature);
 }
 
@@ -164,4 +160,17 @@ int FeatureCollection::getNumberOfFeatures() {
 QVector<Feature> FeatureCollection::getFeatures() {
     QVector<Feature> copyCollection = this->features;
     return copyCollection;
+}
+
+
+/**
+ * @brief FeatureCollection::getFoldChangeSum - Calculates the fold change sum for the current genes
+ * @return - Sum of all genes currently listed in this FeatureCollection
+ */
+double FeatureCollection::getFoldChangeSum() {
+    double foldChangeSum = 0;
+    for (Feature feature : this->features) {
+        foldChangeSum += feature.foldChange;
+    }
+    return foldChangeSum;
 }
