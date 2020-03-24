@@ -28,8 +28,8 @@ QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldCha
     // Go through every cluster in the given cluster file
     for (int i = 0; i < clusters.length(); i++) {
 
-        // Calculate the fold change sum of the cluster for later comparison
-        double clusterFoldChangeSum = clusters[i].getFoldChangeSum();
+        // Retrieve the normalized fold change sum of the cluster for later comparison
+        double normalizedClusterFoldChangeSum = clusters[i].getFoldChangeSum();
 
         QVector<QPair<QString, QPair<double, double>>> cellTypesWithFoldChangeSums;
 
@@ -38,6 +38,7 @@ QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldCha
 
             // Calculate the sum of all fold changes of all features in cluster i also expressed in the cell type j
             double cellTypeGeneFoldChangeSum = 0;
+            int numberOfEquallyExpressedGenes = 0;
 
             // Go through every expressed feature in the cluster i and compute the fold change sums
             for (int k = 0; k < clusters[i].getNumberOfFeatures(); k++) {
@@ -52,14 +53,19 @@ QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldCha
                     // If a gene with the same gene ID has been found, add it's fold change to the fold change sum
                     if (isGeneIDEqual) {
                         cellTypeGeneFoldChangeSum += cellTypes[j].getFeature(l).foldChange;
+                        numberOfEquallyExpressedGenes += 1;
                     }
                 }
             }
 
+//            double normalizedCellTypeGeneFoldChangeSum = (cellTypeGeneFoldChangeSum / numberOfEquallyExpressedGenes);
+
             // Calculate distance of the fold change sum of the current cell type j to the fold change sum of the current cluster i
-            double distanceOfFoldChangeSum = fabs(clusterFoldChangeSum - cellTypeGeneFoldChangeSum);
+//            double distanceOfFoldChangeSum = qAbs(normalizedClusterFoldChangeSum - normalizedCellTypeGeneFoldChangeSum);
+            double distanceOfFoldChangeSum = qAbs(normalizedClusterFoldChangeSum - cellTypeGeneFoldChangeSum);
 
             // And add the cell type including it's fold change sum and distance to cluster fold change sum to the list
+//            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(normalizedCellTypeGeneFoldChangeSum, distanceOfFoldChangeSum)));
             cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(cellTypeGeneFoldChangeSum, distanceOfFoldChangeSum)));
         }
 
