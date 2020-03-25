@@ -172,7 +172,5 @@ double FeatureCollection::getFoldChangeSum() {
     for (Feature feature : this->features) {
         foldChangeSum += feature.foldChange;
     }
-//    double normalizedFoldChangeSum = (foldChangeSum / this->features.length());
-//    return normalizedFoldChangeSum;
     return foldChangeSum;
 }

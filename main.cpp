@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         qDebug() << "\nCluster" << i << ":" << clustersWithMarkers[i].getFoldChangeSum();
         i++;
         for (QPair<QString, QPair<double, double>> cellType : cluster) {
-            qDebug() << cellType.first << ":" << cellType.second.first << "-" << cellType.second.second;
+            qDebug() << cellType.first << ":" << cellType.second.first << "--" << cellType.second.second;
         }
     }
 
