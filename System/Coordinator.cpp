@@ -7,10 +7,6 @@
 #include <QFuture>
 #include <QDebug>
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
 #include "System/InformationCenter.h"
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
@@ -50,23 +46,40 @@ void Coordinator::saveInformationAfterParsingFinished() {
     // The first thread has been reserved for the marker file -> Report the result to the information center
     this->informationCenter.cellMarkersForTypes = parsingThreadsWatcher.futures()[0].result();
 
-    // Get the first marker-FeatureCollection that is only used to store the IDs for genes expressed by at least one cluster
-    FeatureCollection completeSetOfGeneIDs = this->informationCenter.cellMarkersForTypes.first();
-    this->informationCenter.completeSetOfGeneIDs.reserve(completeSetOfGeneIDs.getNumberOfFeatures());
+//    // Get the first marker-FeatureCollection that is only used to store the IDs for genes expressed by at least one cluster
+//    FeatureCollection completeSetOfGeneIDs = this->informationCenter.cellMarkersForTypes.first();
+//    this->informationCenter.completeSetOfGeneIDs.reserve(completeSetOfGeneIDs.getNumberOfFeatures());
 
-    // Gather all gene IDs from the FeatureCollection and report them to the information center
-    for (Feature feature : completeSetOfGeneIDs.getFeatures()) {
-        this->informationCenter.completeSetOfGeneIDs.append(feature.ID);
-    }
+//    // Gather all gene IDs from the FeatureCollection and report them to the information center
+//    for (Feature feature : completeSetOfGeneIDs.getFeatures()) {
+//        this->informationCenter.completeSetOfGeneIDs.append(feature.ID);
+//    }
 
-    // Removing of the marker-FeatureCollection leaves only the "real" FeatureCollections parsed from the files
-    this->informationCenter.cellMarkersForTypes.removeFirst();
+//    // Removing of the marker-FeatureCollection leaves only the "real" FeatureCollections parsed from the files
+//    this->informationCenter.cellMarkersForTypes.removeFirst();
 
     // Gather the results from the other finished threads,
     for (int i = 1; i < this->parsingThreadsWatcher.futures().length(); i++) {
 
+        QStringList completeSetOfGeneIDs;
+
         // and report it the the information center
         this->informationCenter.xClusterCollections.append(this->parsingThreadsWatcher.futures()[i].result());
+
+        // The first collection in the set of collections that were parsed from the datasetfiles
+        // is reserved for the genes that were expressed at least once in any cluster from the file
+        for (Feature feature : this->informationCenter.xClusterCollections.last().first().getFeatures()) {
+            completeSetOfGeneIDs.append(feature.ID);
+        }
+
+        // After gathering the gene IDs, remove the collection only leaving behind only the "real" FeatureCollections
+        this->informationCenter.xClusterCollections.last().removeFirst();
+
+        // Remove any duplicate gene IDs that may occur due to the gene being expressed in more that one cluster in any dataset file
+        completeSetOfGeneIDs.removeDuplicates();
+
+        // And add the set of gene IDs that belongs to this dataset to the list of all gene ID sets
+        this->informationCenter.completeSetsOfGeneIDsPerDataset.append(completeSetOfGeneIDs);
     }
 }
 
@@ -99,21 +112,6 @@ void Coordinator::saveInformationAfterCorrelatingFinished() {
 }
 
 
-void Coordinator::printResults() {
-    int i = 0;
-    int j = 0;
-    for (QVector<QVector<QPair<QString, double>>> correlatedDataset : informationCenter.correlatedDatasets) {
-        cout << "\n########################### DATASET:" << i++ << "###########################\n";
-        j = 0;
-        for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : correlatedDataset) {
-            cout << "\nCLUSTER:" << j++ << "\n";
-            for (QPair<QString, double> correlation : clusterWithTissueCorrelations) {
-                cout << correlation.first.toStdString() << ":" << correlation.second << endl;
-            }
-        }
-    }
-}
-
 // ###################################### INTERACTION WITH START DIALOG ###########################################
 
 /**
@@ -138,38 +136,38 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
 
     qDebug() << "Parsing:" << cellMarkerFilePaths.first();
     // Parse the cell marker file in separate thread
-    cout << "Parsing cell marker file." << endl;
+    qDebug() << "Parsing cell marker file.";
     this->parseFiles(cellMarkerFilePaths, CSVReader::getTissuesWithGeneExpression, 100);
 
     // Parse the dataset files in separate threads
-    cout << "Parsing datasets." << endl;
+    qDebug() << "Parsing datasets.";
     this->parseFiles(datasetFilePaths, CSVReader::getClusterFeatureExpressions, 15);
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();
-    cout << "Finished parsing. Gathering information" << endl;
+    qDebug() << "Finished parsing. Gathering information";
 
     // Gather and save the information that was parsed from the different threads
     this->saveInformationAfterParsingFinished();
-    cout << "Saving information successfull." << endl;
+    qDebug() << "Saving information successfull.";
 
     // Report that the last parsing thread has finished to the main window
     emit finishedFileParsing();
 
-    cout << "Correlating datasets" << endl;
+    qDebug() << "Correlating datasets";
     // Correlate the datasets with the given cell type markers in separate threads
     this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
-    cout << "Finished correlating. Gathering information" << endl;
+    qDebug() << "Finished correlating. Gathering information";
 
     // Gather and save the information from the correlation from the different threads
     this->saveInformationAfterCorrelatingFinished();
-    cout << "Saving correlation data successfull." << endl;
+    qDebug() << "Saving correlation data successfull.";
 
     // Report that the last correlation thread has finished to the main window
 //    emit finishedCorrelating(informationCenter.correlatedDatasets);
     emit finishedCorrelating(this->informationCenter);
 
-    qDebug() << "Finished workflow. YEAY." << endl;
+    qDebug() << "Finished workflow. YEAY.";
 }
 
 
