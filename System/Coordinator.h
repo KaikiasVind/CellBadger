@@ -24,8 +24,6 @@ private:
 
     void parseDatasetFiles(const QStringList datasetFilePaths);
 
-    void printResults(); //REMEBER: DELETE ME!!!!
-
     template<typename F>
     void parseFiles(const QStringList filePaths, const F & parsingFunction, const double cutoff);
     void saveInformationAfterParsingFinished();

@@ -36,6 +36,12 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     // Each cluster contains its expressed features
     QVector<FeatureCollection> clustersWithExpressedFeatures;
 
+    // Create a list to collect the ID of every gene that is expressed at least in one cluster.
+    // This is neccessary to have a complete list of existing gene IDs for comparison between clusters and datasets
+    // with differing expressed genes
+    QStringList completeGeneIDs;
+    FeatureCollection completeGeneIDCollection("completeGeneIDCollection");
+
     int numberOfColumns = splitLine.length();
     // The cellranger cluster feature expression file is segmented into 3 rows per cluster
     // with two lines in the very beginning for the feature ID and for the feature name -> Hence numberOfColumns - 2
@@ -61,13 +67,32 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
             double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
             bool isFeatureExpressed = featureMeanCount > cutOff;
 
+            QString featureID = splitLine.at(1).toUpper();
+
+            // Append the feature ID to the list of all feature IDs that are at least expressed once no matter how little
+            if (featureMeanCount > 1.0) {
+                completeGeneIDs.append(featureID);
+            }
+
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
-                QString featureID = splitLine.at(1).toUpper();
                 clustersWithExpressedFeatures[i].addFeature(featureID, featureMeanCount);
             }
         }
     }
+
+    // Remove all duplicates that were created due to genes being expressed in multiple clusters
+    completeGeneIDs.removeDuplicates();
+
+    // Generate a feature collection out of the collected gene IDs for easy transition
+    // REMEMBER: This is not clean
+    for (QString geneID : completeGeneIDs) {
+        completeGeneIDCollection.addFeature(geneID, -1);
+    }
+
+    // Add the list of all gene IDs that were expressed by any cluster at least once to the cluster list.
+    // In the next step, this list is removed and added as list of complete gene IDs to the information center
+    clustersWithExpressedFeatures.push_front(completeGeneIDCollection);
 
     return clustersWithExpressedFeatures;
 }
@@ -186,23 +211,16 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
         exit(1);
     }
 
-    // tissueIDs is needed here to know the amount of features and
-    // to add them later to the FeatureCollection
-    QStringList tissueIDs;
+    // Create a list that will hold all observed tissues taken from the file
     QVector<FeatureCollection> tissues;
-
-    // Create a list to collect the ID of every gene that is expressed at least in one cluster.
-    // This is neccessary to have a complete list of existing gene IDs for comparison between clusters
-    // with differing expressed genes
-    FeatureCollection completeGeneIDCollection("completeGeneIDCollection");
-    QStringList completeGeneIDs;
 
     // The tissue names start at column 2
     int tissueIDsOffset = 2;
 
     // Get title line with tissue names
+    char columnDelimiter(',');
     QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split('\t');
+    QList<QByteArray> splitLine = line.split(columnDelimiter);
 
     // and add them to the list
     for (int i = tissueIDsOffset; i < splitLine.length(); i++) {
@@ -216,32 +234,18 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
     // Go through the rest of the file
     while (!csvFile.atEnd()) {
         line = csvFile.readLine();
-        splitLine = line.split('\t');
+        splitLine = line.split(columnDelimiter);
 
         for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
             QString featureID = splitLine[1].toUpper();
             double featureExpressionCount = splitLine[i].toDouble();
             bool isFeatureExpressed = featureExpressionCount > cutOff;
 
-            // Add gene ID to the list of seen gene ids (see above for further information)
-            if (featureExpressionCount > 1.0) {
-                completeGeneIDCollection.addFeature(featureID, -1);
-            }
-
             // Add expressed feature to tissue
             if (isFeatureExpressed) {
                 tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount);
             }
         }
-    }
-
-    // Remove all duplicates that were created due to genes being expressed in multiple clusters
-    completeGeneIDs.removeDuplicates();
-
-    // Generate a feature collection out of the collected gene IDs for easy transition
-    // REMEMBER: This is not clean
-    for (QString geneID : completeGeneIDs) {
-        completeGeneIDCollection.addFeature(geneID, -1);
     }
 
     return tissues;
