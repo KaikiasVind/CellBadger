@@ -36,6 +36,10 @@ private slots:
 
 private:
     Ui::TabWidget *ui;
+
+    const char lineEditDelimiter = ',';
+
+    QVector<QPair<QString, QVector<double>>> retrieveExpressionDataForSelectedGenes();
 };
 
 #endif // TABWIDGET_H

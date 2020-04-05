@@ -2,16 +2,16 @@
 #include <QDebug>
 #include <QString>
 #include <QStringList>
-#include <QtCharts/QSplineSeries>
+#include <QtCharts/QScatterSeries>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
 #include "BioModels/FeatureCollection.h"
-#include "PlotWidget.h"
+#include "ExportDialog.h"
 
-using QtCharts::QSplineSeries;
+using QtCharts::QScatterSeries;
 using QtCharts::QChart;
 using QtCharts::QChartView;
 
@@ -129,7 +129,61 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 }
 
 
-#include <iostream>
+QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSelectedGenes() {
+    QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes;
+
+    QStringList idsOfSelectedGenes = this->ui->lineEditGeneID->text().toLower().split(this->lineEditDelimiter);
+
+    // Remove the " " after the last ,
+    // REMEMBER: This should be done elsewhere
+    idsOfSelectedGenes.removeLast();
+
+    expressionDataForSelectedGenes.reserve(idsOfSelectedGenes.length());
+
+    QVector<QScatterSeries *> allPlottingSeries;
+
+    for (QString geneID : idsOfSelectedGenes) {
+        QVector<double> expressionValues;
+        expressionValues.reserve(8);
+
+        bool isGeneHasBeenFound = false;
+
+        qDebug() << geneID << ":";
+        for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
+
+            // Compare the header item with the current gene ID
+            bool isSameGeneID = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().compare(geneID) == 0;
+
+            // If the IDs are the same this means the correct row has been found, now collect information from the cells of the row
+            if (isSameGeneID) {
+
+                isGeneHasBeenFound = true;
+
+                // Go through every cell and grab the expression value from that cell and append it to the current plotting series
+                for (int j = 0; j < this->ui->tableWidgetGeneExpressions->columnCount(); j++) {
+
+                    // Grab the expression value from the cell
+                    // In case the conversion QString::toDouble does not work because the cell contained text, the value will be 0
+                    double geneExpressionValueForCluster = this->ui->tableWidgetGeneExpressions->item(i, j)->text().toDouble();
+
+                    qDebug() << "cluster" << j << "-" << geneExpressionValueForCluster;
+                    expressionValues.append(geneExpressionValueForCluster);
+                }
+            }
+        }
+
+        // In case one of the gene IDs has not been found in the list, the gene ID is written wrong or is invalid otherwise
+        if (!isGeneHasBeenFound) {
+//            emit invalidGeneId(geneID);
+            qDebug() << "Invalid gene:" << geneID;
+            return expressionDataForSelectedGenes;
+        }
+
+        expressionDataForSelectedGenes.append(qMakePair(geneID, expressionValues));
+  }
+
+    return expressionDataForSelectedGenes;
+}
 
 /**
  * @brief TabWidget::on_lineEditGeneID_textEdited - When the line edit text has been edited the corresponding table is filtered according to the line edit content
@@ -144,12 +198,13 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
     // Read search string from line edit
     QString searchString = lineEditContent.toLower();
 
-    // In case the user deleted the search string, just unhide the rows and return
-    if (searchString == " ") {
+    // In case the user deleted the search string, unhide the rows, disable the plot functionality and and return
+    if (searchString == " " || searchString == "") {
+        this->ui->pushButtonPlot->setEnabled(false);
         return;
     }
 
-    QStringList searchStrings = searchString.split(",");
+    QStringList searchStrings = searchString.split(this->lineEditDelimiter);
 
     // Filter list of gene IDs for search string and hide rows that don't contain it
     for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
@@ -157,6 +212,11 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
         for (QString string : searchStrings) {
             if (this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(string)) {
                 isContainsAtLeastOneSearchString = true;
+
+                // If a valid gene ID has been entered, enable the plotting functionality
+                // REMEMBER: This does not work as intended, plotting should only been enabled when a valid ID has been entered
+                if (!this->ui->pushButtonPlot->isEnabled())
+                    this->ui->pushButtonPlot->setEnabled(true);
             }
         }
         if (!isContainsAtLeastOneSearchString) {
@@ -172,11 +232,18 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
  * @param column - Unused
  */
 void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column) {
+
+    Q_UNUSED(column);
+
+    // If the first gene has been added, enable the plot functionality
+    if (this->ui->lineEditGeneID->text() == "")
+        this->ui->pushButtonPlot->setEnabled(true);
+
     QString currentLineEditText = this->ui->lineEditGeneID->text(),
             headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(row)->text().toLower(),
             newLineEditText;
 
-    QStringList currentGeneIDs = currentLineEditText.split(",");
+    QStringList currentGeneIDs = currentLineEditText.split(this->lineEditDelimiter);
 
     for (int i = 0; i < currentGeneIDs.length(); i++) {
         QString geneID = currentGeneIDs[i].toLower();
@@ -202,7 +269,7 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
     // If neither duplicates were found nor autocomplete could be done just add the item
     newLineEditText = currentLineEditText;
 
-    // Remove lasst space to avoid confusion with table - line edit comparisons
+    // Remove last space to avoid confusion with table - line edit comparisons
     if (currentLineEditText.endsWith(" ")) {
         newLineEditText.chop(1);
     }
@@ -212,30 +279,50 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
     this->ui->lineEditGeneID->setText(newLineEditText);
 }
 
-void TabWidget::on_pushButtonPlot_clicked()
-{
-    QSplineSeries * series = new QSplineSeries();
-    series->setName("spline");
 
-    series->append(0, 6);
-    series->append(2, 4);
-    series->append(3, 8);
-    series->append(7, 4);
-    series->append(10, 5);
+/**
+ * @brief TabWidget::on_pushButtonPlot_clicked
+ */
+void TabWidget::on_pushButtonPlot_clicked() {
 
-    *series << QPointF(11, 1) << QPointF(13, 3) << QPointF(17, 6) << QPointF(18, 3) << QPointF(20, 2);
+    // If no genes have been selected, no plot can be generated, so return
+    if (this->ui->lineEditGeneID->text() == "")
+        return;
 
-    QChart *chart = new QChart();
-    chart->legend()->hide();
-    chart->addSeries(series);
-    chart->setTitle("Simple spline chart example");
+    QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+
+    QVector<QScatterSeries *> allPlottingSeries;
+
+    for (QPair<QString, QVector<double>> selectedGene : expressionDataForSelectedGenes) {
+        QScatterSeries * series  = new QScatterSeries();
+        series->setName(selectedGene.first);
+
+        for (int i = 0; i < selectedGene.second.length(); i++) {
+            series->append(i, selectedGene.second[i]);
+        }
+
+        allPlottingSeries.append(series);
+  }
+
+    QChart * chart = new QChart();
+
+    // Add the gene expression scatter-series for all selected genes
+    for (QScatterSeries * scatterSeries : allPlottingSeries) {
+        chart->addSeries(scatterSeries);
+    }
+
+    // Add basic configuration
+    chart->setTitle("Gene expression in clusters");
     chart->createDefaultAxes();
-    chart->axes(Qt::Vertical).first()->setRange(0, 10);
+    // REMEMBER: Remove hard coded values
+    chart->axes(Qt::Vertical).first()->setRange(0, 100);
+
 
     QChartView * chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
-    PlotWidget * plotWidget = new PlotWidget(chartView);
-    plotWidget->resize(400, 300);
-    plotWidget->show();
+    ExportDialog * exportDialog = new ExportDialog(this);
+//    plotWidget->resize(400, 300);
+    exportDialog->addPlot(chartView);
+    exportDialog->show();
 }

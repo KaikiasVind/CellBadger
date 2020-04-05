@@ -97,6 +97,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonPlot">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Plot</string>
        </property>
@@ -104,6 +107,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonBoxPlot">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Boxplot</string>
        </property>

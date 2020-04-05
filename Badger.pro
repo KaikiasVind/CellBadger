@@ -19,8 +19,8 @@ SOURCES += \
     BioModels/Celltype.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
+    ExportDialog.cpp \
     Graphics/qcustomplot.cpp \
-    PlotWidget.cpp \
     StartDialog.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
@@ -33,6 +33,7 @@ SOURCES += \
     Utils/FileOperators/ConfigFileOperator.cpp \
     Utils/Helper.cpp \
     Utils/Math.cpp \
+    Utils/Plots.cpp \
     Utils/Sorter.cpp \
     main.cpp \
     Mainwindow.cpp
@@ -41,9 +42,9 @@ HEADERS += \
     BioModels/Celltype.h \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
+    ExportDialog.h \
     Graphics/qcustomplot.h \
     Mainwindow.h \
-    PlotWidget.h \
     StartDialog.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
@@ -56,11 +57,12 @@ HEADERS += \
     Utils/FileOperators/ConfigFileOperator.h \
     Utils/Helper.h \
     Utils/Math.h \
+    Utils/Plots.h \
     Utils/Sorter.h
 
 FORMS += \
+    ExportDialog.ui \
     Mainwindow.ui \
-    PlotWidget.ui \
     StartDialog.ui \
     TabWidget.ui
 
