@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QString>
 #include <QStringList>
+#include <QMessageBox>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
@@ -16,9 +17,10 @@ using QtCharts::QChart;
 using QtCharts::QChartView;
 
 
-TabWidget::TabWidget(QWidget *parent) :
+TabWidget::TabWidget(QWidget *parent, QString title) :
     QWidget(parent),
-    ui(new Ui::TabWidget)
+    ui(new Ui::TabWidget),
+    title(title)
 {
     ui->setupUi(this);
 }
@@ -129,6 +131,10 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 }
 
 
+/**
+ * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Parse the gene expression table and grab the expression values for the selected genes
+ * @return - List of QPairs: The QString is a geneID, the QVector is a list of the corresponding gene expressions for the clusters
+ */
 QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSelectedGenes() {
     QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes;
 
@@ -156,6 +162,7 @@ QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSel
 
             // If the IDs are the same this means the correct row has been found, now collect information from the cells of the row
             if (isSameGeneID) {
+                qDebug() << "Found";
 
                 isGeneHasBeenFound = true;
 
@@ -174,8 +181,8 @@ QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSel
 
         // In case one of the gene IDs has not been found in the list, the gene ID is written wrong or is invalid otherwise
         if (!isGeneHasBeenFound) {
-//            emit invalidGeneId(geneID);
-            qDebug() << "Invalid gene:" << geneID;
+            qDebug() << "Not found.";
+            this->showAlertForInvalidGeneID(geneID);
             return expressionDataForSelectedGenes;
         }
 
@@ -274,7 +281,7 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
         newLineEditText.chop(1);
     }
 
-    newLineEditText += headerItemForSelectedRow + ",";
+    newLineEditText += headerItemForSelectedRow + this->lineEditDelimiter;
 
     this->ui->lineEditGeneID->setText(newLineEditText);
 }
@@ -290,6 +297,10 @@ void TabWidget::on_pushButtonPlot_clicked() {
         return;
 
     QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+
+    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
+    if (expressionDataForSelectedGenes.isEmpty())
+        return;
 
     QVector<QScatterSeries *> allPlottingSeries;
 
@@ -312,7 +323,8 @@ void TabWidget::on_pushButtonPlot_clicked() {
     }
 
     // Add basic configuration
-    chart->setTitle("Gene expression in clusters");
+    QString title = "Gene expression in " + this->title + " clusters";
+    chart->setTitle(title);
     chart->createDefaultAxes();
     // REMEMBER: Remove hard coded values
     chart->axes(Qt::Vertical).first()->setRange(0, 100);
@@ -325,4 +337,17 @@ void TabWidget::on_pushButtonPlot_clicked() {
 //    plotWidget->resize(400, 300);
     exportDialog->addPlot(chartView);
     exportDialog->show();
+}
+
+
+/**
+ * @brief TabWidget::showAlertForInvalidGeneID - Show an alert with the given gene ID
+ * @param geneID - ID that is shown as invalid in the alert
+ */
+void TabWidget::showAlertForInvalidGeneID(QString geneID) {
+    QMessageBox invalidGeneIDAlert;
+    invalidGeneIDAlert.setText("Invalid gene ID: " + geneID);
+    invalidGeneIDAlert.setWindowFlags(Qt::FramelessWindowHint);
+    invalidGeneIDAlert.exec();
+    return;
 }

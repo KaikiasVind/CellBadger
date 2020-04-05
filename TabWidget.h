@@ -20,7 +20,7 @@ class TabWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit TabWidget(QWidget *parent = nullptr);
+    explicit TabWidget(QWidget *parent = nullptr, QString title = "");
     ~TabWidget();
 
     void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems);
@@ -37,9 +37,13 @@ private slots:
 private:
     Ui::TabWidget *ui;
 
+    QString title;
+
     const char lineEditDelimiter = ',';
 
     QVector<QPair<QString, QVector<double>>> retrieveExpressionDataForSelectedGenes();
+
+    void showAlertForInvalidGeneID(QString geneID);
 };
 
 #endif // TABWIDGET_H

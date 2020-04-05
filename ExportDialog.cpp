@@ -8,6 +8,9 @@ ExportDialog::ExportDialog(QWidget *parent) :
     ui(new Ui::ExportDialog)
 {
     ui->setupUi(this);
+
+    // Remove default window frame
+//    this->setWindowFlags(Qt::FramelessWindowHint);
 }
 
 ExportDialog::~ExportDialog()

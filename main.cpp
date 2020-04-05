@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
     // Declaration of the used widgets
     MainWindow mainWindow;
     StartDialog startDialog;
-    TabWidget tabWidget;
 
     // Start of the main software - The start dialog is the first that is shown to the user
     startDialog.show();

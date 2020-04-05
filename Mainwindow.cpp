@@ -47,7 +47,7 @@ MainWindow::~MainWindow()
  * @param correlations - List of clusters with corresponding correlated types
  */
 void MainWindow::createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
-    TabWidget * tabWidget = new TabWidget();
+    TabWidget * tabWidget = new TabWidget(this, datasetName);
 
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
