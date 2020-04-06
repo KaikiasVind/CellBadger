@@ -21,8 +21,15 @@ public:
 
     void addPlot(QChartView * chartView);
 
+private slots:
+    void on_pushButtonSave_clicked();
+
+    void on_pushButtonBack_clicked();
+
 private:
     Ui::ExportDialog *ui;
+
+   QChartView * chartView;
 };
 
 #endif // EXPORTDIALOG_H

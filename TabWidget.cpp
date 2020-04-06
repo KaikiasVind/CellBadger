@@ -302,14 +302,24 @@ void TabWidget::on_pushButtonPlot_clicked() {
     if (expressionDataForSelectedGenes.isEmpty())
         return;
 
+    // Create a list that will hold all plotting series for later usage
     QVector<QScatterSeries *> allPlottingSeries;
+
+    // Collect the highest expression value for the correct y axis range
+    double maxExpressionValue = 0;
 
     for (QPair<QString, QVector<double>> selectedGene : expressionDataForSelectedGenes) {
         QScatterSeries * series  = new QScatterSeries();
         series->setName(selectedGene.first);
 
         for (int i = 0; i < selectedGene.second.length(); i++) {
-            series->append(i, selectedGene.second[i]);
+            double expressionValue = selectedGene.second[i];
+
+            series->append(i, expressionValue);
+
+            // If the current expression value is higher than the previously max value, store it as new max
+            if (expressionValue > maxExpressionValue)
+                maxExpressionValue = expressionValue;
         }
 
         allPlottingSeries.append(series);
@@ -327,14 +337,14 @@ void TabWidget::on_pushButtonPlot_clicked() {
     chart->setTitle(title);
     chart->createDefaultAxes();
     // REMEMBER: Remove hard coded values
-    chart->axes(Qt::Vertical).first()->setRange(0, 100);
+    chart->axes(Qt::Vertical).first()->setRange(0, maxExpressionValue);
 
 
     QChartView * chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+//    chartView->setSizePolicy(QSizePolicy::Fixed);
 
     ExportDialog * exportDialog = new ExportDialog(this);
-//    plotWidget->resize(400, 300);
     exportDialog->addPlot(chartView);
     exportDialog->show();
 }

@@ -23,11 +23,11 @@ QString chopFileName(QString filepath) {
 
 
 /**
- * @brief openFileDialog - Opens a file dialog specific to files with given type to files with given type
+ * @brief openFileDialog - Opens a open file dialog specific to files with given type
  * @param parent - Parent widget this file dialog should be placed on
  * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
  * @param isAcceptsMultipleFiles - Should the user be able to select multiple files for upload
- * @return
+ * @return - List of Strings representing the file paths for the selected files
  */
 QStringList openFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles) {
     QFileDialog fileDialog(parent);
@@ -44,6 +44,17 @@ QStringList openFileDialog(QWidget * parent, QStringList validMimeTypeExtensions
         fileNames = fileDialog.selectedFiles();
 
     return fileNames;
+}
+
+
+/**
+ * @brief saveFileDialog - Opens a save file dialog specific to files with given type
+ * @param parent - Parent widget this file dialog should be placed on
+ * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
+ * @return - List of Strings representing the file paths for the selected files
+ */
+QString saveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
+    return QFileDialog::getSaveFileName(parent, "Save plot as png file", QDir::home().path(), validMimeTypeExtensions);
 }
 
 };

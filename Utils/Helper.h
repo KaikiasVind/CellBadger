@@ -10,6 +10,7 @@ namespace Helper
 
 extern QString chopFileName(QString filePath);
 extern QStringList openFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles);
+extern QString saveFileDialog(QWidget * parent, QString validMimeTypeExtensions);
 
 };
 
