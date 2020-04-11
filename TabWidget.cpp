@@ -6,6 +6,7 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
+#include <QValueAxis>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
@@ -15,7 +16,7 @@
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
 using QtCharts::QChartView;
-
+using QtCharts::QValueAxis;
 
 TabWidget::TabWidget(QWidget *parent, QString title) :
     QWidget(parent),
@@ -307,10 +308,11 @@ void TabWidget::on_pushButtonPlot_clicked() {
 
     // Collect the highest expression value for the correct y axis range
     double maxExpressionValue = 0;
+    int numberOfClusters = expressionDataForSelectedGenes.first().second.length();
 
     for (QPair<QString, QVector<double>> selectedGene : expressionDataForSelectedGenes) {
         QScatterSeries * series  = new QScatterSeries();
-        series->setName(selectedGene.first);
+        series->setName(selectedGene.first.toUpper());
 
         for (int i = 0; i < selectedGene.second.length(); i++) {
             double expressionValue = selectedGene.second[i];
@@ -338,14 +340,20 @@ void TabWidget::on_pushButtonPlot_clicked() {
     chart->createDefaultAxes();
     // REMEMBER: Remove hard coded values
     chart->axes(Qt::Vertical).first()->setRange(0, maxExpressionValue);
+    chart->axes(Qt::Horizontal).first()->setRange(0, expressionDataForSelectedGenes.length());
 
+    QValueAxis * xAxis = new QValueAxis();
+    xAxis->setRange(0, numberOfClusters);
+
+    xAxis->setTickCount(numberOfClusters);
 
     QChartView * chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
-//    chartView->setSizePolicy(QSizePolicy::Fixed);
+    chartView->chart()->setAxisX(xAxis, allPlottingSeries.first());
 
     ExportDialog * exportDialog = new ExportDialog(this);
     exportDialog->addPlot(chartView);
+//    exportDialog->setSizePolicy(QSizePolicy::Fixed);
     exportDialog->show();
 }
 
