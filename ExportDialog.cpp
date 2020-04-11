@@ -40,13 +40,21 @@ void ExportDialog::addPlot(QChartView * chartView) {
 void ExportDialog::on_pushButtonSave_clicked() {
     QString selectedFilePath = Helper::saveFileDialog(this, "png");
 
+    // If the chose file dialog has been canceled return
+    if (selectedFilePath.isEmpty())
+        return;
+
     if (!selectedFilePath.split(".").endsWith("png") || !selectedFilePath.split(".").endsWith("PNG"))
         selectedFilePath += ".png";
 
     QFile file(selectedFilePath);
-
-    QPixmap pixMap(this->chartView->size());
     file.open(QIODevice::WriteOnly);
+
+    qreal chartViewPixelRatio = this->chartView->devicePixelRatioF();
+    QPixmap pixMap(this->chartView->width() * chartViewPixelRatio , this->chartView->height() * chartViewPixelRatio);
+    pixMap.setDevicePixelRatio(chartViewPixelRatio);
+    pixMap.fill(Qt::transparent);
+
     QPainter painter(& pixMap);
     painter.setRenderHint(QPainter::Antialiasing);
     this->chartView->render(&painter);
