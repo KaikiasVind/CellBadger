@@ -101,7 +101,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Plot</string>
+        <string>Scatterplot</string>
        </property>
       </widget>
      </item>
@@ -111,7 +111,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Boxplot</string>
+        <string>Barchart</string>
        </property>
       </widget>
      </item>

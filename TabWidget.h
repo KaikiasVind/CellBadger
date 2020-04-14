@@ -34,6 +34,8 @@ private slots:
 
     void on_pushButtonPlot_clicked();
 
+    void on_pushButtonBoxPlot_clicked();
+
 private:
     Ui::TabWidget *ui;
 

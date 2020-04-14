@@ -15,6 +15,7 @@
 #include "ui_TabWidget.h"
 #include "BioModels/FeatureCollection.h"
 #include "ExportDialog.h"
+#include "Utils/Plots.h"
 
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
@@ -23,7 +24,6 @@ using QtCharts::QValueAxis;
 using QtCharts::QBarCategoryAxis;
 using QtCharts::QCategoryAxis;
 using QtCharts::QLineSeries;
-
 
 TabWidget::TabWidget(QWidget *parent, QString title) :
     QWidget(parent),
@@ -310,71 +310,7 @@ void TabWidget::on_pushButtonPlot_clicked() {
     if (expressionDataForSelectedGenes.isEmpty())
         return;
 
-    QChart * chart = new QChart();
-
-    // Collect the highest expression value for the correct y axis range
-    double maxExpressionValue = .0;
-
-    int numberOfClusters = expressionDataForSelectedGenes.first().second.length();
-
-    for (QPair<QString, QVector<double>> selectedGene : expressionDataForSelectedGenes) {
-        QScatterSeries * scatterSeries  = new QScatterSeries();
-        scatterSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-        scatterSeries->setMarkerSize(10);
-
-        double expressionSum = .0;
-
-        for (int i = 0; i < selectedGene.second.length(); i++) {
-            double expressionValue = selectedGene.second[i];
-
-            scatterSeries->append(i, expressionValue);
-
-            // If the current expression value is higher than the previously max value, store it as new max
-            if (expressionValue >= maxExpressionValue)
-                maxExpressionValue = expressionValue;
-
-            expressionSum += expressionValue;
-        }
-
-        double geneMeanExpressionValue = (expressionSum / numberOfClusters);
-
-        // Set the scatter series name with mean expression value
-        scatterSeries->setName(selectedGene.first.toUpper() + " - mean: " + QString::number(geneMeanExpressionValue));
-
-        // And add the scatter series for the current gene to the chart
-        chart->addSeries(scatterSeries);
-  }
-
-
-    // Add basic configuration
-    QString title = "Gene expression in " + this->title + " clusters";
-    chart->setTitle(title);
-
-    // Add the x axis with the cluster numbers
-    QBarCategoryAxis * xAxis = new QBarCategoryAxis();
-    xAxis->setTitleText(this->title + " clusters");
-
-    // Add the cluster numbers to the x axis
-    for (int i = 1; i < numberOfClusters + 1; i++) {
-        xAxis->append(QString::number(i));
-    }
-
-    // Add the y axis with the relative UMI counts.
-    // +1 for the range to make the marker for the max value more visible
-    QValueAxis * yAxis = new QValueAxis();
-    yAxis->setRange(0, maxExpressionValue + 1);
-
-    yAxis->setTickCount(numberOfClusters);
-    yAxis->setTitleText("relative UMI counts per cell");
-
-    QChartView * chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
-
-    // Add the manually created axes to the chart view
-    for (int i = 0; i < chart->series().length(); i++) {
-        chartView->chart()->setAxisX(xAxis, chart->series().at(i));
-        chartView->chart()->setAxisY(yAxis, chart->series().at(i));
-    }
+    QChartView * chartView = Plots::createScatterPlot(expressionDataForSelectedGenes, this->title);
 
     ExportDialog * exportDialog = new ExportDialog(this);
     exportDialog->addPlot(chartView);
@@ -392,4 +328,8 @@ void TabWidget::showAlertForInvalidGeneID(QString geneID) {
     invalidGeneIDAlert.setWindowFlags(Qt::FramelessWindowHint);
     invalidGeneIDAlert.exec();
     return;
+}
+
+void TabWidget::on_pushButtonBoxPlot_clicked() {
+
 }
