@@ -32,9 +32,9 @@ private slots:
 
     void on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column);
 
-    void on_pushButtonPlot_clicked();
+    void on_pushButtonScatterPlot_clicked();
 
-    void on_pushButtonBoxPlot_clicked();
+    void on_pushButtonBarChart_clicked();
 
 private:
     Ui::TabWidget *ui;
@@ -46,6 +46,9 @@ private:
     QVector<QPair<QString, QVector<double>>> retrieveExpressionDataForSelectedGenes();
 
     void showAlertForInvalidGeneID(QString geneID);
+
+    template<typename F>
+    void openExportWidgetWithPlot(F plottingFunction);
 };
 
 #endif // TABWIDGET_H

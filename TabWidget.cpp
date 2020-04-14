@@ -215,7 +215,8 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
 
     // In case the user deleted the search string, unhide the rows, disable the plot functionality and and return
     if (searchString == " " || searchString == "") {
-        this->ui->pushButtonPlot->setEnabled(false);
+        this->ui->pushButtonScatterPlot->setEnabled(false);
+        this->ui->pushButtonScatterPlot->setEnabled(false);
         return;
     }
 
@@ -230,8 +231,10 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
 
                 // If a valid gene ID has been entered, enable the plotting functionality
                 // REMEMBER: This does not work as intended, plotting should only been enabled when a valid ID has been entered
-                if (!this->ui->pushButtonPlot->isEnabled())
-                    this->ui->pushButtonPlot->setEnabled(true);
+                if (!this->ui->pushButtonScatterPlot->isEnabled() && !this->ui->pushButtonBarChart->isEnabled()) {
+                    this->ui->pushButtonScatterPlot->setEnabled(true);
+                    this->ui->pushButtonBarChart->setEnabled(true);
+                }
             }
         }
         if (!isContainsAtLeastOneSearchString) {
@@ -251,8 +254,10 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
     Q_UNUSED(column);
 
     // If the first gene has been added, enable the plot functionality
-    if (this->ui->lineEditGeneID->text() == "")
-        this->ui->pushButtonPlot->setEnabled(true);
+    if (this->ui->lineEditGeneID->text() == "") {
+        this->ui->pushButtonScatterPlot->setEnabled(true);
+        this->ui->pushButtonBarChart->setEnabled(true);
+    }
 
     QString currentLineEditText = this->ui->lineEditGeneID->text(),
             headerItemForSelectedRow = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(row)->text().toLower(),
@@ -296,29 +301,6 @@ void TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int col
 
 
 /**
- * @brief TabWidget::on_pushButtonPlot_clicked
- */
-void TabWidget::on_pushButtonPlot_clicked() {
-
-    // If no genes have been selected, no plot can be generated, so return
-    if (this->ui->lineEditGeneID->text() == "")
-        return;
-
-    QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
-
-    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
-    if (expressionDataForSelectedGenes.isEmpty())
-        return;
-
-    QChartView * chartView = Plots::createScatterPlot(expressionDataForSelectedGenes, this->title);
-
-    ExportDialog * exportDialog = new ExportDialog(this);
-    exportDialog->addPlot(chartView);
-    exportDialog->show();
-}
-
-
-/**
  * @brief TabWidget::showAlertForInvalidGeneID - Show an alert with the given gene ID
  * @param geneID - ID that is shown as invalid in the alert
  */
@@ -330,6 +312,43 @@ void TabWidget::showAlertForInvalidGeneID(QString geneID) {
     return;
 }
 
-void TabWidget::on_pushButtonBoxPlot_clicked() {
 
+template<typename F>
+/**
+ * @brief TabWidget::openExportWidgetWithPlot - Ceates a plot with the given plotting function and opens it in an ExportDialog
+ * @param plottingFunction - Function that creates a QChartView * that is used to create a plot which is then transfered onto an ExportDialog
+ */
+void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
+
+    // If no genes have been selected, no plot can be generated, so return
+    if (this->ui->lineEditGeneID->text() == "")
+        return;
+
+    QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+
+    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
+    if (expressionDataForSelectedGenes.isEmpty())
+        return;
+
+    QChartView * chartView = plottingFunction(expressionDataForSelectedGenes, this->title);
+
+    ExportDialog * exportDialog = new ExportDialog(this);
+    exportDialog->addPlot(chartView);
+    exportDialog->show();
+}
+
+
+/**
+ * @brief TabWidget::on_pushButtonPlot_clicked
+ */
+void TabWidget::on_pushButtonScatterPlot_clicked() {
+    this->openExportWidgetWithPlot(Plots::createScatterPlot);
+}
+
+
+/**
+ * @brief TabWidget::on_pushButtonBarChart_clicked
+ */
+void TabWidget::on_pushButtonBarChart_clicked() {
+    this->openExportWidgetWithPlot(Plots::createBarChart);
 }

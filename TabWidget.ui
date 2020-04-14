@@ -96,7 +96,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonPlot">
+      <widget class="QPushButton" name="pushButtonScatterPlot">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -106,7 +106,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonBoxPlot">
+      <widget class="QPushButton" name="pushButtonBarChart">
        <property name="enabled">
         <bool>false</bool>
        </property>

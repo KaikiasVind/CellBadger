@@ -5,10 +5,12 @@
 #include <QPair>
 #include <QtCharts/QChartView>
 
+using QtCharts::QChartView;
+
 namespace Plots {
 
-extern QtCharts::QChartView * createScatterPlot(QVector<QPair<QString, QVector<double>>> geneExpressionValuesForClusters, QString plotTitle);
-extern QtCharts::QChartView * createBarChart(QVector<QPair<QString, QVector<double>>> geneExpressionValuesForCluster);
+extern QChartView * createScatterPlot(QVector<QPair<QString, QVector<double>>> geneExpressionValuesForClusters, QString plotTitle);
+extern QChartView * createBarChart(QVector<QPair<QString, QVector<double>>> geneExpressionValuesForClusters, QString plotTitle);
 
 };
 
