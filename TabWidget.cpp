@@ -85,7 +85,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     int numberOfGeneIDs = completeGeneIDs.length();
 
     // Resize the table according to the given number of clusters and gene IDs
-    this->ui->tableWidgetGeneExpressions->setColumnCount(numberOfClusters);
+    // +1 for column count because of the mean value column
+    this->ui->tableWidgetGeneExpressions->setColumnCount(numberOfClusters + 1);
     this->ui->tableWidgetGeneExpressions->setRowCount(numberOfGeneIDs);
 
     // Create header with cluster numbers
@@ -93,6 +94,9 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     for (int i = 1; i < numberOfClusters + 1; i++) {
         clusterNameHeaderItems.append("Cluster " + QString::number(i));
     }
+
+    // Add one column that will hold the mean of the expression values for all clusters
+    clusterNameHeaderItems.append("⌀");
 
     // Add the headers to the table
     this->ui->tableWidgetGeneExpressions->setHorizontalHeaderLabels(clusterNameHeaderItems);
@@ -102,6 +106,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     // REMEMBER: UAGH 3 for loops
     for (int i = 0; i < numberOfGeneIDs; i++) {
         QString currentHeaderGeneID = completeGeneIDs[i];
+
+        double expressionSum = 0;
 
         // And go through every cluster and check whether the gene is expressed or not
         for (int j = 0; j < numberOfClusters; j++) {
@@ -122,6 +128,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
                     tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);
 
                     this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
+
+                    expressionSum += geneExpressionCount;
                 }
             }
 
@@ -132,6 +140,14 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 
                 this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
             }
+
+            // Compute the mean of the current gene's expression values in all clusters and add it to the table
+            double meanExpressionCount = (expressionSum / numberOfClusters);
+
+            // Set the mean expression count as item into the last table column
+            QTableWidgetItem * tableWidgetItemMeanCount = new QTableWidgetItem(0);
+            tableWidgetItemMeanCount->setData(Qt::DisplayRole, "⌀: " + QString::number(meanExpressionCount));
+            this->ui->tableWidgetGeneExpressions->setItem(i, numberOfClusters, tableWidgetItemMeanCount);
         }
     }
 
@@ -143,8 +159,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
  * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Parse the gene expression table and grab the expression values for the selected genes
  * @return - List of QPairs: The QString is a geneID, the QVector is a list of the corresponding gene expressions for the clusters
  */
-QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSelectedGenes() {
-    QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes;
+QVector<QPair<QString, QPair<QVector<double>, double>>> TabWidget::retrieveExpressionDataForSelectedGenes() {
+    QVector<QPair<QString, QPair<QVector<double>, double>>> expressionDataForSelectedGenes;
 
     QStringList idsOfSelectedGenes = this->ui->lineEditGeneID->text().toLower().split(this->lineEditDelimiter);
 
@@ -154,15 +170,17 @@ QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSel
 
     expressionDataForSelectedGenes.reserve(idsOfSelectedGenes.length());
 
-    QVector<QScatterSeries *> allPlottingSeries;
-
+    // For every selected gene go through every cluster and grab the expression values
     for (QString geneID : idsOfSelectedGenes) {
         QVector<double> expressionValues;
-        expressionValues.reserve(8);
+        // Reserve space in the list for the n expression values of the n clusters
+        // -1 because the last column is reserved for the mean value
+        expressionValues.reserve(this->ui->tableWidgetGeneExpressions->rowCount() - 1);
+
+        double meanGeneExpressionValue = 0.;
 
         bool isGeneHasBeenFound = false;
 
-        qDebug() << geneID << ":";
         for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
 
             // Compare the header item with the current gene ID
@@ -170,8 +188,6 @@ QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSel
 
             // If the IDs are the same this means the correct row has been found, now collect information from the cells of the row
             if (isSameGeneID) {
-                qDebug() << "Found";
-
                 isGeneHasBeenFound = true;
 
                 // Go through every cell and grab the expression value from that cell and append it to the current plotting series
@@ -181,20 +197,24 @@ QVector<QPair<QString, QVector<double>>> TabWidget::retrieveExpressionDataForSel
                     // In case the conversion QString::toDouble does not work because the cell contained text, the value will be 0
                     double geneExpressionValueForCluster = this->ui->tableWidgetGeneExpressions->item(i, j)->text().toDouble();
 
-                    qDebug() << "cluster" << j << "-" << geneExpressionValueForCluster;
-                    expressionValues.append(geneExpressionValueForCluster);
+                    // The last column is reserved for the mean value, if this column is reached, save the current gene's mean value
+                    if (j == this->ui->tableWidgetGeneExpressions->columnCount() - 1) {
+                        // REMEMBER: Exchange with RegEx?
+                        meanGeneExpressionValue = this->ui->tableWidgetGeneExpressions->item(i, j)->text().split(" ").last().toDouble();
+                    } else {
+                        expressionValues.append(geneExpressionValueForCluster);
+                    }
                 }
             }
         }
 
         // In case one of the gene IDs has not been found in the list, the gene ID is written wrong or is invalid otherwise
         if (!isGeneHasBeenFound) {
-            qDebug() << "Not found.";
             this->showAlertForInvalidGeneID(geneID);
             return expressionDataForSelectedGenes;
         }
 
-        expressionDataForSelectedGenes.append(qMakePair(geneID, expressionValues));
+        expressionDataForSelectedGenes.append(qMakePair(geneID, qMakePair(expressionValues, meanGeneExpressionValue)));
   }
 
     return expressionDataForSelectedGenes;
@@ -324,7 +344,7 @@ void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
     if (this->ui->lineEditGeneID->text() == "")
         return;
 
-    QVector<QPair<QString, QVector<double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+    QVector<QPair<QString, QPair<QVector<double>, double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
     // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
     if (expressionDataForSelectedGenes.isEmpty())

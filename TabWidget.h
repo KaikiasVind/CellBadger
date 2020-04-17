@@ -43,7 +43,7 @@ private:
 
     const char lineEditDelimiter = ',';
 
-    QVector<QPair<QString, QVector<double>>> retrieveExpressionDataForSelectedGenes();
+    QVector<QPair<QString, QPair<QVector<double>, double>>> retrieveExpressionDataForSelectedGenes();
 
     void showAlertForInvalidGeneID(QString geneID);
 
