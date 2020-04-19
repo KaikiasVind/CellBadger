@@ -15,7 +15,14 @@ namespace Helper {
 QString chopFileName(QString filepath) {
     // Split by os specific directory separater.
     // The last entry is the file name with extension
-    QString fileNameWithExtension = filepath.split(QDir::separator()).last();
+
+    QString fileNameWithExtension;
+
+    // Windows directory separators dont seem to work with QDir::separator
+    if (filepath.contains("/"))
+       fileNameWithExtension = filepath.split("/").last();
+    else
+        fileNameWithExtension = filepath.split(QDir::separator()).last();
 
     // Split extension and file name. The first one is the file name
     return fileNameWithExtension.split(".").first();

@@ -87,10 +87,12 @@ void MainWindow::on_buttonMinimize_clicked() {
     this->setWindowState(Qt::WindowMinimized);
 }
 
+
 // REACTING TO CONTROLLER
 void MainWindow::on_clusterFileParsed() {
     ui->labelStatus->setText("Finished parsing.");
 }
+
 
 void MainWindow::on_correlatingFinished(const InformationCenter informationCenter) {
     this->show();
@@ -107,8 +109,8 @@ void MainWindow::on_correlatingFinished(const InformationCenter informationCente
     }
 }
 
-void MainWindow::on_tabWidgetDatasets_currentChanged(int index)
-{
+
+void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
     if (index == this->ui->tabWidgetDatasets->count() - 1 && !this->isHidden()) {
         qDebug() << "Trigger upload new dataset";
     }
