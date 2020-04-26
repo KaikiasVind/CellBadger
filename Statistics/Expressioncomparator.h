@@ -19,6 +19,8 @@ namespace ExpressionComparator
     extern QVector<QVector<QPair<QString, double>>> findMostLikelyCellTypes(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes, QPair<double, double> sensitivityRange, QPair<double, double> specificityRange, double minimumSpan);
 
     extern QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldChangeSumsForClusters(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes);
+
+    extern QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes);
 }
 
 #endif // EXPRESSIONCOMPARATOR_H
