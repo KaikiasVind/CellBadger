@@ -40,11 +40,15 @@ int main(int argc, char *argv[])
     Sorter::sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(cellTypeFoldChangeSumsFor10xClusters);
 
     qDebug() << "length:" << cellTypeFoldChangeSumsFor10xClusters.length();
-    int i = 0;
+    int i = 1;
     for (QVector<QPair<QString, QPair<double, double>>> cluster : cellTypeFoldChangeSumsFor10xClusters) {
         qDebug() << "\nCluster" << i << ":" << clustersWithMarkers[i].getFoldChangeSum();
         i++;
+        int j = 0;
         for (QPair<QString, QPair<double, double>> cellType : cluster) {
+            if (j == 5)
+                break;
+            j++;
             qDebug() << cellType.first << ":" << cellType.second.first << "--" << cellType.second.second;
         }
     }
