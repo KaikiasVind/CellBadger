@@ -9,6 +9,6 @@ Feature::Feature() {};
  * @param ID - Feature Name (Non-standardised gene name mostly)
  * @param count - Measurement for the expression of the given feature
  */
-Feature::Feature(QString featureID, double featureCount)
-    : ID {featureID}, count {featureCount}
+Feature::Feature(QString featureID, QString ensemblID, double featureCount)
+    : ID {featureID}, ensemblID(ensemblID), count {featureCount}
 {}

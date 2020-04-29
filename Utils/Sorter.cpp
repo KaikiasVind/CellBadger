@@ -66,7 +66,7 @@ FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection) 
 
     // Readd sorted Features to collection
     for (int i = 0; i < pairedCollection.length(); i++) {
-        sortedCollection.addFeature(pairedCollection[i].first, pairedCollection[i].second);
+        sortedCollection.addFeature(pairedCollection[i].first, "nAn", pairedCollection[i].second);
     }
 
     return sortedCollection;
@@ -131,17 +131,17 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
 
     // Fill hash-maps
     for (int i = 0; i < numberOfFeaturesCollectionOne; i++) {
-        featuresCollectionOne.insert(collectionOne.getFeatureID(i), collectionOne.getFeatureExpressionCount(i));
-        featureIDsCollectionOne.append(collectionOne.getFeatureID(i));
+        featuresCollectionOne.insert(collectionOne.getFeatureEnsemblID(i), collectionOne.getFeatureExpressionCount(i));
+        featureIDsCollectionOne.append(collectionOne.getFeatureEnsemblID(i));
     }
     for (int i = 0; i < numberOfFeaturesCollectionTwo; i++) {
-        featuresCollectionTwo.insert(collectionTwo.getFeatureID(i), collectionTwo.getFeatureExpressionCount(i));
-        featureIDsCollectionTwo.append(collectionTwo.getFeatureID(i));
+        featuresCollectionTwo.insert(collectionTwo.getFeatureEnsemblID(i), collectionTwo.getFeatureExpressionCount(i));
+        featureIDsCollectionTwo.append(collectionTwo.getFeatureEnsemblID(i));
     }
 
     // Comparator to sort features alphabetically by feature-ID
-    auto sortFeaturesAlphabetically = [](QString featureOneID, QString featureTwoID) {
-        return featureOneID.compare(featureTwoID) < 0;
+    auto sortFeaturesAlphabetically = [](QString featureOneEnsemblID, QString featureTwoEnsemblID) {
+        return featureOneEnsemblID.compare(featureTwoEnsemblID) < 0;
     };
 
     // Sort the two input collections
@@ -154,14 +154,14 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
     equallyExpressedFeatures.reserve(intersectedCollection.length());
 
     // Add all intersected features from original collections as pair into result vector
-    for (QString featureID : intersectedCollection) {
+    for (QString featureEnsemblID : intersectedCollection) {
         // Retrieve feature expression counts from Feature map
-        double collectionOneExpressionCount = featuresCollectionOne[featureID],
-               collectionTwoExpressionCount = featuresCollectionTwo[featureID];
+        double collectionOneExpressionCount = featuresCollectionOne[featureEnsemblID],
+               collectionTwoExpressionCount = featuresCollectionTwo[featureEnsemblID];
 
         // Reassamble Features with found feature expression counts from map and feature ID from intersection
-        Feature featureCollectionOne(featureID, collectionOneExpressionCount),
-                featureCollectionTwo(featureID, collectionTwoExpressionCount);
+        Feature featureCollectionOne(featureEnsemblID, "nAn", collectionOneExpressionCount),
+                featureCollectionTwo(featureEnsemblID, "nAn", collectionTwoExpressionCount);
 
         // Add these as pair to result vector
         equallyExpressedFeatures.append(qMakePair(featureCollectionOne, featureCollectionTwo));

@@ -21,7 +21,7 @@ public:
     FeatureCollection(const QString collectionID);
 //    FeatureCollection(FeatureCollection & featureCollection);
 
-    void addFeature(QString featureID, double expressionCount);
+    void addFeature(QString featureID, QString ensemblID, double expressionCount);
     void addFeature(Feature feature);
 
     bool isFeatureExpressed(QString markerID);
@@ -30,6 +30,7 @@ public:
     Feature getFeature(int index);
     Feature getFeature(QString featureID);
     QString getFeatureID(int index);
+    QString getFeatureEnsemblID(int index);
     double getFeatureExpressionCount(int index);
     int getNumberOfFeatures();
     QVector<Feature> getFeatures();

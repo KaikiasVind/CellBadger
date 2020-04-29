@@ -67,6 +67,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
             double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
             bool isFeatureExpressed = featureMeanCount > cutOff;
 
+            QString featureEnsemblID = splitLine.at(0);
             QString featureID = splitLine.at(1).toUpper();
 
             // Append the feature ID to the list of all feature IDs that are at least expressed once no matter how little
@@ -76,7 +77,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
 
             // Get feature name and append to the correct cluster list
             if (isFeatureExpressed) {
-                clustersWithExpressedFeatures[i].addFeature(featureID, featureMeanCount);
+                clustersWithExpressedFeatures[i].addFeature(featureID, featureEnsemblID, featureMeanCount);
             }
         }
     }
@@ -87,7 +88,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     // Generate a feature collection out of the collected gene IDs for easy transition
     // REMEMBER: This is not clean
     for (QString geneID : completeGeneIDs) {
-        completeGeneIDCollection.addFeature(geneID, -1);
+        completeGeneIDCollection.addFeature(geneID, "nAn", -1);
     }
 
     // Add the list of all gene IDs that were expressed by any cluster at least once to the cluster list.
@@ -237,13 +238,15 @@ QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, dou
         splitLine = line.split(columnDelimiter);
 
         for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
+            QString featureEnsemblCell = splitLine[0];
+            QString featureEnsemblID = featureEnsemblCell.split(".").first();
             QString featureID = splitLine[1].toUpper();
             double featureExpressionCount = splitLine[i].toDouble();
             bool isFeatureExpressed = featureExpressionCount > cutOff;
 
             // Add expressed feature to tissue
             if (isFeatureExpressed) {
-                tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount);
+                tissues[i - tissueIDsOffset].addFeature(featureID, featureEnsemblID, featureExpressionCount);
             }
         }
     }

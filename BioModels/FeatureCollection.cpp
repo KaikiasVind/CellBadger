@@ -27,8 +27,8 @@ FeatureCollection::FeatureCollection(QString collectionID)
  * @param featureID
  * @param expressionCount
  */
-void FeatureCollection::addFeature(QString featureID, double expressionCount) {
-    Feature feature(featureID, expressionCount);
+void FeatureCollection::addFeature(QString featureID, QString ensemblID, double expressionCount) {
+    Feature feature(featureID, ensemblID, expressionCount);
     features.append(feature);
 }
 
@@ -91,7 +91,7 @@ Feature FeatureCollection::getFeature(QString featureID) {
         if (feature.ID == featureID)
             return feature;
     }
-    Feature noFeature("nAn", -1.);
+    Feature noFeature("nAn", "nAn", -1.);
     return noFeature;
 }
 
@@ -103,6 +103,17 @@ Feature FeatureCollection::getFeature(QString featureID) {
 QString FeatureCollection::getFeatureID(int index) {
     return features[index].ID;
 }
+
+
+/**
+ * @brief FeatureCollection::getFeatureEnsemblID
+ * @param index
+ * @return
+ */
+QString FeatureCollection::getFeatureEnsemblID(int index) {
+    return features[index].ensemblID;
+}
+
 
 /**
  * @brief Cluster::getFeatureExpressionCount
