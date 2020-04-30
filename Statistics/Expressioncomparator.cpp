@@ -43,6 +43,11 @@ QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldCha
             // Go through every expressed feature in the cluster i and compute the fold change sums
             for (int k = 0; k < clusters[i].getNumberOfFeatures(); k++) {
 
+                bool isGeneExpressed = false;
+
+                // Add the gene fold change to the fold change sum
+                clusterGenesFoldChangeSum += clusters[i].getFeature(k).foldChange;
+
                 // Go through every expressed feature in the cell type j and add the fold changes of those genes
                 // to the list, which can be found in the cluster
                 for (int l = 0; l < cellTypes[j].getNumberOfFeatures(); l++) {
@@ -53,23 +58,30 @@ QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldCha
                     // If a gene with the same gene ID has been found, add it's fold change to the fold change sums
                     // Independently for the cluster i and for the cell type j
                     if (isGeneIDEqual) {
+                        isGeneExpressed = true;
                         cellTypeGenesFoldChangeSum += cellTypes[j].getFeature(l).foldChange;
-                        clusterGenesFoldChangeSum += clusters[i].getFeature(k).foldChange;
                         numberOfEquallyExpressedGenes++;
                     }
                 }
+
+                // If the gene has not been found in the cell type, which means the gene is not expressed in the cell type
+                // add the neutral value 1 to the fold change sum
+                if (!isGeneExpressed) {
+                    cellTypeGenesFoldChangeSum += 1.0;
+                }
             }
 
-            double normalizedClusterGenesFoldChangeSum = (clusterGenesFoldChangeSum / numberOfEquallyExpressedGenes),
-                   normalizedCellTypeGenesFoldChangeSum = (cellTypeGenesFoldChangeSum / numberOfEquallyExpressedGenes);
+            // Normalize the fold change sums with the number of expressed genes
+//            double normalizedClusterGenesFoldChangeSum = (clusterGenesFoldChangeSum / clusters[i].getNumberOfFeatures()),
+//                   normalizedCellTypeGenesFoldChangeSum = (cellTypeGenesFoldChangeSum / cellTypes[j].getNumberOfFeatures());
 
             // Calculate distance of the fold change sum of the current cell type j to the fold change sum of the current cluster i
-//            double distanceOfFoldChangeSums = qAbs(clusterGenesFoldChangeSum - cellTypeGenesFoldChangeSum);
-            double distanceOfFoldChangeSums = qAbs(normalizedClusterGenesFoldChangeSum - normalizedCellTypeGenesFoldChangeSum);
+            double distanceOfFoldChangeSums = qAbs(clusterGenesFoldChangeSum - cellTypeGenesFoldChangeSum);
+//            double distanceOfFoldChangeSums = qAbs(normalizedClusterGenesFoldChangeSum - normalizedCellTypeGenesFoldChangeSum);
 
             // And add the cell type including it's fold change sum and distance to cluster fold change sum to the list
-//            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(cellTypeGenesFoldChangeSum, distanceOfFoldChangeSums)));
-            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(normalizedCellTypeGenesFoldChangeSum, distanceOfFoldChangeSums)));
+            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(cellTypeGenesFoldChangeSum, distanceOfFoldChangeSums)));
+//            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(normalizedCellTypeGenesFoldChangeSum, distanceOfFoldChangeSums)));
         }
 
         // Add the list of cell types to the current cluster cell type list
