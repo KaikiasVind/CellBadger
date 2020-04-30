@@ -69,8 +69,11 @@ double calculateSpearmanCorrelation(QVector<double> variableOne, QVector<double>
     // Multiply the two factors of the denominator that were calculated in the loop
     denominator = sqrt(denominatorFactorOne) * sqrt(denominatorFactorTwo);
 
+    double result = 0.0;
+
     // Calculating the final value for r_Sp
-    double result = counter / denominator;
+    if (denominator != 0)
+        result = counter / denominator;
 
     return result;
 }
