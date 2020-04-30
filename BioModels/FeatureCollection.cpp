@@ -164,6 +164,15 @@ QVector<Feature> FeatureCollection::getFeatures() {
 
 
 /**
+ * @brief FeatureCollection::getFeatureFoldChange
+ * @param index
+ * @return
+ */
+double FeatureCollection::getFeatureFoldChange(int index) {
+   return this->features.at(index).foldChange;
+}
+
+/**
  * @brief FeatureCollection::getFoldChangeSum - Calculates the normalized fold change sum for the current genes
  * @return - Sum of all genes currently listed in this FeatureCollection normalized with the number of features
  */

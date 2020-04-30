@@ -18,6 +18,7 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Utils/Sorter.h"
+#include "Statistics/Correlator.h"
 #endif
 int main(int argc, char *argv[])
 {
@@ -35,23 +36,38 @@ int main(int argc, char *argv[])
 
     QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readPanglaoDBFile(markerFilePath);
 
-    QVector<QVector<QPair<QString, QPair<double, double>>>> cellTypeFoldChangeSumsFor10xClusters = ExpressionComparator::calculateCellTypeFoldChangeSumsForClusters(clustersWithMarkers, cellTypesWithMarkers);
+//    QVector<QVector<QPair<QString, QPair<double, double>>>> cellTypeFoldChangeSumsFor10xClusters = ExpressionComparator::calculateCellTypeFoldChangeSumsForClusters(clustersWithMarkers, cellTypesWithMarkers);
 
-    Sorter::sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(cellTypeFoldChangeSumsFor10xClusters);
+//    Sorter::sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(cellTypeFoldChangeSumsFor10xClusters);
 
-    qDebug() << "length:" << cellTypeFoldChangeSumsFor10xClusters.length();
+//    qDebug() << "length:" << cellTypeFoldChangeSumsFor10xClusters.length();
 
-    // Print it jow
-    for (int i = 0; i < cellTypeFoldChangeSumsFor10xClusters.length(); i++) {
+//    // Print it jow
+//    for (int i = 0; i < cellTypeFoldChangeSumsFor10xClusters.length(); i++) {
 
-        double distanceOfTheFirstTwoValues = qAbs(cellTypeFoldChangeSumsFor10xClusters.at(i).at(0).second.second -
-                                                  cellTypeFoldChangeSumsFor10xClusters.at(i).at(1).second.second);
-        qDebug() << "\nCluster:" << i << ":" << "qs -" << distanceOfTheFirstTwoValues;
+//        double distanceOfTheFirstTwoValues = qAbs(cellTypeFoldChangeSumsFor10xClusters.at(i).at(0).second.second -
+//                                                  cellTypeFoldChangeSumsFor10xClusters.at(i).at(1).second.second);
+//        qDebug() << "\nCluster:" << i << ":" << "qs -" << distanceOfTheFirstTwoValues;
+//        for (int j = 0; j < 5; j++) {
+//            qDebug() << cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).first <<
+//                        cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).second.first << "--" <<
+//                        cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).second.second;
+//        }
+//    }
+
+    QVector<QVector<QPair<QString, double>>> cellTypeFoldChangeCorrelationsFor10xClusters = ExpressionComparator::findClusterCellFoldChangeCorrelations(clustersWithMarkers, cellTypesWithMarkers);
+
+    for (int i = 0; i < cellTypeFoldChangeCorrelationsFor10xClusters.length(); i++) {
+        double qualityScore = qAbs(cellTypeFoldChangeCorrelationsFor10xClusters.at(i).at(0).second -
+                         cellTypeFoldChangeCorrelationsFor10xClusters.at(i).at(1).second);
+
+        qDebug() << "\nCluster:" << i + 1 << "- qs:" << qualityScore;
+
         for (int j = 0; j < 5; j++) {
-            qDebug() << cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).first <<
-                        cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).second.first << "--" <<
-                        cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).second.second;
+            qDebug() << cellTypeFoldChangeCorrelationsFor10xClusters.at(i).at(j).first << "--" <<
+                        cellTypeFoldChangeCorrelationsFor10xClusters.at(i).at(j).second;
         }
+
     }
 
 #endif

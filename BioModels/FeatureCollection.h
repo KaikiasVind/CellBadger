@@ -36,6 +36,7 @@ public:
     int getNumberOfFeatures();
     QVector<Feature> getFeatures();
     QVector<double> getMostExpressedFeaturesCounts(int number);
+    double getFeatureFoldChange(int index);
     double getFoldChangeSum();
 
 };
