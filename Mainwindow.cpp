@@ -94,7 +94,7 @@ void MainWindow::on_clusterFileParsed() {
 }
 
 
-void MainWindow::on_correlatingFinished(const InformationCenter informationCenter) {
+void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
     this->show();
     qDebug() << "Received signal after correlation finished.";
 

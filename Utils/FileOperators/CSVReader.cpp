@@ -8,7 +8,6 @@
 #include <QList>
 
 #include "BioModels/FeatureCollection.h"
-#include "BioModels/Celltype.h"
 
 namespace CSVReader {
 
@@ -98,104 +97,6 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     return clustersWithExpressedFeatures;
 }
 
-
-/**
- * @brief CSVReader::getCellTypeMarkers
- * @param csvFilePath
- * @return
- */
-QVector<CellType> getCellTypesWithMarkers(QString csvFilePath) {
-    // Open file
-    QFile csvFile(csvFilePath);
-
-    // In case of problems while reading the file
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
-
-    // Skip title line
-    QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split('\t');
-
-    QVector<CellType> cellTypesWithMarkers;
-
-    // Start parsing cell marker file
-    while (!csvFile.atEnd()) {
-        line = csvFile.readLine();
-        splitLine = line.split('\t');
-
-        QString cellTypeID = splitLine[5], //REMEMBER Is it possible to remove these hard coded column numbers?
-                tissueTypeID = splitLine[1],
-                cellMarkers = splitLine[7].toUpper();
-
-        QStringList separateCellMarkers = cellMarkers.split(", ");
-
-        CellType newCellType(cellTypeID, tissueTypeID, separateCellMarkers);
-        cellTypesWithMarkers.append(newCellType);
-    }
-
-    return cellTypesWithMarkers;
-}
-
-
-/**
- * @brief DEPRECATED! - Sort marker-file from tissue / cell -> marker to marker -> tissue /cell
- * @param csvFilePath - Source path of the cell marker file
- * @return Hash of cell marker to list of every tissue / cell type.
- */
-QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath) {
-
-    // Open file
-    QFile csvFile(csvFilePath);
-
-    // Throw error in case opening the file fails
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
-
-    // List of QPair<Marker, Tissues>
-    QHash <QString, QVector<QPair<QString, QString>>> seenMarkers;
-
-    // Skip title line
-    QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split(',');
-
-    while (!csvFile.atEnd()) {
-        line = csvFile.readLine();
-        QList<QByteArray> splitLine = line.split('\t');
-
-        QString tissueType = splitLine.at(1),
-                cellType = splitLine.at(5),
-                cellMarker = splitLine.at(7).toUpper();
-
-        // If the cell marker field contains multiple entries split them up
-        QStringList singleCellMarkers = cellMarker.split(", ");
-
-        // Go through complete list of cell markers -> May be just one
-        for (QString cellMarker : singleCellMarkers) {
-            // Get list tissue-celltype pairs of the marker that has been registered before
-            QVector<QPair<QString, QString>> existingCellAndTissueTypes = seenMarkers.value(cellMarker);
-
-            // If the marker hasn't been registered before
-            if (!existingCellAndTissueTypes.isEmpty()) {
-                // add the newly seen cell type for te cell marker to the already existing list
-                existingCellAndTissueTypes.append(qMakePair(cellType, tissueType));
-
-                // and add the updated list as a new cell-marker-cell-type-list-hash
-                seenMarkers.insert(cellMarker, existingCellAndTissueTypes);
-            } else {
-                // Create new list with single cell type.
-                QVector<QPair<QString, QString>> cellTypes;
-                cellTypes.append(qMakePair(cellType, tissueType));
-                seenMarkers.insert(cellMarker, cellTypes);
-            }
-        }
-    }
-
-    return seenMarkers;
-}
 
 /**
  * @brief getTissueGeneExpression

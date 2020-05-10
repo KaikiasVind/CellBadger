@@ -8,9 +8,20 @@
 namespace Helper
 {
 
+
+// ####################################### MISC #######################################
+
 extern QString chopFileName(QString filePath);
-extern QStringList openFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles);
-extern QString saveFileDialog(QWidget * parent, QString validMimeTypeExtensions);
+
+// ####################################### MISC #######################################
+
+
+// ####################################### GUI #######################################
+
+extern QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles);
+extern QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions);
+
+// ####################################### GUI #######################################
 
 };
 

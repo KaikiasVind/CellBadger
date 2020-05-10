@@ -6,41 +6,9 @@
 #include <QString>
 #include <functional>
 
-#include "BioModels/Celltype.h"
 #include "BioModels/Feature.h"
 
 namespace Sorter {
-
-/**
- * @brief sortCollectionPair
- * @param collectionA
- * @param collectionB
- * @param cmp
- */
-template <typename T, typename R, typename Compare>
-void sortCollectionPair(QVector<T>& collectionA, QVector<R>& collectionB, Compare comparator) {
-    QVector<QPair<T,R>> pairedCollection;
-    pairedCollection.reserve(collectionA.length());
-
-    // Add each associated elements as a pair to new collection
-    for (int i = 0; i < collectionA.length(); i++) {
-        pairedCollection.append(qMakePair(collectionA[i], collectionB[i]));
-    }
-
-    // Sort by comparator
-    qSort(pairedCollection.begin(), pairedCollection.end(), comparator);
-
-    collectionA.clear();
-    collectionB.clear();
-    collectionA.reserve(pairedCollection.length());
-    collectionB.reserve(pairedCollection.length());
-
-    // Readd the sorted elements to the original collections
-    for (int i = 0; i < pairedCollection.length(); i++) {
-        collectionA.append(pairedCollection[i]);
-        collectionB.append(pairedCollection[i]);
-    }
-}
 
 /**
  * @brief rankFeaturesByExpression
@@ -72,35 +40,6 @@ FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection) 
     return sortedCollection;
 }
 
-/**
- * @brief Sorter::findHighestLikelyCellTypeMapping
- * @param clustersWithCellTypeMappingLikelihoods
- */
-void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods) {
-    qDebug() << "Start sorting.";
-    double highestLikelyCellTypeMapping;
-    QString cellType, tissueType;
-    int i = 0;
-
-    for (QVector<QPair<CellType, double>> cluster : clustersWithCellTypeMappingLikelihoods) {
-        QStringList bla;
-        CellType celltype("nAn", "nAn", bla);
-        highestLikelyCellTypeMapping = 0;
-
-        for (QPair<CellType, double> cellTypeWithMappingLikelihood : cluster) {
-            bool isHigherLikelihood = cellTypeWithMappingLikelihood.second > highestLikelyCellTypeMapping;
-
-            if (isHigherLikelihood) {
-                highestLikelyCellTypeMapping = cellTypeWithMappingLikelihood.second;
-                cellType = cellTypeWithMappingLikelihood.first.ID;
-                tissueType = cellTypeWithMappingLikelihood.first.associatedTissueType;
-            }
-        }
-
-        qDebug() << "Cluster:" << i << "is" << cellType << "/" << tissueType << "with 'likelihood' of" << highestLikelyCellTypeMapping;
-        i++;
-    }
-}
 
 // FIXME: This is waaaaay too slow!!
 /**
@@ -167,24 +106,6 @@ QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection 
         equallyExpressedFeatures.append(qMakePair(featureCollectionOne, featureCollectionTwo));
     }
 
-    // ############################################# REMAINS #############################################
-//    for (Feature feature : featuresCollectionOne) {
-//        Feature * addressFoundFeature = std::find_if(featuresCollectionTwo.begin(), featuresCollectionTwo.end(),
-//                     [feature](Feature currentFeature) -> bool {
-//                return currentFeature.ID == feature.ID;
-//        });
-//        if (addressFoundFeature != nullptr) {
-//            Feature foundFeature = * addressFoundFeature;
-//            qDebug() << "Found feature:" << addressFoundFeature->ID;
-//            equallyExpressedFeatures.append(qMakePair(feature, foundFeature));
-//        }
-//    }
-//    qDebug() << "Done";
-
-//    auto comparator = [](Feature featureOne, Feature featureTwo) { return featureOne.ID == featureTwo.ID; };
-
-//    for (QPair<Feature, Feature> pair : equallyExpressedFeatures)
-//        qDebug() << pair.first.ID << ":" << pair.first.count << "-" << pair.second.ID << ":" << pair.second.count;
     return equallyExpressedFeatures;
 }
 

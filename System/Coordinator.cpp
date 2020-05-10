@@ -164,7 +164,6 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
     qDebug() << "Saving correlation data successfull.";
 
     // Report that the last correlation thread has finished to the main window
-//    emit finishedCorrelating(informationCenter.correlatedDatasets);
     emit finishedCorrelating(this->informationCenter);
 
     qDebug() << "Finished workflow. YEAY.";

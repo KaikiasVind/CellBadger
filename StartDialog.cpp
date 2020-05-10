@@ -14,7 +14,7 @@
 #include "Utils/Helper.h"
 
 using Helper::chopFileName;
-using Helper::openFileDialog;
+using Helper::openLoadFileDialog;
 
 
 /**
@@ -104,7 +104,7 @@ __attribute__((noreturn)) void StartDialog::on_buttonExit_clicked() {
  */
 void StartDialog::on_buttonLoadProject_clicked() {
     QStringList csvMimeTypes = { "text/plain" };
-    QStringList fileNames = openFileDialog(this, csvMimeTypes, false);
+    QStringList fileNames = openLoadFileDialog(this, csvMimeTypes, false);
 
     if (fileNames.empty())
         return;
@@ -161,7 +161,7 @@ __attribute__((noreturn)) void StartDialog::on_buttonMenuBarExit_2_clicked() {
  */
 void StartDialog::on_buttonLoadCustom_clicked() {
     QStringList csvMimeTypes = { "text/csv" };
-    QStringList fileNames = openFileDialog(this, csvMimeTypes, false);
+    QStringList fileNames = openLoadFileDialog(this, csvMimeTypes, false);
 
     if (fileNames.empty())
         return;
@@ -177,7 +177,7 @@ void StartDialog::on_buttonLoadCustom_clicked() {
  */
 void StartDialog::on_buttonAddDataset_clicked() {
     QStringList csvMimeTypes = { "text/csv" };
-    QStringList filePaths = openFileDialog(this, csvMimeTypes, true);
+    QStringList filePaths = openLoadFileDialog(this, csvMimeTypes, true);
 
     if (filePaths.empty())
         return;

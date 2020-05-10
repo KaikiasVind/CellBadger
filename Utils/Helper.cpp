@@ -6,6 +6,8 @@
 
 namespace Helper {
 
+// ########################################### MISC ############################################
+
 /**
  * @brief chopFileName - Chops the file name from the file path
  * @param filepath - Absolute file path
@@ -28,6 +30,9 @@ QString chopFileName(QString filepath) {
     return fileNameWithExtension.split(".").first();
 }
 
+// ########################################### MISC ############################################
+
+// ########################################### GUI ############################################
 
 /**
  * @brief openFileDialog - Opens a open file dialog specific to files with given type
@@ -36,7 +41,7 @@ QString chopFileName(QString filepath) {
  * @param isAcceptsMultipleFiles - Should the user be able to select multiple files for upload
  * @return - List of Strings representing the file paths for the selected files
  */
-QStringList openFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles) {
+QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles) {
     QFileDialog fileDialog(parent);
     fileDialog.setDirectory(QDir::home());
     fileDialog.setMimeTypeFilters(validMimeTypeExtensions);
@@ -60,8 +65,10 @@ QStringList openFileDialog(QWidget * parent, QStringList validMimeTypeExtensions
  * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
  * @return - List of Strings representing the file paths for the selected files
  */
-QString saveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
+QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
     return QFileDialog::getSaveFileName(parent, "Save plot as png file", QDir::home().path(), validMimeTypeExtensions);
 }
+
+// ########################################### GUI ############################################
 
 };

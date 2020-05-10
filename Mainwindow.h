@@ -27,7 +27,7 @@ public:
 
 public slots:
     void on_clusterFileParsed();
-    void on_correlatingFinished(const InformationCenter informationCenter);
+    void on_correlatingFinished(const InformationCenter & informationCenter);
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);

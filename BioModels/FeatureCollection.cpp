@@ -14,14 +14,6 @@ FeatureCollection::FeatureCollection(QString collectionID)
     : ID (collectionID)
 {}
 
-//FeatureCollection::FeatureCollection(FeatureCollection & featureCollection)
-//    : ID (featureCollection.ID)
-//{
-//    features.reserve(featureCollection.getNumberOfFeatures());
-//    for (int i = 0; i < featureCollection.getNumberOfFeatures(); i++)
-//        features.append(featureCollection.getFeature(i));
-//}
-
 /**
  * @brief Cluster::addFeature
  * @param featureID
@@ -57,9 +49,6 @@ QVector<double> FeatureCollection::getMostExpressedFeaturesCounts(int number) {
 }
 
 bool FeatureCollection::isFeatureExpressed(QString markerID) {
-    //REMEMBER: MAYBE -> WOULDTHAT WORK?
-//    Feature feature(markerID, COUNT);
-//    return features.contains(feature);
     for (Feature feature : features) {
         bool isSameFeature = feature.ID == markerID;
         if (isSameFeature)

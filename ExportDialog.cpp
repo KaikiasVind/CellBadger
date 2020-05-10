@@ -38,7 +38,7 @@ void ExportDialog::addPlot(QChartView * chartView) {
  * @brief ExportDialog::on_pushButtonSave_clicked
  */
 void ExportDialog::on_pushButtonSave_clicked() {
-    QString selectedFilePath = Helper::saveFileDialog(this, "png");
+    QString selectedFilePath = Helper::openSaveFileDialog(this, "png");
 
     // If the chose file dialog has been canceled return
     if (selectedFilePath.isEmpty())

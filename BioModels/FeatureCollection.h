@@ -19,7 +19,6 @@ public:
 
     FeatureCollection();
     FeatureCollection(const QString collectionID);
-//    FeatureCollection(FeatureCollection & featureCollection);
 
     void addFeature(QString featureID, QString ensemblID, double expressionCount);
     void addFeature(Feature feature);

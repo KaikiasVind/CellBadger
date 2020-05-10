@@ -21,21 +21,6 @@ int main(int argc, char *argv[])
 
 #if !run
 
-    QString filePathA = "C:/Users/Kademuni/Documents/Bachelorarbeit/Daten/Pbmc_expression.csv",
-            filePathB = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\test.csv",
-            filePathC = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\super.duper";
-
-    QStringList filePaths;
-    filePaths << filePathA << filePathB << filePathC;
-
-    QStringList datasetNames;
-
-    // Get file names for tab titletab titles
-    std::transform(filePaths.begin(), filePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
-
-    for (QString datasetName : datasetNames)
-        qDebug() << datasetName;
-
 #endif
 #if run
     // Declaration of the used widgets
