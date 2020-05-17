@@ -7,7 +7,6 @@
 #include <QStringList>
 
 #include "BioModels/FeatureCollection.h"
-#include "BioModels/Celltype.h"
 
 namespace ExpressionComparator
 {

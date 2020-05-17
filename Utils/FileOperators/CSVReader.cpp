@@ -9,7 +9,6 @@
 #include <math.h>
 
 #include "BioModels/FeatureCollection.h"
-#include "BioModels/Celltype.h"
 #include "Utils/Math.h"
 
 namespace CSVReader {

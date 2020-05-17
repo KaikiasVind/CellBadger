@@ -8,7 +8,6 @@
 #include <QHash>
 
 #include "BioModels/FeatureCollection.h"
-#include "BioModels/Celltype.h"
 
 namespace CSVReader
 {
@@ -16,7 +15,7 @@ namespace CSVReader
     extern QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(QString csvFilePath);
 
     // DEPRECATED
-    extern QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
+//    extern QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
 }
 
 #endif // CSVREADER_H

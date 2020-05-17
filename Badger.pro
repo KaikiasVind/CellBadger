@@ -16,10 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    BioModels/Celltype.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
-    Graphics/qcustomplot.cpp \
     StartDialog.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
@@ -27,7 +25,6 @@ SOURCES += \
     System/Coordinator.cpp \
     System/InformationCenter.cpp \
     TabWidget.cpp \
-    Test.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
     Utils/Helper.cpp \
@@ -37,10 +34,8 @@ SOURCES += \
     Mainwindow.cpp
 
 HEADERS += \
-    BioModels/Celltype.h \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
-    Graphics/qcustomplot.h \
     Mainwindow.h \
     StartDialog.h \
     Statistics/Correlator.h \
@@ -49,7 +44,6 @@ HEADERS += \
     System/Coordinator.h \
     System/InformationCenter.h \
     TabWidget.h \
-    Test.h \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
     Utils/Helper.h \

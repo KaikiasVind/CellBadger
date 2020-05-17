@@ -3,25 +3,13 @@
 
 #include <QVector>
 
-#include "BioModels/Celltype.h"
 #include "BioModels/FeatureCollection.h"
 
 /**
- * @brief The Sorter struct is a utility class for everything concerned with sorting
+ * @brief The Sorter namespace combines everything concerned with sorting
  */
 namespace Sorter
 {
-    extern void findHighestLikelyCellTypeMapping(QVector<QVector<QPair<CellType, double>>> clustersWithCellTypeMappingLikelihoods);
-
-    extern FeatureCollection sortFeaturesByExpression(FeatureCollection featureCollection);
-
-    template <typename T, typename R, typename Compare>
-    extern void sortCollectionPair(QVector<T>& collectionA, QVector<R>& collectionB, Compare cmp);
-
-    extern QVector<int> calculateRanks(QVector<double> numbers);
-
-    extern QVector<QPair<Feature, Feature>> findEquallyExpressedFeatures(FeatureCollection collectionOne, FeatureCollection collecionTwo);
-
     extern void sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(QVector<QVector<QPair<QString, QPair<double, double>>>> & cellTypeFoldChangeSumsFor10xClusters);
 };
 

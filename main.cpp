@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     QString markerFilePath = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\PanglaoDB_markers_07_Feb_2020.tsv";
     QString datasetFilepath  = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\Pbmc_expression.csv";
 
-    QVector<FeatureCollection> clustersWithMarkers = CSVReader::read10xGenomicsClustersFromFile(datasetFilepath, 8, 0);
+    QVector<FeatureCollection> clustersWithMarkers = CSVReader::read10xGenomicsClustersFromFile(datasetFilepath, 15, 0);
 
     QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readCellTypesFromPanglaoDBFile(markerFilePath);
 
