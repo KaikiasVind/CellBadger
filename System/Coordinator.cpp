@@ -23,36 +23,21 @@ Coordinator::Coordinator(InformationCenter informationCenter)
 {}
 
 
+template<typename F>
 /**
- * @brief parseClusterFiles
- * @param filePaths
- * @param meanCountCutOff
- * @param foldChangeCutOff
+ * @brief Coordinator::parseFiles - Parse the given dataset files with the corresponding function in separate threads and hand them over to the thread watcher
+ * @param filePaths - List of file paths corresponding to the dataset / marker files
+ * @param parsingFunction - The function with which the given file(s) can be parsed properly
+ * @param cutoff - The cutoff that should be used for parsing
  */
-void Coordinator::parseClusterFiles(const QStringList filePaths, const double meanCountCutOff, const double foldChangeCutOff) {
-    for (QString filePath: filePaths) {
+void Coordinator::parseFiles(const QStringList filePaths, F & parsingFunction, const QVector<double> cutOffs) {
+    for (QString filePath : filePaths) {
         // Parse the file with given cutoff in a new thread with given function
-        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(CSVReader::read10xGenomicsClustersFromFile, filePath, meanCountCutOff, foldChangeCutOff);
+        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(parsingFunction, filePath, cutOffs);
 
         // And let the multi-thread-watcher watch over the new process
         parsingThreadsWatcher.addFuture(futureParsedFile);
     }
-}
-
-
-/**
- * @brief Coordinator::parseMarkerFile
- * @param filePaths
- * @param expressionCountCutOff
- */
-void Coordinator::parseMarkerFile(const QString filePath, const double expressionCountCutOff) {
-    qDebug() << "FUNKTION FEHLT!!!";
-    exit(1);
-    // Parse the file with given cutoff in a new thread with given function
-//	QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(CSVReader::, filePath, meanCountCutOff, foldChangeCutOff);
-
-    // And let the multi-thread-watcher watch over the new process
-//    parsingThreadsWatcher.addFuture(futureParsedFile);
 }
 
 
@@ -94,10 +79,10 @@ void Coordinator::saveInformationAfterParsingFinished() {
 void Coordinator::correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes) {
     for (QVector<FeatureCollection> xClusterDataset : xClusterDatasets) {
         // Correlate the single dataset with the given set of cell type markers
-//        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findClusterTissueCorrelations, xClusterDataset, cellMarkersForTypes);
+        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findClusterCellFoldChangeCorrelations, xClusterDataset, cellMarkersForTypes);
 
         // And let the corresponding multi-thread-watcher watch over the new process
-//        this->correlatorThreadsWatcher.addFuture(futureCorrelations);
+        this->correlatorThreadsWatcher.addFuture(futureCorrelations);
     }
 }
 
@@ -114,21 +99,6 @@ void Coordinator::saveInformationAfterCorrelatingFinished() {
 }
 
 
-void Coordinator::printResults() {
-    int i = 0;
-    int j = 0;
-    for (QVector<QVector<QPair<QString, double>>> correlatedDataset : informationCenter.correlatedDatasets) {
-        cout << "\n########################### DATASET:" << i++ << "###########################\n";
-        j = 0;
-        for (QVector<QPair<QString, double>> clusterWithTissueCorrelations : correlatedDataset) {
-            cout << "\nCLUSTER:" << j++ << "\n";
-            for (QPair<QString, double> correlation : clusterWithTissueCorrelations) {
-                cout << correlation.first.toStdString() << ":" << correlation.second << endl;
-            }
-        }
-    }
-}
-
 // ###################################### INTERACTION WITH START DIALOG ###########################################
 
 /**
@@ -141,21 +111,24 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
     this->informationCenter.datasetFilePaths = datasetFilePaths;
 
     // Working with copy fur purity
-    QString markerFilePath;
+    QStringList cellMarkerFilePaths;
+    cellMarkerFilePaths.reserve(1);
 
     // If no cell marker file was uploaded, use the default one
     if (cellMarkerFilePath == "nAn") { //REMEMBER: Is that really a nice thing to do?
-        markerFilePath = informationCenter.configFile.cellMarkersFilePath;
+        cellMarkerFilePaths.append(informationCenter.configFile.cellMarkersFilePath);
+    } else {
+        cellMarkerFilePaths.append(cellMarkerFilePath);
     }
 
-    qDebug() << "Parsing:" << markerFilePath;
+    qDebug() << "Parsing:" << cellMarkerFilePaths.first();
     // Parse the cell marker file in separate threads
     cout << "Parsing cell marker file." << endl;
-    this->parseMarkerFile(markerFilePath, 100);
+    this->parseFiles(cellMarkerFilePaths, CSVReader::readCellTypesFromPanglaoDBFile, {});
 
     // Parse the dataset files in separate threads
     cout << "Parsing datasets." << endl;
-    this->parseClusterFiles(datasetFilePaths, 15, 1);
+    this->parseFiles(datasetFilePaths, CSVReader::read10xGenomicsClustersFromFile, {15, 0});
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();

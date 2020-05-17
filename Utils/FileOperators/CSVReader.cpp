@@ -14,7 +14,16 @@
 namespace CSVReader {
 
 
-QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(QString csvFilePath) {
+/**
+ * @brief readCellTypesFromPanglaoDBFile
+ * @param csvFilePath
+ * @param cutOffs
+ * @return
+ */
+QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(const QString csvFilePath, const QVector<double> cutOffs) {
+
+    //REMEMBER: Can this be done another way without a function without a not-used argument?
+    Q_UNUSED(cutOffs);
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -99,7 +108,8 @@ QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(QString csvFilePath) {
  * @param cutOff
  * @return
  */
-QVector<FeatureCollection> read10xGenomicsClustersFromFile(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
+QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFilePath, const QVector<double> cutOffs) {
+
     // Open file
     QFile csvFile(csvFilePath);
 
@@ -155,8 +165,8 @@ QVector<FeatureCollection> read10xGenomicsClustersFromFile(QString csvFilePath, 
 
             // The abs function is used here to check whether the fold change is high enough in any directions
             // REMEMBER: I removed it due to it leading to wrong results -> If the feature is strongly underrepresented, it is exactly NOT relevant for direct comparison with highly represented features
-            bool isFeatureFoldChangeSignificant = featureFoldChange > foldChangeCutOff;
-            bool isFeatureMeanCountSignificant = featureMeanCount > meanCountCutOff;
+            bool isFeatureMeanCountSignificant = featureMeanCount > cutOffs[0];
+            bool isFeatureFoldChangeSignificant = featureFoldChange > cutOffs[1];
 
             // Get feature name and append to the correct cluster list
             if (isFeatureMeanCountSignificant && isFeatureFoldChangeSignificant) {

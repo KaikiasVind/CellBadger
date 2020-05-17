@@ -12,7 +12,7 @@
 #include "System/Coordinator.h"
 #include "System/InformationCenter.h"
 
-#define run 0
+#define run 1
 
 #if !run
 #include "Utils/FileOperators/CSVReader.h"
@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
     QString markerFilePath = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\PanglaoDB_markers_07_Feb_2020.tsv";
     QString datasetFilepath  = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\Pbmc_expression.csv";
 
-    QVector<FeatureCollection> clustersWithMarkers = CSVReader::read10xGenomicsClustersFromFile(datasetFilepath, 15, 0);
+    QVector<FeatureCollection> clustersWithMarkers = CSVReader::read10xGenomicsClustersFromFile(datasetFilepath, {15, 0});
 
-    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readCellTypesFromPanglaoDBFile(markerFilePath);
+    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readCellTypesFromPanglaoDBFile(markerFilePath, {});
 
     QVector<QVector<QPair<QString, double>>> cellTypeFoldChangeCorrelationsFor10xClusters = ExpressionComparator::findClusterCellFoldChangeCorrelations(clustersWithMarkers, cellTypesWithMarkers);
 
