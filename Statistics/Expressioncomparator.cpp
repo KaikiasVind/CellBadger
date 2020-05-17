@@ -307,24 +307,24 @@ QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(Q
             QVector<double> clusterFeatureFoldChanges,
                             cellTypeFeatureFoldChanges;
 
-            for (int k = 0; k < clusters[i].getNumberOfFeatures(); k++) {
+            for (int k = 0; k < cellTypes[j].getNumberOfFeatures(); k++) {
 
-                double clusterFeatureFoldChange = clusters[i].getFeatureFoldChange(k);
+                double cellTypeFeatureFoldChange = cellTypes[j].getFeatureFoldChange(k);
 
-                clusterFeatureFoldChanges.append(clusterFeatureFoldChange);
+                cellTypeFeatureFoldChanges.append(cellTypeFeatureFoldChange);
 
-                bool isFeatureExpressedInCellType = false;
+                bool isFeatureExpressedInCluster = false;
 
-                for (int l = 0; l < cellTypes[j].getNumberOfFeatures(); l++) {
+                for (int l = 0; l < clusters[i].getNumberOfFeatures(); l++) {
 
-                    bool isFeatureIDEqual = clusters[i].getFeatureID(k).compare(cellTypes[j].getFeatureID(l)) == 0;
+                    bool isFeatureIDEqual = cellTypes[j].getFeatureID(k).compare(clusters[i].getFeatureID(l)) == 0;
 
                     if (isFeatureIDEqual) {
-                        isFeatureExpressedInCellType = true;
+                        isFeatureExpressedInCluster = true;
 
-                        double cellTypeFeatureFoldChange = cellTypes[j].getFeatureFoldChange(l);
+                        double clusterFeatureFoldChange = clusters[i].getFeatureFoldChange(l);
 
-                        cellTypeFeatureFoldChanges.append(cellTypeFeatureFoldChange);
+                        clusterFeatureFoldChanges.append(clusterFeatureFoldChange);
 
                         // End end the search for it in the current cluster
                         break;
@@ -333,8 +333,8 @@ QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(Q
 
                 // If the feature has not been found in the cell type, this means it is not expressed in the cell type
                 // In this case append the neutral value 1 to the fold changes list
-                if (!isFeatureExpressedInCellType) {
-                    cellTypeFeatureFoldChanges.append(0.0);
+                if (!isFeatureExpressedInCluster) {
+                    clusterFeatureFoldChanges.append(1.0);
                 }
             }
 

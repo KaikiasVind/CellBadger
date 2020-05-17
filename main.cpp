@@ -25,12 +25,12 @@ int main(int argc, char *argv[])
     QApplication application(argc, argv);
 
 #if !run
-    QString markerFilePath = "/home/numelen/Documents/Bachelorarbeit/Daten/PanglaoDB_markers.tsv";
-    QString datasetFilepath = "/home/numelen/Documents/Bachelorarbeit/Daten/Pbmc_expression.csv";
+//    QString markerFilePath = "/home/numelen/Documents/Bachelorarbeit/Daten/PanglaoDB_markers.tsv";
+//    QString datasetFilepath = "/home/numelen/Documents/Bachelorarbeit/Daten/Pbmc_expression.csv";
 
     // Windows
-//    QString markerFilePath = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\PanglaoDB_markers_07_Feb_2020.tsv";
-//    QString datasetFilepath  = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\Pbmc_expression.csv";
+    QString markerFilePath = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\PanglaoDB_markers_07_Feb_2020.tsv";
+    QString datasetFilepath  = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\Pbmc_expression.csv";
 
     QVector<FeatureCollection> clustersWithMarkers = CSVReader::getClusterFeatures(datasetFilepath, 15, 0);
 
