@@ -15,7 +15,7 @@
 namespace CSVReader {
 
 
-QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
+QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(QString csvFilePath) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -50,7 +50,8 @@ QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
             continue;
 
         // Otherwise, extract other data from line
-        QString geneID = splitLine[1],
+        QString geneEnsemblID = splitLine[0],
+                geneID = splitLine[1],
                 cellTypeID = splitLine[2],
                 tissueType = splitLine[9];
 
@@ -86,7 +87,7 @@ QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
         }
 
         //REMEMBER: Do I need the UbIndex?
-        cellTypes.last().addFeature(geneID, geneSensitivityValue, geneSpecifityValue);
+        cellTypes.last().addFeature(geneID, geneEnsemblID, geneSensitivityValue, geneSpecifityValue);
     }
 
     return cellTypes;
@@ -99,7 +100,7 @@ QVector<FeatureCollection> readPanglaoDBFile(QString csvFilePath) {
  * @param cutOff
  * @return
  */
-QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
+QVector<FeatureCollection> read10xGenomicsClustersFromFile(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
     // Open file
     QFile csvFile(csvFilePath);
 
@@ -160,8 +161,9 @@ QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCo
 
             // Get feature name and append to the correct cluster list
             if (isFeatureMeanCountSignificant && isFeatureFoldChangeSignificant) {
+                QString featureEnsemblID = splitLine.at(0).toUpper();
                 QString featureID = splitLine.at(1).toUpper();
-                clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
+                clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureEnsemblID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
             }
         }
     }
@@ -170,230 +172,45 @@ QVector<FeatureCollection> getClusterFeatures(QString csvFilePath, double meanCo
 }
 
 
-/**
- * @brief CSVReader::getCellTypeMarkers
- * @param csvFilePath
- * @return
- */
-QVector<CellType> getCellTypesWithMarkers(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
-
-    // Open file
-    QFile csvFile(csvFilePath);
-
-    // In case of problems while reading the file
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
-
-    // Skip title line
-    QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split('\t');
-
-    QVector<CellType> cellTypesWithMarkers;
-
-    // Start parsing cell marker file
-    while (!csvFile.atEnd()) {
-        line = csvFile.readLine();
-        splitLine = line.split('\t');
-
-        QString cellTypeID = splitLine[5], //REMEMBER Is it possible to remove these hard coded column numbers?
-                tissueTypeID = splitLine[1],
-                cellMarkers = splitLine[7].toUpper();
-
-        QStringList separateCellMarkers = cellMarkers.split(", ");
-
-        CellType newCellType(cellTypeID, tissueTypeID, separateCellMarkers);
-        cellTypesWithMarkers.append(newCellType);
-    }
-
-    return cellTypesWithMarkers;
-}
-
-
-/**
- * @brief DEPRECATED! - Sort marker-file from tissue / cell -> marker to marker -> tissue /cell
- * @param csvFilePath - Source path of the cell marker file
- * @return Hash of cell marker to list of every tissue / cell type.
- */
-QHash <QString, QVector<QPair<QString, QString>>> sortCsvByMarker(QString csvFilePath) {
-
-    // Open file
-    QFile csvFile(csvFilePath);
-
-    // Throw error in case opening the file fails
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
-
-    // List of QPair<Marker, Tissues>
-    QHash <QString, QVector<QPair<QString, QString>>> seenMarkers;
-
-    // Skip title line
-    QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split(',');
-
-    while (!csvFile.atEnd()) {
-        line = csvFile.readLine();
-        QList<QByteArray> splitLine = line.split('\t');
-
-        QString tissueType = splitLine.at(1),
-                cellType = splitLine.at(5),
-                cellMarker = splitLine.at(7).toUpper();
-
-        // If the cell marker field contains multiple entries split them up
-        QStringList singleCellMarkers = cellMarker.split(", ");
-
-        // Go through complete list of cell markers -> May be just one
-        for (QString cellMarker : singleCellMarkers) {
-            // Get list tissue-celltype pairs of the marker that has been registered before
-            QVector<QPair<QString, QString>> existingCellAndTissueTypes = seenMarkers.value(cellMarker);
-
-            // If the marker hasn't been registered before
-            if (!existingCellAndTissueTypes.isEmpty()) {
-                // add the newly seen cell type for te cell marker to the already existing list
-                existingCellAndTissueTypes.append(qMakePair(cellType, tissueType));
-
-                // and add the updated list as a new cell-marker-cell-type-list-hash
-                seenMarkers.insert(cellMarker, existingCellAndTissueTypes);
-            } else {
-                // Create new list with single cell type.
-                QVector<QPair<QString, QString>> cellTypes;
-                cellTypes.append(qMakePair(cellType, tissueType));
-                seenMarkers.insert(cellMarker, cellTypes);
-            }
-        }
-    }
-
-    return seenMarkers;
-}
-
-/**
- * @brief getTissueGeneExpression
- * @param csvFilePath
- */
-QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, double cutOff) {
-
-    // Open file
-    QFile csvFile(csvFilePath);
-
-    // Throw error in case opening the file fails
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
-
-    // tissueIDs is needed here to know the amount of features and
-    // to add them later to the FeatureCollection
-    QStringList tissueIDs;
-    QVector<FeatureCollection> tissues;
-
-    // Create a list to collect the ID of every gene that is expressed at least in one cluster.
-    // This is neccessary to have a complete list of existing gene IDs for comparison between clusters
-    // with differing expressed genes
-    FeatureCollection completeGeneIDCollection("completeGeneIDCollection");
-    QStringList completeGeneIDs;
-
-    // The tissue names start at column 2
-    int tissueIDsOffset = 2;
-
-    // Get title line with tissue names
-    QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split('\t');
-
-    // and add them to the list
-    for (int i = tissueIDsOffset; i < splitLine.length(); i++) {
-        QString tissueID = splitLine[i];
-        FeatureCollection tissue(tissueID);
-        tissues.append(tissue);
-    }
-
-    int numberOfTissues = tissues.length();
-
-    // Go through the rest of the file
-    while (!csvFile.atEnd()) {
-        line = csvFile.readLine();
-        splitLine = line.split('\t');
-
-        for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
-            QString featureID = splitLine[1].toUpper();
-            double featureExpressionCount = splitLine[i].toDouble();
-            bool isFeatureExpressed = featureExpressionCount > cutOff;
-
-            // Add gene ID to the list of seen gene ids (see above for further information)
-            if (featureExpressionCount > 1.0) {
-                completeGeneIDCollection.addFeature(featureID, -1., -1., -1.);
-            }
-
-            // Add expressed feature to tissue
-            if (isFeatureExpressed) {
-                tissues[i - tissueIDsOffset].addFeature(featureID, featureExpressionCount, -1., -1.);
-            }
-        }
-    }
-
-    // Remove all duplicates that were created due to genes being expressed in multiple clusters
-    completeGeneIDs.removeDuplicates();
-
-    // Generate a feature collection out of the collected gene IDs for easy transition
-    // REMEMBER: This is not clean
-    for (QString geneID : completeGeneIDs) {
-        completeGeneIDCollection.addFeature(geneID, -1, -1., -1.);
-    }
-
-    return tissues;
-}
-
+// DEPRECATED
 ///**
-// * @brief getSensitivityAndSpecicifityForMarkers
+// * @brief CSVReader::getCellTypeMarkers
 // * @param csvFilePath
 // * @return
 // */
-//QHash <QString, QVector<double>> getUIAndSensitivityAndSpecicifityForMarkers(QString csvFilePath) {
+//QVector<CellType> getCellTypesWithMarkers(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
 
-//    // Open fil
+//    // Open file
 //    QFile csvFile(csvFilePath);
 
-//    // Throw error in case opening the file fails
+//    // In case of problems while reading the file
 //    if (!csvFile.open(QIODevice::ReadOnly)) {
 //        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
 //        exit(1);
 //    }
 
-//    QHash <QString, QVector<double>> markersWithUIAndSensitivityAndSpecicifity;
-
-//    // Skip the title line
+//    // Skip title line
 //    QByteArray line = csvFile.readLine();
-//    QList<QByteArray> splitLine;
+//    QList<QByteArray> splitLine = line.split('\t');
 
-//    // Go through the rest of the file
+//    QVector<CellType> cellTypesWithMarkers;
+
+//    // Start parsing cell marker file
 //    while (!csvFile.atEnd()) {
 //        line = csvFile.readLine();
 //        splitLine = line.split('\t');
 
-//        // If marker is a mouse only marker, skip it
-//        bool isMouseOnlyMarker = !splitLine[0].contains("Hs");
-//        if (isMouseOnlyMarker)
-//            continue;
+//        QString cellTypeID = splitLine[5], //REMEMBER Is it possible to remove these hard coded column numbers?
+//                tissueTypeID = splitLine[1],
+//                cellMarkers = splitLine[7].toUpper();
 
-//        // Otherwise extract data from line
-//        QString markerID = splitLine[1];
-//        double markerUbiquitousnessIndex = splitLine.at(2),
-//               markerSensitivity = splitLine[3],
-//               markerSpecicifity = splitLine[5];
+//        QStringList separateCellMarkers = cellMarkers.split(", ");
 
-//        // Bundle the three indizes together
-//        QVector<double> markerUIAndSensitivityAndSpecicifity;
-//        markerUIAndSensitivityAndSpecicifity.append(markerUbiquitousnessIndex);
-//        markerUIAndSensitivityAndSpecicifity.append(markerSensitivity);
-//        markerUIAndSensitivityAndSpecicifity.append(markerSpecicifity);
-
-//        // And add them to the hash map that is going to be returned after parsing
-//        markersWithUIAndSensitivityAndSpecicifity[markerID] = markerUIAndSensitivityAndSpecicifity;
+//        CellType newCellType(cellTypeID, tissueTypeID, separateCellMarkers);
+//        cellTypesWithMarkers.append(newCellType);
 //    }
 
-//    return markersWithUIAndSensitivityAndSpecicifity;
+//    return cellTypesWithMarkers;
 //}
 
 }

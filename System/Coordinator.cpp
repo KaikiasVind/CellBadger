@@ -32,7 +32,7 @@ Coordinator::Coordinator(InformationCenter informationCenter)
 void Coordinator::parseClusterFiles(const QStringList filePaths, const double meanCountCutOff, const double foldChangeCutOff) {
     for (QString filePath: filePaths) {
         // Parse the file with given cutoff in a new thread with given function
-        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(CSVReader::getClusterFeatures, filePath, meanCountCutOff, foldChangeCutOff);
+        QFuture<QVector<FeatureCollection>> futureParsedFile = QtConcurrent::run(CSVReader::read10xGenomicsClustersFromFile, filePath, meanCountCutOff, foldChangeCutOff);
 
         // And let the multi-thread-watcher watch over the new process
         parsingThreadsWatcher.addFuture(futureParsedFile);
@@ -94,10 +94,10 @@ void Coordinator::saveInformationAfterParsingFinished() {
 void Coordinator::correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes) {
     for (QVector<FeatureCollection> xClusterDataset : xClusterDatasets) {
         // Correlate the single dataset with the given set of cell type markers
-        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findClusterTissueCorrelations, xClusterDataset, cellMarkersForTypes);
+//        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findClusterTissueCorrelations, xClusterDataset, cellMarkersForTypes);
 
         // And let the corresponding multi-thread-watcher watch over the new process
-        this->correlatorThreadsWatcher.addFuture(futureCorrelations);
+//        this->correlatorThreadsWatcher.addFuture(futureCorrelations);
     }
 }
 

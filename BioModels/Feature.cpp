@@ -3,7 +3,7 @@
 #include <QString>
 
 Feature::Feature()
-    : ID {"nAn"}, count {-1.}, log2FoldChange {-1.}, foldChange {-1.}, sensitivity {-1.}, specificity {-1.}
+    : ID {"nAn"}
 {}
 
 /**
@@ -11,8 +11,8 @@ Feature::Feature()
  * @param ID - Feature Name (Non-standardised gene name mostly)
  * @param count - Measurement for the expression of the given feature
  */
-Feature::Feature(const QString ID, const double meanCount)
-    : ID {ID}, count {meanCount}, log2FoldChange {-1.}, foldChange {-1.}, sensitivity {-1.}, specificity {-1.}
+Feature::Feature(const QString ID)
+    : ID {ID}
 {}
 
 
@@ -23,8 +23,8 @@ Feature::Feature(const QString ID, const double meanCount)
  * @param log2FoldChange
  * @param foldChange
  */
-Feature::Feature(const QString ID, const double meanCount, const double log2FoldChange, const double foldChange)
-    : ID {ID}, count {meanCount}, log2FoldChange {log2FoldChange}, foldChange {foldChange}, sensitivity {-1.}, specificity {-1.}
+Feature::Feature(const QString ID, const QString ensemblID, const double meanCount, const double log2FoldChange, const double foldChange)
+    : ID {ID}, ensemblID {ensemblID}, count {meanCount}, log2FoldChange {log2FoldChange}, foldChange {foldChange}
 {}
 
 
@@ -35,6 +35,6 @@ Feature::Feature(const QString ID, const double meanCount, const double log2Fold
  * @param sensitivity - Sensitivity for the cell-type this gene belongs to
  * @param specifity - Specifity for the cell-type this gene belongs to
  */
-Feature::Feature(const QString ID, const double sensitivity, const double specifity)
-    : ID {ID}, sensitivity {sensitivity}, specificity {specifity}, count {-1.}, log2FoldChange {-1.}, foldChange {-1.}
+Feature::Feature(const QString ID, const QString ensemblID, const double log2FoldChange, const double foldChange)
+    : ID {ID}, ensemblID {ensemblID}, log2FoldChange {log2FoldChange}, foldChange {foldChange}
 {}

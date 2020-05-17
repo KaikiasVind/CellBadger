@@ -39,8 +39,8 @@ void FeatureCollection::addFeature(const Feature feature) {
  * @param featureID - Gene ID
  * @param featureMeanCount - Mean count of the expression of the selected gene / UMI count for the selected gene
  */
-void FeatureCollection::addFeature(const QString featureID, const double featureMeanCount) {
-    Feature feature(featureID, featureMeanCount);
+void FeatureCollection::addFeature(const QString featureID) {
+    Feature feature(featureID);
     this->features.append(feature);
 }
 
@@ -51,10 +51,11 @@ void FeatureCollection::addFeature(const QString featureID, const double feature
  * @param sensitivity - Gene expression sensitivity for the cell type it is appended to
  * @param specifity - Gene expression specifity for the cell type it is appended to
  */
-void FeatureCollection::addFeature(const QString featureID, const double featureSensitivity, const double featureSpecifity) {
-    Feature feature(featureID, featureSensitivity, featureSpecifity);
-    feature.foldChange = featureSensitivity / featureSpecifity;
-    feature.log2FoldChange = log2(feature.foldChange);
+void FeatureCollection::addFeature(const QString featureID, const QString featureEnsemblID, const double featureSensitivity, const double featureSpecifity) {
+    double foldChange = featureSensitivity / featureSpecifity;
+    double log2FoldChange = log2(foldChange);
+
+    Feature feature(featureID, featureEnsemblID, log2FoldChange, foldChange);
     this->features.append(feature);
 }
 
@@ -66,8 +67,8 @@ void FeatureCollection::addFeature(const QString featureID, const double feature
  * @param featureLog2FoldChange - Log 2 of ratio of expression of the selected gene in comparison to the expression of this gene in every other cluster
  * @param featureFoldChange - Actual ratio of expression of the selected gene in comparison to the expression of this gene in every other cluster
  */
-void FeatureCollection::addFeature(const QString featureID, const double featureMeanCount, const double featureLog2FoldChange, const double featureFoldChange) {
-    Feature feature(featureID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
+void FeatureCollection::addFeature(const QString featureID, const QString featureEnsemblID, const double featureMeanCount, const double featureLog2FoldChange, const double featureFoldChange) {
+    Feature feature(featureID, featureEnsemblID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
     this->features.append(feature);
 }
 
@@ -113,19 +114,6 @@ Feature FeatureCollection::getFeature(int index) {
     return features[index];
 }
 
-/**
- * @brief FeatureCollection::getFeature
- * @param ID
- * @return
- */
-Feature FeatureCollection::getFeature(QString featureID) {
-    for (Feature feature : this->features) {
-        if (feature.ID == featureID)
-            return feature;
-    }
-    Feature noFeature("nAn", -1., -1., -1.);
-    return noFeature;
-}
 
 /**
  * @brief Cluster::getFeatureID

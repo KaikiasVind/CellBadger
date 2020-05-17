@@ -32,28 +32,9 @@ int main(int argc, char *argv[])
     QString markerFilePath = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\PanglaoDB_markers_07_Feb_2020.tsv";
     QString datasetFilepath  = "C:\\Users\\Kademuni\\Documents\\Bachelorarbeit\\Daten\\Pbmc_expression.csv";
 
-    QVector<FeatureCollection> clustersWithMarkers = CSVReader::getClusterFeatures(datasetFilepath, 15, 0);
+    QVector<FeatureCollection> clustersWithMarkers = CSVReader::read10xGenomicsClustersFromFile(datasetFilepath, 8, 0);
 
-    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readPanglaoDBFile(markerFilePath);
-
-//    QVector<QVector<QPair<QString, QPair<double, double>>>> cellTypeFoldChangeSumsFor10xClusters = ExpressionComparator::calculateCellTypeFoldChangeSumsForClusters(clustersWithMarkers, cellTypesWithMarkers);
-
-//    Sorter::sortCellTypeFoldChangeSumsAfterDistanceToClusterFoldChangeSums(cellTypeFoldChangeSumsFor10xClusters);
-
-//    qDebug() << "length:" << cellTypeFoldChangeSumsFor10xClusters.length();
-
-//    // Print it jow
-//    for (int i = 0; i < cellTypeFoldChangeSumsFor10xClusters.length(); i++) {
-
-//        double distanceOfTheFirstTwoValues = qAbs(cellTypeFoldChangeSumsFor10xClusters.at(i).at(0).second.second -
-//                                                  cellTypeFoldChangeSumsFor10xClusters.at(i).at(1).second.second);
-//        qDebug() << "\nCluster:" << i << ":" << "qs -" << distanceOfTheFirstTwoValues;
-//        for (int j = 0; j < 5; j++) {
-//            qDebug() << cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).first <<
-//                        cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).second.first << "--" <<
-//                        cellTypeFoldChangeSumsFor10xClusters.at(i).at(j).second.second;
-//        }
-//    }
+    QVector<FeatureCollection> cellTypesWithMarkers = CSVReader::readCellTypesFromPanglaoDBFile(markerFilePath);
 
     QVector<QVector<QPair<QString, double>>> cellTypeFoldChangeCorrelationsFor10xClusters = ExpressionComparator::findClusterCellFoldChangeCorrelations(clustersWithMarkers, cellTypesWithMarkers);
 

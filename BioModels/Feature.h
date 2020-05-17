@@ -9,16 +9,15 @@
 struct Feature
 {
     QString ID;
+    QString ensemblID;
     double count;
     double log2FoldChange;
     double foldChange;
-    double sensitivity;
-    double specificity;
 
     Feature();
-    Feature(const QString ID, const double meanCount);
-    Feature(const QString ID, const double meanCount, const double log2FoldChange, const double foldChange);
-    Feature(const QString ID, const double sensitivity, const double specificity);
+    Feature(const QString ID);
+    Feature(const QString ID, const QString ensemblID, const double meanCount, const double log2FoldChange, const double foldChange);
+    Feature(const QString ID, const QString ensemblID, const double log2FoldChange, const double foldChange);
 };
 
 #endif // FEATURE_H
