@@ -50,18 +50,6 @@ void Coordinator::saveInformationAfterParsingFinished() {
     // The first thread has been reserved for the marker file -> Report the result to the information center
     this->informationCenter.cellMarkersForTypes = parsingThreadsWatcher.futures()[0].result();
 
-//    // Get the first marker-FeatureCollection that is only used to store the IDs for genes expressed by at least one cluster
-//    FeatureCollection completeSetOfGeneIDs = this->informationCenter.cellMarkersForTypes.first();
-//    this->informationCenter.completeSetOfGeneIDs.reserve(completeSetOfGeneIDs.getNumberOfFeatures());
-
-    // Gather all gene IDs from the FeatureCollection and report them to the information center
-//    for (Feature feature : completeSetOfGeneIDs.getFeatures()) {
-//        this->informationCenter.completeSetOfGeneIDs.append(feature.ID);
-//    }
-
-    // Removing of the marker-FeatureCollection leaves only the "real" FeatureCollections parsed from the files
-//    this->informationCenter.cellMarkersForTypes.removeFirst();
-
     // Gather the results from the other finished threads,
     for (int i = 1; i < this->parsingThreadsWatcher.futures().length(); i++) {
 
@@ -69,7 +57,6 @@ void Coordinator::saveInformationAfterParsingFinished() {
 
         // and report it the the information center
         this->informationCenter.xClusterCollections.append(this->parsingThreadsWatcher.futures()[i].result());
-
 
         // The first collection in the set of collections that were parsed from the datasetfiles
         // is reserved for the genes that were expressed at least once in any cluster from the file
