@@ -6,18 +6,109 @@
 #include <QByteArray>
 #include <QStringList>
 #include <QList>
+#include <math.h>
 
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Math.h"
 
 namespace CSVReader {
 
+
 /**
- * @brief CSVReader::getClusterFeatureExpressions
+ * @brief readCellTypesFromPanglaoDBFile
+ * @param csvFilePath
+ * @param cutOffs
+ * @return
+ */
+QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(const QString csvFilePath, const QVector<double> cutOffs) {
+
+    //REMEMBER: Can this be done another way without a function without a not-used argument?
+    Q_UNUSED(cutOffs);
+
+    // Open file
+    QFile csvFile(csvFilePath);
+
+    // Throw error in case opening the file fails
+    if (!csvFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
+        exit(1);
+    }
+
+    // Skip title line
+    char columnDelimiter('\t');
+    QByteArray line = csvFile.readLine();
+    QList<QByteArray> splitLine = line.split(columnDelimiter);
+
+    // Create list that will contain all cell types with all associated markers present in the given file
+    QVector<FeatureCollection> cellTypes;
+
+    // Start parsing cluster file
+    while (!csvFile.atEnd()) {
+        line = csvFile.readLine();
+        splitLine = line.split(columnDelimiter);
+
+        // ############################# FILTERING OUT INVALID VALUES #############################
+        // Check for gene species
+        QString species = splitLine[0];
+
+        bool isMouseOnlyGene = !species.contains("Hs");
+
+        // If the gene is annotated as only expressed in mice, skip it
+        if (isMouseOnlyGene)
+            continue;
+
+        // Otherwise, extract other data from line
+        QString geneEnsemblID = splitLine[0],
+                geneID = splitLine[1],
+                cellTypeID = splitLine[2],
+                tissueType = splitLine[9];
+
+        QString ubiquitousnessIndex = splitLine[4],
+               geneSensitivity = splitLine[10],
+               geneSpecifity = splitLine[12];
+
+        bool isValuesInvalid = geneSensitivity == "NA" || geneSpecifity == "NA";
+
+        // If at least one of the values is marked as not existing in the file, drop it
+        if (isValuesInvalid)
+            continue;
+
+        // Otherwise parse the values
+        double geneSensitivityValue = geneSensitivity.toDouble(),
+               geneSpecifityValue = geneSpecifity.toDouble();
+
+        bool isAtLeastOneValueZero = geneSensitivityValue == 0 || geneSpecifityValue == 0;
+
+        // Zeros stand for nAn as well, so drop them
+        if (isAtLeastOneValueZero)
+            continue;
+
+        // ############################# FILTERING OUT INVALID VALUES #############################
+
+        // Check if a new cell type is met while file parsing -> 0 means equal strings
+        bool isNewCellType = cellTypes.isEmpty() || cellTypes.last().ID.compare(cellTypeID) != 0;
+
+        // If a new cell type is met, append it to the list of cell types
+        if (isNewCellType) {
+            FeatureCollection cellType(cellTypeID);
+            cellTypes.append(cellType);
+        }
+
+        //REMEMBER: Do I need the UbIndex?
+        cellTypes.last().addFeature(geneID, geneEnsemblID, geneSensitivityValue, geneSpecifityValue);
+    }
+
+    return cellTypes;
+}
+
+
+/**
+ * @brief getClusterFeatureExpressionFoldChanges
  * @param csvFilePath
  * @param cutOff
  * @return
  */
-QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, double cutOff) {
+QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFilePath, const QVector<double> cutOffs) {
 
     // Open file
     QFile csvFile(csvFilePath);
@@ -33,7 +124,7 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     QList<QByteArray> splitLine = line.split(',');
 
     // Each cluster contains its expressed features
-    QVector<FeatureCollection> clustersWithExpressedFeatures;
+    QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges;
 
     // Create a list to collect the ID of every gene that is expressed at least in one cluster.
     // This is neccessary to have a complete list of existing gene IDs for comparison between clusters and datasets
@@ -42,18 +133,19 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     FeatureCollection completeGeneIDCollection("completeGeneIDCollection");
 
     int numberOfColumns = splitLine.length();
+
     // The cellranger cluster feature expression file is segmented into 3 rows per cluster
     // with two lines in the very beginning for the feature ID and for the feature name -> Hence numberOfColumns - 2
     int numberOfClusters = (numberOfColumns - 2) / 3;
 
-    // Add the culumn numbers for the cluster mean counts (always the first of the three columns per cluster)
+    // Add the culumn numbers for the cluster fold changes (always the second of the three columns per cluster)
     // and a new String list for each cluster. This list will later be filled with expressed features
     QVector<int> clusterColumnNumbers(numberOfClusters);
     for (int i = 0; i < numberOfClusters; i++) {
-        clusterColumnNumbers[i] = (i * 3 + 2);
+        clusterColumnNumbers[i] = (2 + i * 3);
         QString clusterID = QString("Cluster").append(QString::number(i));
         FeatureCollection cluster(clusterID);
-        clustersWithExpressedFeatures.append(cluster);
+        clustersWithSignificantFeatureFoldChanges.append(cluster);
     }
 
     // Start parsing cluster file
@@ -61,12 +153,28 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
         line = csvFile.readLine();
         splitLine = line.split(',');
 
-        // Check the expression for each feature in the clusters and add the feature in case its expressed
+        // Check the fold change for each feature in each cluster and add the feature in case its high enough
         for (int i = 0; i < numberOfClusters; i++) {
-            double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
-            bool isFeatureExpressed = featureMeanCount > cutOff;
 
-            QString featureEnsemblID = splitLine.at(0);
+            // Read the mean count of the feature
+            //REMEMBER: Is this the expression or the UMI mean count?!
+            double featureMeanCount = splitLine.at(clusterColumnNumbers[i]).toDouble();
+
+            // Read the log 2 fold change of the feature (+1 because the mean count is always one column after the log2 fold change)
+            // This represents the expression rate of the feature relative to all other clusters
+            double featureLog2FoldChange = splitLine.at(clusterColumnNumbers[i] + 1).toDouble();
+
+            // Calculate the original - non log fold change
+            // A high value corresponds to a high expression rate in comparison to other clusters
+            // Analog, a low value corresponds to a low expression rate in comparison to other clusters
+            double featureFoldChange = Math::invertLog(2, featureLog2FoldChange);
+
+            // The abs function is used here to check whether the fold change is high enough in any directions
+            // REMEMBER: I removed it due to it leading to wrong results -> If the feature is strongly underrepresented, it is exactly NOT relevant for direct comparison with highly represented features
+            bool isFeatureMeanCountSignificant = featureMeanCount > cutOffs[0];
+            bool isFeatureFoldChangeSignificant = featureFoldChange > cutOffs[1];
+
+            QString featureEnsemblID = splitLine.at(0).toUpper();
             QString featureID = splitLine.at(1).toUpper();
 
             // Append the feature ID to the list of all feature IDs that are at least expressed once no matter how little
@@ -75,8 +183,8 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
             }
 
             // Get feature name and append to the correct cluster list
-            if (isFeatureExpressed) {
-                clustersWithExpressedFeatures[i].addFeature(featureID, featureEnsemblID, featureMeanCount);
+            if (isFeatureMeanCountSignificant && isFeatureFoldChangeSignificant) {
+                clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureEnsemblID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
             }
         }
     }
@@ -87,72 +195,56 @@ QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, dou
     // Generate a feature collection out of the collected gene IDs for easy transition
     // REMEMBER: This is not clean
     for (QString geneID : completeGeneIDs) {
-        completeGeneIDCollection.addFeature(geneID, "nAn", -1);
+        completeGeneIDCollection.addFeature(geneID);
     }
 
     // Add the list of all gene IDs that were expressed by any cluster at least once to the cluster list.
     // In the next step, this list is removed and added as list of complete gene IDs to the information center
-    clustersWithExpressedFeatures.push_front(completeGeneIDCollection);
+    clustersWithSignificantFeatureFoldChanges.push_front(completeGeneIDCollection);
 
-    return clustersWithExpressedFeatures;
+    return clustersWithSignificantFeatureFoldChanges;
 }
 
 
-/**
- * @brief getTissueGeneExpression
- * @param csvFilePath
- */
-QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, double cutOff) {
+// DEPRECATED
+///**
+// * @brief CSVReader::getCellTypeMarkers
+// * @param csvFilePath
+// * @return
+// */
+//QVector<CellType> getCellTypesWithMarkers(QString csvFilePath, double meanCountCutOff, double foldChangeCutOff) {
 
-    // Open file
-    QFile csvFile(csvFilePath);
+//    // Open file
+//    QFile csvFile(csvFilePath);
 
-    // Throw error in case opening the file fails
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
+//    // In case of problems while reading the file
+//    if (!csvFile.open(QIODevice::ReadOnly)) {
+//        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
+//        exit(1);
+//    }
 
-    // Create a list that will hold all observed tissues taken from the file
-    QVector<FeatureCollection> tissues;
+//    // Skip title line
+//    QByteArray line = csvFile.readLine();
+//    QList<QByteArray> splitLine = line.split('\t');
 
-    // The tissue names start at column 2
-    int tissueIDsOffset = 2;
+//    QVector<CellType> cellTypesWithMarkers;
 
-    // Get title line with tissue names
-    char columnDelimiter(',');
-    QByteArray line = csvFile.readLine();
-    QList<QByteArray> splitLine = line.split(columnDelimiter);
+//    // Start parsing cell marker file
+//    while (!csvFile.atEnd()) {
+//        line = csvFile.readLine();
+//        splitLine = line.split('\t');
 
-    // and add them to the list
-    for (int i = tissueIDsOffset; i < splitLine.length(); i++) {
-        QString tissueID = splitLine[i];
-        FeatureCollection tissue(tissueID);
-        tissues.append(tissue);
-    }
+//        QString cellTypeID = splitLine[5], //REMEMBER Is it possible to remove these hard coded column numbers?
+//                tissueTypeID = splitLine[1],
+//                cellMarkers = splitLine[7].toUpper();
 
-    int numberOfTissues = tissues.length();
+//        QStringList separateCellMarkers = cellMarkers.split(", ");
 
-    // Go through the rest of the file
-    while (!csvFile.atEnd()) {
-        line = csvFile.readLine();
-        splitLine = line.split(columnDelimiter);
+//        CellType newCellType(cellTypeID, tissueTypeID, separateCellMarkers);
+//        cellTypesWithMarkers.append(newCellType);
+//    }
 
-        for (int i = tissueIDsOffset; i < numberOfTissues + tissueIDsOffset; i++) {
-            QString featureEnsemblCell = splitLine[0];
-            QString featureEnsemblID = featureEnsemblCell.split(".").first();
-            QString featureID = splitLine[1].toUpper();
-            double featureExpressionCount = splitLine[i].toDouble();
-            bool isFeatureExpressed = featureExpressionCount > cutOff;
-
-            // Add expressed feature to tissue
-            if (isFeatureExpressed) {
-                tissues[i - tissueIDsOffset].addFeature(featureID, featureEnsemblID, featureExpressionCount);
-            }
-        }
-    }
-
-    return tissues;
-}
+//    return cellTypesWithMarkers;
+//}
 
 }

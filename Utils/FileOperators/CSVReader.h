@@ -11,9 +11,11 @@
 
 namespace CSVReader
 {
-    extern QVector<FeatureCollection> getClusterFeatureExpressions(QString csvFilePath, double cutOff);
+    extern QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFilePath, const QVector<double> cutOffs);
+    extern QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(const QString csvFilePath, const QVector<double> cutOffs);
 
-    extern QVector<FeatureCollection> getTissuesWithGeneExpression(QString csvFilePath, double cutOff);
-};
+    // DEPRECATED
+//    extern QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);
+}
 
 #endif // CSVREADER_H

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <QWidget>
+#include <QFile>
 
 namespace Helper
 {
@@ -23,6 +24,6 @@ extern QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensi
 
 // ####################################### GUI #######################################
 
-};
+}
 
 #endif // HELPER_H

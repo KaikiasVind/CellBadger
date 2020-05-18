@@ -19,22 +19,24 @@ public:
 
     FeatureCollection();
     FeatureCollection(const QString collectionID);
+//    FeatureCollection(FeatureCollection & featureCollection);
 
-    void addFeature(QString featureID, QString ensemblID, double expressionCount);
-    void addFeature(Feature feature);
+    void addFeature(const Feature feature);
+    void addFeature(const QString featureID);
+    void addFeature(const QString featureID, const QString featureEnsemblID, const double featureSensitivity, const double featureSpecifity);
+    void addFeature(const QString featureID, const QString featureEnsemblID, const double featureMeanCount, const double featureLog2FoldChange, const double featureFoldChange);
 
     bool isFeatureExpressed(QString markerID);
     bool isFeatureExpressed(Feature feature);
 
     Feature getFeature(int index);
-    Feature getFeature(QString featureID);
     QString getFeatureID(int index);
-    QString getFeatureEnsemblID(int index);
     double getFeatureExpressionCount(int index);
     int getNumberOfFeatures();
     QVector<Feature> getFeatures();
     QVector<double> getMostExpressedFeaturesCounts(int number);
-    //REMEMBER: Maybe write a function to get a vector of all feature expression counts?
+    double getFeatureFoldChange(int index);
+    double getFoldChangeSum();
 
 };
 

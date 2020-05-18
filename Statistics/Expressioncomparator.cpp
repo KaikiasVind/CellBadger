@@ -5,6 +5,7 @@
 #include <QPair>
 #include <QString>
 #include <QStringList>
+#include <math.h>
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Sorter.h"
@@ -12,82 +13,259 @@
 
 namespace ExpressionComparator {
 
+
 /**
- * @brief findClusterTissueCorrelations
- * @param clusters
- * @param tissues
- * @return Sorted correlations between every cluster and every tissue
+ * @brief findClusterTissueCorrelations - Correlates EVERY given cluster to EVERY given tissue - Runs in O(n*m) at least
+ * @param clusters - List of clusters (CellRanger t-SNE clusters)
+ * @param tissues - List of tissues (One tissue contains cell markers with corresponding expression counts - see BioModels/FeatureCollection)
+ * @return - Sorted correlations of every cluster and every tissue
  */
-QVector<QVector<QPair<QString, double>>> findClusterTissueCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> tissues) {
-    QVector<QVector<QPair<QString, double>>> tissueCorrelationsForAllClusters;
-    tissueCorrelationsForAllClusters.reserve(clusters.length());
+QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes) {
 
-    // For every cluster
+    // Create a list that will contain the correlation of all clusters with all cell types
+    QVector<QVector<QPair<QString, double>>> cellTypeCorrelationsForAllClusters;
+    cellTypeCorrelationsForAllClusters.reserve(clusters.length());
+
+    // For every cluster from the list of clusters that was given
     for (int i = 0; i < clusters.length(); i++) {
-        QVector<QPair<QString, double>> tissueClusterCorrelations;
-        tissueClusterCorrelations.reserve(tissues.length());
 
-        // go through every tissue type
-        for (int j = 0; j < tissues.length(); j++) {
+        QVector<QPair<QString, double>> cellTypeClusterCorrelations;
+        cellTypeClusterCorrelations.reserve(cellTypes.length());
 
-            // Create a list that will hold all expression counts of both the current tissue j and the current cluster i
-            QVector<double> tissueFeatureExpressionCounts,
-                            clusterFeatureExpressionCounts;
+        // Create a list that will contain the correlation of the current cluster i with all cell types
+        QVector<QPair<QString, double>> cellTypeTissueCorrelations;
+        cellTypeTissueCorrelations.reserve(cellTypes.length());
 
-            // And for every feature in the tissue j
-            for (int k = 0; k < clusters[i].getNumberOfFeatures(); k++) {
+        // Go through every tissue type and correlate the cluster with this tissue type
+        for (int j = 0; j < cellTypes.length(); j++) {
 
-                // Grab the expression count of the current looked at feature k in the current tissue j
-                double tissueFeatureExpressionCount = clusters[i].getFeatureExpressionCount(k);
+            QVector<double> clusterFeatureFoldChanges,
+                            cellTypeFeatureFoldChanges;
 
-                // And add it to the list
-                clusterFeatureExpressionCounts.append(tissueFeatureExpressionCount);
+            for (int k = 0; k < cellTypes[j].getNumberOfFeatures(); k++) {
 
-                bool isFeatureAlsoExpressedInTissue = false;
+                double cellTypeFeatureFoldChange = cellTypes[j].getFeatureFoldChange(k);
 
-                // go through every feature in the current cluster i and search for the current looked at tissue feature
-                for (int l = 0; l < tissues[j].getNumberOfFeatures(); l++) {
+                cellTypeFeatureFoldChanges.append(cellTypeFeatureFoldChange);
 
-                    // for this check whether the feature IDs are equal
-                    bool isFeatureIDEqual = tissues[j].getFeatureID(l).compare(clusters[i].getFeatureID(k)) == 0;
+                bool isFeatureExpressedInCluster = false;
 
-                    // If so, this means the feature has been found in the current cluster and the feature is expressed in the cluster
+                for (int l = 0; l < clusters[i].getNumberOfFeatures(); l++) {
+
+                    bool isFeatureIDEqual = cellTypes[j].getFeatureID(k).compare(clusters[i].getFeatureID(l)) == 0;
+
                     if (isFeatureIDEqual) {
-                        isFeatureAlsoExpressedInTissue = true;
+                        isFeatureExpressedInCluster = true;
 
-                        // So add its expression count to the list
-                        double tissueFeatureExpressionCount = tissues[j].getFeatureExpressionCount(l);
+                        double clusterFeatureFoldChange = clusters[i].getFeatureFoldChange(l);
 
-                        tissueFeatureExpressionCounts.append(tissueFeatureExpressionCount);
+                        clusterFeatureFoldChanges.append(clusterFeatureFoldChange);
 
-                        // And end the search for it in the current cluster
+                        // End end the search for it in the current cluster
                         break;
                     }
                 }
 
-                // If the feature has not been found in the current cluster, it means it is not expressed
-                // In this case, append 0 as the feature expression count to the list
-                if (!isFeatureAlsoExpressedInTissue) {
-                    tissueFeatureExpressionCounts.append(.0);
+                // If the feature has not been found in the cell type, this means it is not expressed in the cell type
+                // In this case append the neutral value 1 to the fold changes list
+                if (!isFeatureExpressedInCluster) {
+                    clusterFeatureFoldChanges.append(1.0);
                 }
             }
 
-            // If all features with their correct expression counts have been found and aligned in the two lists, calculate the correlation
-            double tissueClusterCorrelation = Correlator::calculateSpearmanCorrelation(tissueFeatureExpressionCounts, clusterFeatureExpressionCounts);
+            // Correlate the two lists of feature counts.
+            double correlation = Correlator::calculateSpearmanCorrelation(clusterFeatureFoldChanges, cellTypeFeatureFoldChanges);
 
-            // And add it to the correlations list
-            tissueClusterCorrelations.append(qMakePair(tissues[j].ID, tissueClusterCorrelation));
+            // Now append the calculated correlation to the list of correlations
+            // The correlation that is added here is the correllation between the current cluster i and the current tissue type j
+            cellTypeClusterCorrelations.append(qMakePair(cellTypes[j].ID, correlation));
         }
 
-        // In the end, sort the found tissue correlations after the correlation coefficients
-        std::sort(tissueClusterCorrelations.begin(), tissueClusterCorrelations.end(),
+        // Now sort the found correlations due to place the tissue with the highest correlation to the cluster on top of the list
+        // Be aware that the sorting is IN PLACE -> This directly alters the list clusterTissueCorrelations
+        //REMEMBER: This has no place here, put it outside of this function
+        std::sort(cellTypeClusterCorrelations.begin(), cellTypeClusterCorrelations.end(),
                   [](QPair<QString, double> pairA, QPair<QString, double> pairB) { return pairA.second > pairB.second; });
 
-        // and add the sorted list to the list of clusters with correlations to all tissues
-        tissueCorrelationsForAllClusters.append(tissueClusterCorrelations);
+        // Now add the finished correlations of cluster i with every tissue to the final list
+        cellTypeCorrelationsForAllClusters.append(cellTypeClusterCorrelations);
     }
 
-    return tissueCorrelationsForAllClusters;
+    // Return the final list including the correlations of all clusters with all tissues
+    return cellTypeCorrelationsForAllClusters;
 }
+
+
+/**
+ * @brief calculateCellTypeFoldChangeSumsForClusters - For every cluster the the sum of all fold changes of every cell type is calculated
+ * @param clusters - List of 10xGenomics clusters
+ * @param cellTypes - List of GTEx cell types
+ * @return
+ */
+QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldChangeSumsForClusters(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes) {
+
+    // Create a list that will hold a list per cluster that itself holdes the fold change sums of all cell types regarding the current cluster
+    QVector<QVector<QPair<QString, QPair<double, double>>>> cellTypesWithFoldChangeSumsForClusters;
+
+    // Go through every cluster in the given cluster file
+    for (int i = 0; i < clusters.length(); i++) {
+
+        QVector<QPair<QString, QPair<double, double>>> cellTypesWithFoldChangeSums;
+
+        // Go through every cell type that is present in the PanglaoDB file
+        for (int j = 0; j < cellTypes.length(); j++) {
+
+            // Calculate the sum of all fold changes of all features in cluster i also expressed in the cell type j
+            // Independently for the cluster i and for the cell type j
+            double clusterGenesFoldChangeSum = 0,
+                   cellTypeGenesFoldChangeSum = 0;
+
+            int numberOfEquallyExpressedGenes = 0;
+
+            // Go through every expressed feature in the cluster i and compute the fold change sums
+            for (int k = 0; k < clusters[i].getNumberOfFeatures(); k++) {
+
+                bool isGeneExpressed = false;
+
+                // Add the gene fold change to the fold change sum
+                clusterGenesFoldChangeSum += clusters[i].getFeature(k).foldChange;
+
+                // Go through every expressed feature in the cell type j and add the fold changes of those genes
+                // to the list, which can be found in the cluster
+                for (int l = 0; l < cellTypes[j].getNumberOfFeatures(); l++) {
+
+                    // Compare the gene IDs of the currently watched features
+                    bool isGeneIDEqual = clusters[i].getFeatureID(k).compare(cellTypes[j].getFeatureID(l)) < 0;
+
+                    // If a gene with the same gene ID has been found, add it's fold change to the fold change sums
+                    // Independently for the cluster i and for the cell type j
+                    if (isGeneIDEqual) {
+                        isGeneExpressed = true;
+                        cellTypeGenesFoldChangeSum += cellTypes[j].getFeature(l).foldChange;
+                        numberOfEquallyExpressedGenes++;
+                    }
+                }
+
+                // If the gene has not been found in the cell type, which means the gene is not expressed in the cell type
+                // add the neutral value 1 to the fold change sum
+                if (!isGeneExpressed) {
+                    cellTypeGenesFoldChangeSum += 1.0;
+                }
+            }
+
+            // Normalize the fold change sums with the number of expressed genes
+//            double normalizedClusterGenesFoldChangeSum = (clusterGenesFoldChangeSum / clusters[i].getNumberOfFeatures()),
+//                   normalizedCellTypeGenesFoldChangeSum = (cellTypeGenesFoldChangeSum / cellTypes[j].getNumberOfFeatures());
+
+            // Calculate distance of the fold change sum of the current cell type j to the fold change sum of the current cluster i
+            double distanceOfFoldChangeSums = qAbs(clusterGenesFoldChangeSum - cellTypeGenesFoldChangeSum);
+//            double distanceOfFoldChangeSums = qAbs(normalizedClusterGenesFoldChangeSum - normalizedCellTypeGenesFoldChangeSum);
+
+            // And add the cell type including it's fold change sum and distance to cluster fold change sum to the list
+            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(cellTypeGenesFoldChangeSum, distanceOfFoldChangeSums)));
+//            cellTypesWithFoldChangeSums.append(qMakePair(cellTypes[j].ID, qMakePair(normalizedCellTypeGenesFoldChangeSum, distanceOfFoldChangeSums)));
+        }
+
+        // Add the list of cell types to the current cluster cell type list
+        cellTypesWithFoldChangeSumsForClusters.append(cellTypesWithFoldChangeSums);
+    }
+
+    return cellTypesWithFoldChangeSumsForClusters;
+}
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++ DEPRECATED +++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+///**
+// * @brief findClusterTissueCorrelations - Correlates EVERY given cluster to EVERY given tissue - Runs in O(n*m) at least
+// * @param clusters - List of clusters (CellRanger t-SNE clusters)
+// * @param tissues - List of tissues (One tissue contains cell markers with corresponding expression counts - see BioModels/FeatureCollection)
+// * @return - Sorted correlations of every cluster and every tissue
+// */
+//QVector<QVector<QPair<QString, double>>> findClusterTissueCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> tissues) {
+
+//    // Create a list that will contain the correlation of all clusters with all tissues
+//    QVector<QVector<QPair<QString, double>>> tissueCorrelationsForAllClusters;
+//    tissueCorrelationsForAllClusters.reserve(clusters.length());
+
+//    // For every cluster from the list of clusters that was given
+//    for (int i = 0; i < clusters.length(); i++) {
+
+//        // Create a list that will contain the correlation of the current cluster i with all tissues
+//        QVector<QPair<QString, double>> clusterTissueCorrelations;
+//        clusterTissueCorrelations.reserve(tissues.length());
+
+//        // Go through every tissue type and correlate the cluster with this tissue type
+//        for (int j = 0; j < tissues.length(); j++) {
+
+//            // Find the features that are expressed in both the current cluster i and the current tissue j
+//            QVector<QPair<Feature, Feature>> equallyExpressedFeatures = Sorter::findEquallyExpressedFeatures(clusters[i], tissues[j]);
+
+//            int numberOfEquallyExpressedFeatures = equallyExpressedFeatures.length();
+
+//            // Create lists that will only hold the feature counts for both the current cluster i and the current tissue j
+//            // This is done to calculate the correlation the feature counts only
+//            QVector<double> tissueFeatureExpressionCounts,
+//                            clusterFeatureExpressionCounts;
+//            tissueFeatureExpressionCounts.reserve(numberOfEquallyExpressedFeatures);
+//            clusterFeatureExpressionCounts.reserve(numberOfEquallyExpressedFeatures);
+
+//            // Fill the two created lists with the feature counts.
+//            for (QPair<Feature, Feature> equallyExpressedFeature : equallyExpressedFeatures) {
+//                clusterFeatureExpressionCounts.append(equallyExpressedFeature.first.count);
+//                tissueFeatureExpressionCounts.append(equallyExpressedFeature.second.count);
+//            }
+
+//            // Correlate the two lists of feature counts.
+//            double correlation = Correlator::calculateSpearmanCorrelation(clusterFeatureExpressionCounts, tissueFeatureExpressionCounts);
+
+//            // Now append the calculated correlation to the list of correlations
+//            // The correlation that is added here is the correllation between the current cluster i and the current tissue type j
+//            clusterTissueCorrelations.append(qMakePair(tissues[j].ID, correlation));
+//        }
+
+//        // Now sort the found correlations due to place the tissue with the highest correlation to the cluster on top of the list
+//        // Be aware that the sorting is IN PLACE -> This directly alters the list clusterTissueCorrelations
+//        //REMEMBER: This has no place here, put it outside of this function
+//        std::sort(clusterTissueCorrelations.begin(), clusterTissueCorrelations.end(),
+//                  [](QPair<QString, double> pairA, QPair<QString, double> pairB) { return pairA.second > pairB.second; });
+
+//        // Now add the finished correlations of cluster i with every tissue to the final list
+//        tissueCorrelationsForAllClusters.append(clusterTissueCorrelations);
+//    }
+
+//    // Return the final list including the correlations of all clusters with all tissues
+//    return tissueCorrelationsForAllClusters;
+//}
+
+
+//QVector<QVector<QPair<CellType, double>>> findCellTypeCorrelations(QVector<CellType> cellTypes, QVector<FeatureCollection> clusters) {
+//    QVector<QVector<QPair<CellType, double>>> clustersWithCellMappingLikelihoods;
+
+//    qDebug() << "Go: Find cell type correlations";
+//    for (FeatureCollection cluster : clusters) {
+//        QVector<QPair<CellType, double>> cellMappingLikelihoods;
+
+//        for (CellType cellType : cellTypes) {
+//            int numberOfFeatures = cellType.associatedMarkers.length();
+//            int numberOfExpressedFeatures = 0;
+
+//            for (QString marker : cellType.associatedMarkers) {
+//                bool isMarkerExpressed = cluster.isFeatureExpressed(marker);
+
+//                if (isMarkerExpressed) {
+//                    numberOfExpressedFeatures++;
+//                }
+//            }
+
+//            double mappingLikelihood = double(numberOfExpressedFeatures) / double(numberOfFeatures);
+//            cellMappingLikelihoods.append(qMakePair(cellType, mappingLikelihood));
+//        }
+//        clustersWithCellMappingLikelihoods.append(cellMappingLikelihoods);
+//    }
+
+//    qDebug() << "Finished";
+//    return clustersWithCellMappingLikelihoods;
+//}
 
 }

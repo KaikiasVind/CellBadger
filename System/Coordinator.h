@@ -22,10 +22,8 @@ private:
     QFutureSynchronizer<QVector<FeatureCollection>> parsingThreadsWatcher;
     QFutureSynchronizer<QVector<QVector<QPair<QString, double>>>> correlatorThreadsWatcher;
 
-    void parseDatasetFiles(const QStringList datasetFilePaths);
-
     template<typename F>
-    void parseFiles(const QStringList filePaths, const F & parsingFunction, const double cutoff);
+    void parseFiles(const QStringList filePaths, F & parsingFunction, const QVector<double> cutOffs);
     void saveInformationAfterParsingFinished();
     void correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes);
     void saveInformationAfterCorrelatingFinished();
@@ -37,7 +35,7 @@ signals:
     void finishedFileParsing();
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
-    void finishedCorrelating(const InformationCenter & informationCenter);
+    void finishedCorrelating(const InformationCenter informationCenter);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
