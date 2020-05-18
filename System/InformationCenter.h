@@ -16,7 +16,7 @@ struct InformationCenter
 
     QStringList datasetFilePaths;
 
-    QStringList completeSetOfGeneIDs;
+    QVector<QStringList> completeSetOfGeneIDsPerDataset;
     QVector<FeatureCollection> cellMarkersForTypes;
     QVector<QVector<FeatureCollection>> xClusterCollections;
 

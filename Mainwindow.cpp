@@ -103,7 +103,7 @@ void MainWindow::on_correlatingFinished(const InformationCenter informationCente
     std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
 
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-        this->createDatasetItem(datasetNames.at(i), informationCenter.correlatedDatasets.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetOfGeneIDs);
+        this->createDatasetItem(datasetNames.at(i), informationCenter.correlatedDatasets.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetOfGeneIDsPerDataset.at(i));
     }
 }
 

@@ -126,6 +126,12 @@ QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFile
     // Each cluster contains its expressed features
     QVector<FeatureCollection> clustersWithSignificantFeatureFoldChanges;
 
+    // Create a list to collect the ID of every gene that is expressed at least in one cluster.
+    // This is neccessary to have a complete list of existing gene IDs for comparison between clusters and datasets
+    // with differing expressed genes
+    QStringList completeGeneIDs;
+    FeatureCollection completeGeneIDCollection("completeGeneIDCollection");
+
     int numberOfColumns = splitLine.length();
 
     // The cellranger cluster feature expression file is segmented into 3 rows per cluster
@@ -168,14 +174,33 @@ QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFile
             bool isFeatureMeanCountSignificant = featureMeanCount > cutOffs[0];
             bool isFeatureFoldChangeSignificant = featureFoldChange > cutOffs[1];
 
+            QString featureEnsemblID = splitLine.at(0).toUpper();
+            QString featureID = splitLine.at(1).toUpper();
+
+            // Append the feature ID to the list of all feature IDs that are at least expressed once no matter how little
+            if (featureMeanCount > 1.0) {
+                completeGeneIDs.append(featureID);
+            }
+
             // Get feature name and append to the correct cluster list
             if (isFeatureMeanCountSignificant && isFeatureFoldChangeSignificant) {
-                QString featureEnsemblID = splitLine.at(0).toUpper();
-                QString featureID = splitLine.at(1).toUpper();
                 clustersWithSignificantFeatureFoldChanges[i].addFeature(featureID, featureEnsemblID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
             }
         }
     }
+
+    // Remove all duplicates that were created due to genes being expressed in multiple clusters
+    completeGeneIDs.removeDuplicates();
+
+    // Generate a feature collection out of the collected gene IDs for easy transition
+    // REMEMBER: This is not clean
+    for (QString geneID : completeGeneIDs) {
+        completeGeneIDCollection.addFeature(geneID);
+    }
+
+    // Add the list of all gene IDs that were expressed by any cluster at least once to the cluster list.
+    // In the next step, this list is removed and added as list of complete gene IDs to the information center
+    clustersWithSignificantFeatureFoldChanges.push_front(completeGeneIDCollection);
 
     return clustersWithSignificantFeatureFoldChanges;
 }
