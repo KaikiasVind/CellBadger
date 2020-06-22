@@ -372,3 +372,10 @@ void TabWidget::on_pushButtonScatterPlot_clicked() {
 void TabWidget::on_pushButtonBarChart_clicked() {
     this->openExportWidgetWithPlot(Plots::createBarChart);
 }
+
+/**
+ * @brief TabWidget::on_pushButtonCorrelationOptionsRun_clicked
+ */
+void TabWidget::on_pushButtonCorrelationOptionsRun_clicked() {
+
+}

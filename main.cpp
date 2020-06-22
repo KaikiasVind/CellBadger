@@ -91,6 +91,9 @@ int main(int argc, char *argv[])
     // Coordinator -> Main Window
     QObject::connect(&coordinator, &Coordinator::finishedCorrelating, &mainWindow, &MainWindow::on_correlatingFinished);
 
+    // Main Window -> Coordinator
+    QObject::connect(&mainWindow, &MainWindow::runAnalysis, &coordinator, &Coordinator::on_runAnalysis);
+
     // At this point, the complete control over the system workflow is handed over to the Coordinator
 
 #endif

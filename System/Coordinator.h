@@ -44,6 +44,10 @@ public slots:
     void on_projectFileUploaded(const QStringList filePaths);
     // ################### INTERACTION WITH START DIALOG ########################
 
+    // ################### INTERACTION WITH MAIN WINDOW #########################
+    void on_runAnalysis();
+    // ################### INTERACTION WITH MAIN WINDOW #########################
+
     // ######################### FILE PROCESSING ################################
     // ######################### FILE PROCESSING ################################
 };

@@ -36,6 +36,8 @@ private slots:
 
     void on_pushButtonBarChart_clicked();
 
+    void on_pushButtonCorrelationOptionsRun_clicked();
+
 private:
     Ui::TabWidget *ui;
 

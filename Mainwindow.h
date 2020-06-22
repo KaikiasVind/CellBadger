@@ -10,6 +10,7 @@
 #include <QStringList>
 
 #include "StartDialog.h"
+#include "TabWidget.h"
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
 
@@ -31,6 +32,7 @@ public slots:
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
+    void runAnalysis();
 
 private slots:
     __attribute__((noreturn)) void on_buttonExit_clicked();
@@ -41,11 +43,16 @@ private slots:
 
     void on_tabWidgetDatasets_currentChanged(int index);
 
+    void on_pushButtonCorrelationOptionsRun_clicked();
+
 private:
     Ui::MainWindow *ui;
     QVector<QThread> workingThreads;
 
+    QVector<TabWidget *> runningTabWidgets;
+
     void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);
+    void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);
 
 //    void createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlations,
 //                           const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);

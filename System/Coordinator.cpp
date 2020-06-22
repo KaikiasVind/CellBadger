@@ -147,19 +147,6 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
     // Report that the last parsing thread has finished to the main window
     emit finishedFileParsing(this->informationCenter);
 
-//    cout << "Correlating datasets" << endl;
-//    // Correlate the datasets with the given cell type markers in separate threads
-//    this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
-//    cout << "Finished correlating. Gathering information" << endl;
-
-//    // Gather and save the information from the correlation from the different threads
-//    this->saveInformationAfterCorrelatingFinished();
-//    cout << "Saving correlation data successfull." << endl;
-
-//    // Report that the last correlation thread has finished to the main window
-////    emit finishedCorrelating(informationCenter.correlatedDatasets);
-//    emit finishedCorrelating(this->informationCenter);
-
     qDebug() << "Finished workflow. YEAY." << endl;
 }
 
@@ -178,6 +165,25 @@ void Coordinator::on_filesUploaded(const QStringList filePaths) {
 //    emit finishedClusterFileParsing();
 }
 
+
+void Coordinator::on_runAnalysis() {
+    qDebug() << "Coordinator: Received signal for run analyis.";
+
+    cout << "Correlating datasets" << endl;
+    // Correlate the datasets with the given cell type markers in separate threads
+    this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
+    cout << "Finished correlating. Gathering information" << endl;
+
+    // Gather and save the information from the correlation from the different threads
+    this->saveInformationAfterCorrelatingFinished();
+    cout << "Saving correlation data successfull." << endl;
+
+    // Report that the last correlation thread has finished to the main window
+    emit finishedCorrelating(this->informationCenter);
+
+}
+
+// ###################################### INTERACTION WITH MAIN WINDOW ###########################################
 
 /**
  * @brief Coordinator::on_projectFileUploaded

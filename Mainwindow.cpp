@@ -48,6 +48,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
     TabWidget * tabWidget = new TabWidget(this, datasetName);
+    this->runningTabWidgets.append(tabWidget);
 
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
@@ -108,17 +109,12 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
 
 
 void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
-    this->show();
     qDebug() << "Received signal after correlation finished.";
 
-    QStringList datasetNames;
-    datasetNames.reserve(informationCenter.datasetFilePaths.length());
-
-    // Get file names for tab titletab titles
-    std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
+    this->ui->labelStatus->setText("Correlation finished.");
 
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-//        this->createDatasetItem(datasetNames.at(i), informationCenter.correlatedDatasets.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+        this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), 5);
     }
 }
 
@@ -127,6 +123,12 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
     if (index == this->ui->tabWidgetDatasets->count() - 1 && !this->isHidden()) {
         qDebug() << "Trigger upload new dataset";
     }
+}
+
+
+void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
+    this->ui->labelStatus->setText("Running correlation...");
+    emit runAnalysis();
 }
 
 
@@ -139,3 +141,4 @@ void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
 void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
     this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
 }
+
