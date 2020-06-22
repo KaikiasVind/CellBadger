@@ -142,8 +142,9 @@ QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFile
     // and a new String list for each cluster. This list will later be filled with expressed features
     QVector<int> clusterColumnNumbers(numberOfClusters);
     for (int i = 0; i < numberOfClusters; i++) {
-        clusterColumnNumbers[i] = (2 + i * 3);
-        QString clusterID = QString("Cluster").append(QString::number(i));
+        int index = 2 + i * 3;
+        clusterColumnNumbers[i] = (index);
+        QString clusterID = splitLine[index];
         FeatureCollection cluster(clusterID);
         clustersWithSignificantFeatureFoldChanges.append(cluster);
     }

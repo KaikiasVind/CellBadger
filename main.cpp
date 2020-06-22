@@ -13,13 +13,37 @@
 #include <QDebug>
 #include "Utils/Helper.h"
 
-#define run 1
+#include "Utils/FileOperators/CSVReader.h"
+#include "Statistics/Expressioncomparator.h"
+
+#define run 0
 
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
 #if !run
+
+    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
+    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB.csv";
+
+    qDebug() << "Parsing.";
+    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {12, 0});
+    QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
+    qDebug() << "Finished.";
+
+    samples.removeFirst();
+
+    qDebug() << "Correlating.";
+    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
+    qDebug() << "Finished.";
+
+    for (int i = 0; i < correlations.length(); i++) {
+        qDebug() << "\n" << samples[i].ID << ":";
+        for (int j = 0; j < 5; j++) {
+            qDebug() << correlations[i][j].first << ":" << correlations[i][j].second;
+        }
+    }
 
 #endif
 #if run
