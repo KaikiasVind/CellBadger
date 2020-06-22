@@ -32,6 +32,9 @@
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
+     <property name="toolTip">
+      <string>Correlation coefficients for types</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -47,6 +50,9 @@
      <property name="sizeAdjustPolicy">
       <enum>QAbstractScrollArea::AdjustIgnored</enum>
      </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
      <property name="showDropIndicator" stdset="0">
       <bool>false</bool>
      </property>
@@ -55,6 +61,9 @@
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::NoSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
      </property>
      <property name="showGrid">
       <bool>false</bool>

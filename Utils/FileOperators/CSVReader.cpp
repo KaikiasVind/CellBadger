@@ -35,7 +35,7 @@ QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(const QString csvFileP
     }
 
     // Skip title line
-    char columnDelimiter('\t');
+    char columnDelimiter(',');
     QByteArray line = csvFile.readLine();
     QList<QByteArray> splitLine = line.split(columnDelimiter);
 
