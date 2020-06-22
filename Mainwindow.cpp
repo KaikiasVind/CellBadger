@@ -46,7 +46,7 @@ MainWindow::~MainWindow()
  * @param datasetName - File name of the given dataset
  * @param correlations - List of clusters with corresponding correlated types
  */
-void MainWindow::createDatasetItem(QString datasetName, QVector<QVector<QPair<QString, double>>> correlations, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
+void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
     TabWidget * tabWidget = new TabWidget(this, datasetName);
 
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
@@ -54,7 +54,7 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<QVector<QPair<QS
 
     // Call the given tab widget to populate its table widgets with the given correlations.
     // The number stands for the top n most correlated types to be shown in the correlation table widget
-    tabWidget->populateTableTypeCorrelations(correlations, 5);
+//    tabWidget->populateTableTypeCorrelations(correlations, 5);
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
 }
 
@@ -89,8 +89,21 @@ void MainWindow::on_buttonMinimize_clicked() {
 
 
 // REACTING TO CONTROLLER
-void MainWindow::on_clusterFileParsed() {
+void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
+    this->show();
+    qDebug() << "Received signal after correlation finished.";
+
     ui->labelStatus->setText("Finished parsing.");
+
+    QStringList datasetNames;
+    datasetNames.reserve(informationCenter.datasetFilePaths.length());
+
+    // Get file names for tab titletab titles
+    std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
+
+    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
+        this->createDatasetItem(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+    }
 }
 
 
@@ -105,7 +118,7 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
     std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
 
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-        this->createDatasetItem(datasetNames.at(i), informationCenter.correlatedDatasets.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+//        this->createDatasetItem(datasetNames.at(i), informationCenter.correlatedDatasets.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
     }
 }
 

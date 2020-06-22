@@ -10,6 +10,7 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <QThread>
 
 #include "System/InformationCenter.h"
 #include "Utils/FileOperators/CSVReader.h"
@@ -144,20 +145,20 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
     cout << "Saving information successfull." << endl;
 
     // Report that the last parsing thread has finished to the main window
-    emit finishedFileParsing();
+    emit finishedFileParsing(this->informationCenter);
 
-    cout << "Correlating datasets" << endl;
-    // Correlate the datasets with the given cell type markers in separate threads
-    this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
-    cout << "Finished correlating. Gathering information" << endl;
+//    cout << "Correlating datasets" << endl;
+//    // Correlate the datasets with the given cell type markers in separate threads
+//    this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
+//    cout << "Finished correlating. Gathering information" << endl;
 
-    // Gather and save the information from the correlation from the different threads
-    this->saveInformationAfterCorrelatingFinished();
-    cout << "Saving correlation data successfull." << endl;
+//    // Gather and save the information from the correlation from the different threads
+//    this->saveInformationAfterCorrelatingFinished();
+//    cout << "Saving correlation data successfull." << endl;
 
-    // Report that the last correlation thread has finished to the main window
-//    emit finishedCorrelating(informationCenter.correlatedDatasets);
-    emit finishedCorrelating(this->informationCenter);
+//    // Report that the last correlation thread has finished to the main window
+////    emit finishedCorrelating(informationCenter.correlatedDatasets);
+//    emit finishedCorrelating(this->informationCenter);
 
     qDebug() << "Finished workflow. YEAY." << endl;
 }

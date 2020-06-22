@@ -32,7 +32,7 @@ public:
     Coordinator(InformationCenter informationCenter);
 
 signals:
-    void finishedFileParsing();
+    void finishedFileParsing(const InformationCenter informationCenter);
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
     void finishedCorrelating(const InformationCenter informationCenter);

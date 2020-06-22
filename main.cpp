@@ -16,7 +16,7 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 
-#define run 0
+#define run 1
 
 int main(int argc, char *argv[])
 {
@@ -25,25 +25,25 @@ int main(int argc, char *argv[])
 #if !run
 
     QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
-    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB.csv";
+    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
 
     qDebug() << "Parsing.";
-    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {12, 0});
+    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {1, 0});
     QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
     qDebug() << "Finished.";
 
-    samples.removeFirst();
+//    samples.removeFirst();
 
-    qDebug() << "Correlating.";
-    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
-    qDebug() << "Finished.";
+//    qDebug() << "Correlating.";
+//    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
+//    qDebug() << "Finished.";
 
-    for (int i = 0; i < correlations.length(); i++) {
-        qDebug() << "\n" << samples[i].ID << ":";
-        for (int j = 0; j < 5; j++) {
-            qDebug() << correlations[i][j].first << ":" << correlations[i][j].second;
-        }
-    }
+//    for (int i = 0; i < correlations.length(); i++) {
+//        qDebug() << "\n" << samples[i].ID << ":";
+//        for (int j = 0; j < 5; j++) {
+//            qDebug() << correlations[i][j].first << ":" << correlations[i][j].second;
+//        }
+//    }
 
 #endif
 #if run
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     QObject::connect(&startDialog, &StartDialog::runNewProject, &coordinator, &Coordinator::on_newProjectStarted);
 
     // Coordinator -> Main Window
-    QObject::connect(&coordinator, &Coordinator::finishedFileParsing, &mainWindow, &MainWindow::on_clusterFileParsed);
+    QObject::connect(&coordinator, &Coordinator::finishedFileParsing, &mainWindow, &MainWindow::on_filesParsed);
 
     // Coordinator -> Main Window
     QObject::connect(&coordinator, &Coordinator::finishedCorrelating, &mainWindow, &MainWindow::on_correlatingFinished);

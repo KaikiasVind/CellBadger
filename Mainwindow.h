@@ -26,7 +26,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void on_clusterFileParsed();
+    void on_filesParsed(const InformationCenter & informationCenter);
     void on_correlatingFinished(const InformationCenter & informationCenter);
 
 signals:
@@ -45,8 +45,10 @@ private:
     Ui::MainWindow *ui;
     QVector<QThread> workingThreads;
 
-    void createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlations,
-                           const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);
+    void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);
+
+//    void createDatasetItem(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlations,
+//                           const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);
 
     // Mouse interaction - Necessary for frameless windows
     void mousePressEvent(QMouseEvent * mousePressEvent);
