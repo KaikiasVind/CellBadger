@@ -166,54 +166,192 @@
         <property name="sizeConstraint">
          <enum>QLayout::SetDefaultConstraint</enum>
         </property>
+        <item row="2" column="7">
+         <widget class="QSlider" name="horizontalSliderCorrelationOptionsRawCountCutOffMax">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="7">
+         <widget class="QSlider" name="horizontalSliderCorrelationOptionsFoldChangeCutOffMax">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsRawCountCutOffMax"/>
+        </item>
+        <item row="3" column="8">
+         <widget class="QCheckBox" name="checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast">
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="toolTip">
+           <string>The cut-off must be me in at least n clusters</string>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>in at least</string>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="labelCorrelationOptionsFoldChangeCutOff">
           <property name="text">
-           <string>Fold Change Cut-Off</string>
+           <string>Fold Change</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
+        <item row="3" column="9">
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast"/>
+        </item>
         <item row="2" column="4">
-         <widget class="QSlider" name="horizontalSliderCorrelationOptionsRawCountCutOff">
+         <widget class="QSlider" name="horizontalSliderCorrelationOptionsRawCountCutOffMin">
+          <property name="cursor">
+           <cursorShape>ArrowCursor</cursorShape>
+          </property>
+          <property name="maximum">
+           <number>5000</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
+        <item row="2" column="8">
+         <widget class="QCheckBox" name="checkBoxCorrelationOptionsRawCountCutOffInAtLeast">
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="toolTip">
+           <string>The cut-off must be me in at least n clusters</string>
+          </property>
+          <property name="text">
+           <string>in at least</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsRawCountCutOffMin">
+          <property name="maximum">
+           <number>5000</number>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="4">
-         <widget class="QSlider" name="horizontalSliderCorrelationOptionsFoldChangeCutOff">
+         <widget class="QSlider" name="horizontalSliderCorrelationOptionsFoldChangeCutOffMin">
+          <property name="maximum">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="QLabel" name="labelCorrelationOptionsFoldChangeCutOffMax">
+          <property name="toolTip">
+           <string>The maximum raw count value.</string>
+          </property>
+          <property name="text">
+           <string>max</string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="labelCorrelationOptionsRawCountCutOff">
           <property name="text">
-           <string>Raw Count Cut-Off</string>
+           <string>Raw Count</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOff"/>
+        <item row="2" column="9">
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsRawCountCutOffInAtLeast"/>
         </item>
-        <item row="3" column="2">
-         <widget class="QSpinBox" name="spinBoxCorrelationOptionsRawCountCutOff"/>
-        </item>
-        <item row="3" column="6">
-         <widget class="QPushButton" name="pushButtonCorrelationOptionsRun">
-          <property name="text">
-           <string>Run</string>
+        <item row="3" column="3">
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOffMin">
+          <property name="maximum">
+           <number>50</number>
           </property>
          </widget>
         </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="labelCorrelationOptionsRawCountCutOffMin">
+          <property name="toolTip">
+           <string>The minimum raw count value.</string>
+          </property>
+          <property name="text">
+           <string>min</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QLabel" name="labelCorrelationOptionsRawCountCutOffMax">
+          <property name="toolTip">
+           <string>The maximum raw count value.</string>
+          </property>
+          <property name="text">
+           <string>max</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="labelCorrelationOptionsFoldChangeCutOffMin">
+          <property name="toolTip">
+           <string>The minimum raw count value.</string>
+          </property>
+          <property name="text">
+           <string>min</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="6">
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOffMax"/>
+        </item>
        </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonCorrelationOptionsRun">
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

@@ -33,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
+
+    // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setDisabled(true);
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -119,6 +123,18 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
 }
 
 
+/**
+ * @brief MainWindow::on_expressionValuesChanged
+ * @param informationCenter
+ */
+void MainWindow::on_expressionValuesChanged(const InformationCenter & informationCenter) {
+    qDebug() << "Received signal that expression values changed.";
+    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
+        this->runningTabWidgets[i]->populateTableGeneExpressions(informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+    }
+}
+
+
 void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
     if (index == this->ui->tabWidgetDatasets->count() - 1 && !this->isHidden()) {
         qDebug() << "Trigger upload new dataset";
@@ -132,6 +148,7 @@ void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
 }
 
 
+// RAW COUNT CUT-OFF
 // ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
 void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
     this->mouseClickXCoordinate = mousePressEvent->x();
@@ -142,3 +159,42 @@ void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
     this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
 }
 
+void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
+    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMin->setValue(value);
+}
+
+void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffMin->setValue(value);
+}
+
+void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMax_valueChanged(int value) {
+    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setValue(value);
+}
+
+void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueChanged(int value) {
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffMax->setValue(value);
+}
+
+void MainWindow::on_checkBoxCorrelationOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setDisabled(!checked);
+}
+
+void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value) {
+    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMin->setValue(value);
+}
+
+void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value) {
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMin->setValue(value);
+}
+
+void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value) {
+    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setValue(value);
+}
+
+void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value) {
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMax->setValue(value);
+}
+
+void MainWindow::on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setDisabled(!checked);
+}
