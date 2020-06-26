@@ -16,19 +16,13 @@ FeatureCollection::FeatureCollection(QString collectionID)
     : ID (collectionID)
 {}
 
-//FeatureCollection::FeatureCollection(FeatureCollection & featureCollection)
-//    : ID (featureCollection.ID)
-//{
-//    features.reserve(featureCollection.getNumberOfFeatures());
-//    for (int i = 0; i < featureCollection.getNumberOfFeatures(); i++)
-//        features.append(featureCollection.getFeature(i));
-//}
 
 /**
  * @brief FeatureCollection::addFeature
  * @param feature
  */
 void FeatureCollection::addFeature(const Feature feature) {
+    this->expressionCountSum += feature.count;
     this->features.append(feature);
 }
 
@@ -77,7 +71,7 @@ void FeatureCollection::addFeature(const QString featureID, const QString featur
  * @brief FeatureCollection::filterFeatures - Keep only $number most expressed features
  * @param number - Number of features to keep
  */
-QVector<double> FeatureCollection::getMostExpressedFeaturesCounts(int number) {
+QVector<double> FeatureCollection::getMostExpressedFeaturesCounts(int number) const {
     QVector<double> sortedFeaturesExpressions;
     sortedFeaturesExpressions.reserve(this->getNumberOfFeatures());
     for (int i = 0; i < this->getNumberOfFeatures(); i++) {
@@ -110,7 +104,7 @@ bool FeatureCollection::isFeatureExpressed(Feature feature) {
  * @param index
  * @return
  */
-Feature FeatureCollection::getFeature(int index) {
+Feature FeatureCollection::getFeature(int index) const {
     return features[index];
 }
 
@@ -120,7 +114,7 @@ Feature FeatureCollection::getFeature(int index) {
  * @param index
  * @return
  */
-QString FeatureCollection::getFeatureID(int index) {
+QString FeatureCollection::getFeatureID(int index) const {
     return features[index].ID;
 }
 
@@ -129,7 +123,7 @@ QString FeatureCollection::getFeatureID(int index) {
  * @param index
  * @return
  */
-double FeatureCollection::getFeatureExpressionCount(int index) {
+double FeatureCollection::getFeatureExpressionCount(int index) const {
     return features[index].count;
 }
 
@@ -137,7 +131,7 @@ double FeatureCollection::getFeatureExpressionCount(int index) {
  * @brief FeatureCollection::getNumberOfFeatures
  * @return Number of expressed features
  */
-int FeatureCollection::getNumberOfFeatures() {
+int FeatureCollection::getNumberOfFeatures() const {
     return features.length();
 }
 
@@ -145,7 +139,7 @@ int FeatureCollection::getNumberOfFeatures() {
  * @brief FeatureCollection::getFeatures
  * @return List of features associated with FeatureCollection
  */
-QVector<Feature> FeatureCollection::getFeatures() {
+QVector<Feature> FeatureCollection::getFeatures() const {
     QVector<Feature> copyCollection = this->features;
     return copyCollection;
 }
@@ -156,18 +150,38 @@ QVector<Feature> FeatureCollection::getFeatures() {
  * @param index
  * @return
  */
-double FeatureCollection::getFeatureFoldChange(int index) {
+double FeatureCollection::getFeatureFoldChange(int index) const {
    return this->features.at(index).foldChange;
 }
+
+
+/**
+ * @brief FeatureCollection::getFeatureRawCount - Fetch the feature i's raw count
+ * @param index - Index of the gene inside of the feature collection
+ * @return - Raw expression count of the selected gene
+ */
+double FeatureCollection::getFeatureRawCount(int index) const {
+   return this->features.at(index).count;
+}
+
 
 /**
  * @brief FeatureCollection::getFoldChangeSum - Calculates the normalized fold change sum for the current genes
  * @return - Sum of all genes currently listed in this FeatureCollection normalized with the number of features
  */
-double FeatureCollection::getFoldChangeSum() {
+double FeatureCollection::getFoldChangeSum() const {
     double foldChangeSum = 0;
     for (Feature feature : this->features) {
         foldChangeSum += feature.foldChange;
     }
     return foldChangeSum;
+}
+
+
+/**
+ * @brief FeatureCollection::getExpressionCountSum - Calculates the normalized fold change sum for the current genes
+ * @return - Sum of all gene expression counts currently listed in this FeatureCollection normalized with the number of features
+ */
+double FeatureCollection::getExpressionCountSum() const {
+    return this->expressionCountSum / this->getNumberOfFeatures();
 }

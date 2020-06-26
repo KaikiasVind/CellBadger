@@ -43,7 +43,7 @@
          <enum>QFrame::Plain</enum>
         </property>
         <property name="text">
-         <string>Badger</string>
+         <string>Cell Badger</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>

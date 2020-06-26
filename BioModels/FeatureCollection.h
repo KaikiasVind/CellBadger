@@ -14,12 +14,13 @@ class FeatureCollection
 private:
     QVector<Feature> features;
 
+    double expressionCountSum;
+
 public:
     QString ID;
 
     FeatureCollection();
     FeatureCollection(const QString collectionID);
-//    FeatureCollection(FeatureCollection & featureCollection);
 
     void addFeature(const Feature feature);
     void addFeature(const QString featureID);
@@ -29,15 +30,16 @@ public:
     bool isFeatureExpressed(QString markerID);
     bool isFeatureExpressed(Feature feature);
 
-    Feature getFeature(int index);
-    QString getFeatureID(int index);
-    double getFeatureExpressionCount(int index);
-    int getNumberOfFeatures();
-    QVector<Feature> getFeatures();
-    QVector<double> getMostExpressedFeaturesCounts(int number);
-    double getFeatureFoldChange(int index);
-    double getFoldChangeSum();
-
+    Feature getFeature(int index) const;
+    QString getFeatureID(int index) const;
+    double getFeatureExpressionCount(int index) const;
+    int getNumberOfFeatures() const;
+    QVector<Feature> getFeatures() const;
+    QVector<double> getMostExpressedFeaturesCounts(int number) const;
+    double getFeatureFoldChange(int index) const;
+    double getFeatureRawCount(int index) const;
+    double getFoldChangeSum() const;
+    double getExpressionCountSum() const;
 };
 
 #endif // CLUSTER_H
