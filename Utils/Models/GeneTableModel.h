@@ -20,11 +20,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 private:
-<<<<<<< HEAD
     QVector<std::tuple<QString, QVector<double>, double>> allGenesWithExpressionCountsInAllClusters;
-=======
-    QVector<QPair<QString, QVector<double>>> allGenesWithExpressionCountsInAllClusters;
->>>>>>> GUI_restructuring
+
     QStringList completeGeneIDs;
     QStringList clusterNames;
 
