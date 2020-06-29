@@ -35,6 +35,15 @@ signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
     void runAnalysis();
 
+    void minRawCountChanged(int minRawCount);
+    void maxRawCountChanged(int minRawCount);
+    void minfoldChangeChanged(int minFoldChange);
+    void maxfoldChangeChanged(int minFoldChange);
+    void rawCountInAtLeastChanged(int number);
+    void foldChangeInAtLeastChanged(int number);
+    void rawCountInAtLeastToggled(bool state);
+    void foldChangeInAtLeastToggled(bool state);
+
 private slots:
     __attribute__((noreturn)) void on_buttonExit_clicked();
 
@@ -64,8 +73,11 @@ private slots:
 
     void on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value);
 
-
     void on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked);
+
+    void on_spinBoxCorrelationOptionsRawCountCutOffInAtLeast_valueChanged(int number);
+
+    void on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

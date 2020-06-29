@@ -80,7 +80,7 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
     // Decide which cell should be aligned in which way
     } else if (role == Qt::TextAlignmentRole) {
-        if (index.column() == 0 || index.column() == this->columnCount() - 1)
+        if (index.column() == 0) // || index.column() == this->columnCount() - 1)
             return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
         else
             return Qt::AlignCenter;

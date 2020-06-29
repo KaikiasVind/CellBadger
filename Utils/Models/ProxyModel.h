@@ -22,7 +22,9 @@ public slots:
     void setMinFoldChange(double minFoldChange);
     void setMaxFoldChange(double maxFoldChange);
     void setRawCountInAtLeast(int amount);
+    void setIncludeRawCountInAtLeast(bool state);
     void setFoldChangeInAtLeast(int amount);
+    void setIncludeFoldChangeInAtLeast(bool state);
 
 private:
     int rowCount;
@@ -33,7 +35,9 @@ private:
     double minFoldChange;
     double maxFoldChange;
     double rawCountinAtLeast;
+    bool includeRawCountInAtLeast;
     double foldChangeInAtLeast;
+    bool includeFoldChangeInAtLeast;
 };
 
 #endif // PROXYMODEL_H

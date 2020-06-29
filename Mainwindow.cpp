@@ -57,10 +57,17 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
 
-    // Call the given tab widget to populate its table widgets with the given correlations.
-    // The number stands for the top n most correlated types to be shown in the correlation table widget
-//    tabWidget->populateTableTypeCorrelations(correlations, 5);
+    // Forward the gene expression values to the new tab
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
+
+    QObject::connect(this, &MainWindow::minRawCountChanged, tabWidget, &TabWidget::on_minRawCountSet);
+    QObject::connect(this, &MainWindow::maxRawCountChanged, tabWidget, &TabWidget::on_maxRawCountSet);
+    QObject::connect(this, &MainWindow::minfoldChangeChanged, tabWidget, &TabWidget::on_minFoldChangeSet);
+    QObject::connect(this, &MainWindow::maxfoldChangeChanged, tabWidget, &TabWidget::on_maxFoldChangeSet);
+    QObject::connect(this, &MainWindow::rawCountInAtLeastChanged, tabWidget, &TabWidget::on_rawCountInAtLeastSet);
+    QObject::connect(this, &MainWindow::rawCountInAtLeastToggled, tabWidget, &TabWidget::on_rawCountInAtLeastToggled);
+    QObject::connect(this, &MainWindow::foldChangeInAtLeastChanged, tabWidget, &TabWidget::on_foldChangeinAtLeastSet);
+    QObject::connect(this, &MainWindow::foldChangeInAtLeastToggled, tabWidget, &TabWidget::on_foldChangeInAtLeastToggled);
 }
 
 
@@ -148,7 +155,6 @@ void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
 }
 
 
-// RAW COUNT CUT-OFF
 // ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
 void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
     this->mouseClickXCoordinate = mousePressEvent->x();
@@ -161,6 +167,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
 
 void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
     this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMin->setValue(value);
+    emit minRawCountChanged(value);
 }
 
 void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
@@ -169,6 +176,7 @@ void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMin_valueCha
 
 void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMax_valueChanged(int value) {
     this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setValue(value);
+    emit maxRawCountChanged(value);
 }
 
 void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueChanged(int value) {
@@ -177,10 +185,16 @@ void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueCha
 
 void MainWindow::on_checkBoxCorrelationOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
     this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setDisabled(!checked);
+    emit rawCountInAtLeastToggled(!checked);
+}
+
+void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffInAtLeast_valueChanged(int number) {
+    emit rawCountInAtLeastChanged(number);
 }
 
 void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value) {
     this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMin->setValue(value);
+    emit minfoldChangeChanged(value);
 }
 
 void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value) {
@@ -189,6 +203,7 @@ void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMin_valueC
 
 void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value) {
     this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setValue(value);
+    emit maxfoldChangeChanged(value);
 }
 
 void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value) {
@@ -197,4 +212,9 @@ void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueC
 
 void MainWindow::on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
     this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setDisabled(!checked);
+    emit foldChangeInAtLeastToggled(!checked);
+}
+
+void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
+    emit foldChangeInAtLeastChanged(number);
 }

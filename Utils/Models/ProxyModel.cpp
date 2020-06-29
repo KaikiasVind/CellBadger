@@ -25,7 +25,6 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
         clusterIndices.append(sourceModel()->index(source_row, i, source_parent));
     }
 
-    return true;
     int numberOfClustersWithValidRawCount = 0;
 //    int numberOfClustersWithValidFoldChange = 0;
     for (int i = 0; i < clusterIndices.length(); i++) {
@@ -36,9 +35,14 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
         }
     }
 
-    // If enough cluster raw counts have met the required cut-off accept the row
-    if (numberOfClustersWithValidRawCount >= this->rawCountinAtLeast)
-        return true;
+    if (!this->includeRawCountInAtLeast) {
+        // If enough cluster raw counts have met the required cut-off accept the row
+        if (numberOfClustersWithValidRawCount >= this->rawCountinAtLeast)
+            return true;
+    } else {
+        if (numberOfClustersWithValidRawCount > 0)
+            return true;
+    }
 
     return false;
 }
@@ -112,11 +116,33 @@ void ProxyModel::setRawCountInAtLeast(int amount) {
 
 
 /**
+ * @brief ProxyModel::setIncludeRawCountInAtLeast - Sets whether the minimum amount of cluster sould be considered or ignorded (In case the gui element is deactivated)
+ * @param state - Whether or not the number should be considered or ignored
+ */
+void ProxyModel::setIncludeRawCountInAtLeast(bool state) {
+    if (this->includeRawCountInAtLeast != state)
+        this->includeRawCountInAtLeast = state;
+    invalidateFilter();
+}
+
+
+/**
  * @brief ProxyModel::setFoldChangeInAtLeast - Sets the minimum number of cluster that should met the fold-change cut-offs
  * @param amount - Minimum number of clusters
  */
 void ProxyModel::setFoldChangeInAtLeast(int amount) {
     if (this->foldChangeInAtLeast != amount)
         this->foldChangeInAtLeast = amount;
+    invalidateFilter();
+}
+
+
+/**
+ * @brief ProxyModel::setIncludeFoldChangeInAtLeast - Sets whether the minimum amount of cluster sould be considered or ignorded (In case the gui element is deactivated)
+ * @param state - Whether or not the number should be considered or ignored
+ */
+void ProxyModel::setIncludeFoldChangeInAtLeast(bool state) {
+    if (this->includeFoldChangeInAtLeast != state)
+        this->includeFoldChangeInAtLeast = state;
     invalidateFilter();
 }

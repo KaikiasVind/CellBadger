@@ -83,12 +83,10 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
  */
 void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs) {
 
-//    if (this->geneTableModel != nullptr)
-//        delete this->geneTableModel;
-
     this->geneTableModel = new GeneTableModel(geneExpressions, completeGeneIDs);
-    this->proxyModel = new ProxyModel(completeGeneIDs.length() + 1, geneExpressions.length() + 1);
+    this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1);
     this->proxyModel->setSourceModel(geneTableModel);
+
 
     this->tableView = new QTableView;
     this->tableView->setModel(this->proxyModel);
@@ -98,79 +96,17 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->tableView->setSortingEnabled(true);
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
+
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
 
-//    int numberOfClusters = geneExpressions.length();
-//    int numberOfGeneIDs = completeGeneIDs.length();
-
-//    // Resize the table according to the given number of clusters and gene IDs
-//    // +1 for column count because of the mean value column
-//    this->ui->tableWidgetGeneExpressions->setColumnCount(numberOfClusters + 1);
-//    this->ui->tableWidgetGeneExpressions->setRowCount(numberOfGeneIDs);
-
-//    // Create header with cluster numbers
-//    QStringList clusterNameHeaderItems;
-//    for (int i = 1; i < numberOfClusters + 1; i++) {
-//        clusterNameHeaderItems.append("Cluster " + QString::number(i));
-//    }
-
-//    // Add one column that will hold the mean of the expression values for all clusters
-//    clusterNameHeaderItems.append("⌀");
-
-//    // Add the headers to the table
-//    this->ui->tableWidgetGeneExpressions->setHorizontalHeaderLabels(clusterNameHeaderItems);
-//    this->ui->tableWidgetGeneExpressions->setVerticalHeaderLabels(completeGeneIDs);
-
-//    // Go through the list of all gathered gene IDs
-//    // REMEMBER: UAGH 3 for loops
-//    for (int i = 0; i < numberOfGeneIDs; i++) {
-//        QString currentHeaderGeneID = completeGeneIDs[i];
-
-//        double expressionSum = 0;
-
-//        // And go through every cluster and check whether the gene is expressed or not
-//        for (int j = 0; j < numberOfClusters; j++) {
-//            bool isGeneExpressed = false;
-
-//            // Search for the current gene ID in the cluster -> Only contains IDs of expressed genes
-//            for (int k = 0; k < geneExpressions[j].getNumberOfFeatures(); k++) {
-//                QString currentClusterGeneID = geneExpressions[j].getFeature(k).ID;
-//                bool isSameString = currentHeaderGeneID.compare(currentClusterGeneID) == 0;
-
-//                // If the ID has been found (which means it is expressed in the cluster)
-//                if (isSameString) {
-//                    isGeneExpressed = true;
-//                    double geneExpressionCount = geneExpressions[j].getFeatureExpressionCount(k);
-
-//                    // Add a new TableWidgetItem to the corresponding cell containing the gene expression count
-//                    QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
-//                    tableWidgetItem->setData(Qt::DisplayRole, geneExpressionCount);
-
-//                    this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
-
-//                    expressionSum += geneExpressionCount;
-//                }
-//            }
-
-//            // If the gene is not found (which means its not expressed in the cluster), add a placeholder to the cell
-//            if (!isGeneExpressed) {
-//                QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
-//                tableWidgetItem->setData(Qt::DisplayRole, "< 1");
-
-//                this->ui->tableWidgetGeneExpressions->setItem(i, j, tableWidgetItem);
-//            }
-
-//            // Compute the mean of the current gene's expression values in all clusters and add it to the table
-//            double meanExpressionCount = (expressionSum / numberOfClusters);
-
-//            // Set the mean expression count as item into the last table column
-//            QTableWidgetItem * tableWidgetItemMeanCount = new QTableWidgetItem(0);
-//            tableWidgetItemMeanCount->setData(Qt::DisplayRole, "⌀: " + QString::number(meanExpressionCount));
-//            this->ui->tableWidgetGeneExpressions->setItem(i, numberOfClusters, tableWidgetItemMeanCount);
-//        }
-//    }
-
-//    this->ui->tableWidgetGeneExpressions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    // Connect all signals that come from the Tab Widget with the slots of the Proxy Model
+    // This connects the GUI elements with filtering options
+    QObject::connect(this, &TabWidget::minRawCountSet, this->proxyModel, &ProxyModel::setMinRawCount);
+    QObject::connect(this, &TabWidget::maxRawCountSet, this->proxyModel, &ProxyModel::setMaxRawCount);
+    QObject::connect(this, &TabWidget::minFoldChangeSet, this->proxyModel, &ProxyModel::setMinFoldChange);
+    QObject::connect(this, &TabWidget::maxFoldChangeSet, this->proxyModel, &ProxyModel::setMaxFoldChange);
+    QObject::connect(this, &TabWidget::rawCountInAtLeastSet, this->proxyModel, &ProxyModel::setRawCountInAtLeast);
+    QObject::connect(this, &TabWidget::foldChangeInAtLeastSet, this->proxyModel, &ProxyModel::setFoldChangeInAtLeast);
 }
 
 
@@ -398,3 +334,71 @@ void TabWidget::showAlertForInvalidGeneID(QString geneID) {
 //void TabWidget::on_pushButtonCorrelationOptionsRun_clicked() {
 
 //}
+
+
+// ################################### SLOTS ###################################
+
+void TabWidget::on_minRawCountSet(double minRawCount) {
+    if (this->minRawCount == minRawCount)
+        return;
+    this->minRawCount = minRawCount;
+    emit this->minRawCountSet(minRawCount);
+}
+
+
+void TabWidget::on_maxRawCountSet(double maxRawCount) {
+    if (this->maxRawCount == maxRawCount)
+        return;
+    this->maxRawCount = maxRawCount;
+    emit this->maxRawCountSet(maxRawCount);
+}
+
+
+void TabWidget::on_minFoldChangeSet(double minFoldChange) {
+    if (this->minFoldChange == minFoldChange)
+        return;
+    this->minFoldChange = minFoldChange;
+    emit this->minFoldChangeSet(minFoldChange);
+}
+
+
+void TabWidget::on_maxFoldChangeSet(double maxFoldChange) {
+    if (this->maxFoldChange == maxFoldChange)
+        return;
+    this->maxFoldChange = maxFoldChange;
+    emit this->maxFoldChangeSet(maxFoldChange);
+}
+
+
+void TabWidget::on_rawCountInAtLeastSet(int number) {
+    if (this->rawCountInAtLeast == number)
+        return;
+    this->rawCountInAtLeast = number;
+    emit this->rawCountInAtLeastSet(number);
+}
+
+
+void TabWidget::on_foldChangeinAtLeastSet(int number) {
+    if (this->foldChangeInAtLeast == number)
+        return;
+    this->foldChangeInAtLeast = number;
+    emit this->foldChangeInAtLeastSet(number);
+}
+
+
+void TabWidget::on_rawCountInAtLeastToggled(bool state) {
+    if (this->includeRawCountInAtLeast == state)
+        return;
+    this->includeRawCountInAtLeast = state;
+    emit this->rawCountInAtLeastToggled(state);
+}
+
+
+void TabWidget::on_foldChangeInAtLeastToggled(bool state) {
+    if (this->includeFoldChangeInAtLeast == state)
+        return;
+    this->includeFoldChangeInAtLeast  = state;
+    emit this->foldChangeInAtLeastToggled(state);
+}
+
+

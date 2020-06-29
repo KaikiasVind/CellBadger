@@ -98,6 +98,7 @@ QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGen
         // Go through all feature collections and append the current gene's expression count if found
         for (FeatureCollection featureCollection : featureCollections) {
 
+            // Keep track of whether the current gene has been found in the cluster or not
             bool isGeneFound = false;
 
             // Search through all features in the current collection and append the expression count when found

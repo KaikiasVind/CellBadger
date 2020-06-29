@@ -30,6 +30,27 @@ public:
 
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
 
+signals:
+    void minRawCountSet(double minRawCount);
+    void maxRawCountSet(double maxRawCount);
+    void minFoldChangeSet(double minFoldChange);
+    void maxFoldChangeSet(double maxFoldChange);
+    void rawCountInAtLeastSet(int numberOfClusters);
+    void rawCountInAtLeastToggled(bool state);
+    void foldChangeInAtLeastSet(int numberOfClusters);
+    void foldChangeInAtLeastToggled(bool state);
+
+public slots:
+
+    void on_minRawCountSet(double minRawCount);
+    void on_maxRawCountSet(double maxRawCount);
+    void on_minFoldChangeSet(double minFoldChange);
+    void on_maxFoldChangeSet(double maxFoldChange);
+    void on_rawCountInAtLeastSet(int numberOfClusters);
+    void on_rawCountInAtLeastToggled(bool state);
+    void on_foldChangeinAtLeastSet(int numberOfClusters);
+    void on_foldChangeInAtLeastToggled(bool state);
+
 private slots:
 //    void on_lineEditGeneID_textChanged(const QString &arg1);
 
@@ -57,6 +78,15 @@ private:
     void openExportWidgetWithPlot(F plottingFunction);
 
     const char lineEditDelimiter = ',';
+
+    double minRawCount;
+    double maxRawCount;
+    double minFoldChange;
+    double maxFoldChange;
+    int rawCountInAtLeast;
+    bool includeRawCountInAtLeast;
+    int foldChangeInAtLeast;
+    bool includeFoldChangeInAtLeast;
 };
 
 #endif // TABWIDGET_H
