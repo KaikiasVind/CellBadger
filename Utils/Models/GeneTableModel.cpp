@@ -15,6 +15,17 @@
 GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs, QObject * parent):
     QAbstractTableModel(parent)
 {
+<<<<<<< HEAD
+=======
+    // Gather all cluster names
+    for (int i = 0; i < geneExpressions.length(); i++)
+        this->clusterNames.append(geneExpressions.at(i).ID);
+
+    this->numberOfClusters = geneExpressions.length();
+    qDebug() << "hi";
+    this->allGenesWithExpressionCountsInAllClusters = Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
+    qDebug() << "after";
+>>>>>>> GUI_restructuring
     this->completeGeneIDs = completeGeneIDs;
     this->numberOfClusters = geneExpressions.length();
 
@@ -75,6 +86,7 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
+<<<<<<< HEAD
         const std::tuple<QString, QVector<double>, double> & geneWithExpressions = this->allGenesWithExpressionCountsInAllClusters.at(index.row());
 
         if (index.column() == 0) {
@@ -83,6 +95,16 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
             return std::get<1>(geneWithExpressions).at(index.column() -1);
         } else {
             return std::get<2>(geneWithExpressions);
+=======
+        const QPair<QString, QVector<double>> & geneWithExpressions = this->allGenesWithExpressionCountsInAllClusters.at(index.row());
+
+        if (index.column() == 0) {
+            return geneWithExpressions.first;
+        } else if (index.column() == this->numberOfClusters + 1) {
+            return tr("mean: NA");
+        } else {
+            return geneWithExpressions.second.at(index.column());
+>>>>>>> GUI_restructuring
         }
 
     // Decide which cell should be aligned in which way
