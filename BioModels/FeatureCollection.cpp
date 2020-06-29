@@ -83,6 +83,7 @@ QVector<double> FeatureCollection::getMostExpressedFeaturesCounts(int number) co
     return sortedFeaturesExpressions;
 }
 
+
 bool FeatureCollection::isFeatureExpressed(QString markerID) {
     //REMEMBER: MAYBE -> WOULDTHAT WORK?
 //    Feature feature(markerID, COUNT);
@@ -95,9 +96,11 @@ bool FeatureCollection::isFeatureExpressed(QString markerID) {
     return false;
 }
 
+
 bool FeatureCollection::isFeatureExpressed(Feature feature) {
     return this->isFeatureExpressed(feature.ID);
 }
+
 
 /**
  * @brief Cluster::getFeature
@@ -118,6 +121,7 @@ QString FeatureCollection::getFeatureID(int index) const {
     return features[index].ID;
 }
 
+
 /**
  * @brief Cluster::getFeatureExpressionCount
  * @param index
@@ -127,6 +131,7 @@ double FeatureCollection::getFeatureExpressionCount(int index) const {
     return features[index].count;
 }
 
+
 /**
  * @brief FeatureCollection::getNumberOfFeatures
  * @return Number of expressed features
@@ -134,6 +139,7 @@ double FeatureCollection::getFeatureExpressionCount(int index) const {
 int FeatureCollection::getNumberOfFeatures() const {
     return features.length();
 }
+
 
 /**
  * @brief FeatureCollection::getFeatures

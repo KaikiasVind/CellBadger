@@ -73,4 +73,43 @@ QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
 
 // ########################################### GUI ############################################
 
+
+// #################################### BIOMODELS ####################################
+
+/**
+ * @brief getFeatureCollectionsAsGenes - Get the list of feature collections as list of genes with expression counts in all feature collections
+ * @param featureCollections - List of feature collections from a file e.g.
+ * @param completeGeneIDs - List of all genes that are of interest
+ * @return - List of all given genes with corresponding expression counts in all given clusters
+ */
+QVector<QPair<QString, QVector<double>>> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs) {
+
+    // Create a list that will hold all genes with all corresponding expression counts in all clusters
+    QVector<QPair<QString, QVector<double>>> genesWithExpressionCountsInAllFeatureCollections;
+
+    // Go through every gene and search for the gene's expression count in all feature collections
+    for (QString geneID : completeGeneIDs) {
+
+        // Create a new pair that will hold all expression counts of the gene in all feature collections
+        QPair<QString, QVector<double>> geneWithExpressionCountsInAllFeatureCollections(geneID, {});
+
+        // Go through all feature collections and append the current gene's expression count if found
+        for (FeatureCollection featureCollection : featureCollections) {
+
+            // Search through all features in the current collection and append the expression count when found
+            for (Feature feature : featureCollection.getFeatures()) {
+                if (feature.ID.compare(geneID) == 0)
+                    geneWithExpressionCountsInAllFeatureCollections.second.append(feature.count);
+                break;
+            }
+
+            // If the gene has not been found, add zero as expression count for the feature collection
+            geneWithExpressionCountsInAllFeatureCollections.second.append(0.0);
+        }
+    }
+
+    return genesWithExpressionCountsInAllFeatureCollections;
+}
+
+// #################################### BIOMODELS ####################################
 };
