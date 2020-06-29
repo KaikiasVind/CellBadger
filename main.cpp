@@ -15,10 +15,12 @@
 
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
+#include "Utils/Helper.h"
+
 
 #define run 1
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     QApplication application(argc, argv);
 
@@ -32,18 +34,21 @@ int main(int argc, char *argv[])
     QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
     qDebug() << "Finished.";
 
-//    samples.removeFirst();
+    QStringList allGeneIDs;
+    for (Feature feature : samples.first().getFeatures()) {
+        allGeneIDs.append(feature.ID);
+    }
 
-//    qDebug() << "Correlating.";
-//    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
-//    qDebug() << "Finished.";
+    samples.removeFirst();
 
-//    for (int i = 0; i < correlations.length(); i++) {
-//        qDebug() << "\n" << samples[i].ID << ":";
-//        for (int j = 0; j < 5; j++) {
-//            qDebug() << correlations[i][j].first << ":" << correlations[i][j].second;
-//        }
-//    }
+    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
+
+    qDebug() << "length:" << genesWithRawCountsInClusters.length();
+    for (int i = 0; i < genesWithRawCountsInClusters.length(); i++) {
+        qDebug() << "\nGene:" << std::get<0>(genesWithRawCountsInClusters.at(i));
+        qDebug() << std::get<1>(genesWithRawCountsInClusters.at(i));
+        qDebug() << "mean:" << std::get<2>(genesWithRawCountsInClusters.at(i));
+    }
 
 #endif
 #if run

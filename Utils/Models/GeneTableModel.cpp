@@ -3,13 +3,34 @@
 #include <QDebug>
 
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Helper.h"
 
 
+/**
+ * @brief GeneTableModel::GeneTableModel - A model that inherits QAbstractTableModel and is used to display gene expression in all clusters
+ * @param geneExpressions - List of FeatureCollections (clusters) with expressed genes
+ * @param completeGeneIDs - Complete list of all genes that have been seen in any above cluster
+ * @param parent - Parent widget
+ */
 GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs, QObject * parent):
     QAbstractTableModel(parent)
 {
-    this->geneExpressions = geneExpressions;
     this->completeGeneIDs = completeGeneIDs;
+    this->numberOfClusters = geneExpressions.length();
+
+    // Gather all cluster names
+    for (int i = 0; i < geneExpressions.length(); i++)
+        this->clusterNames.append(geneExpressions.at(i).ID);
+
+    // Gather gene raw counts from all clusters
+    this->allGenesWithExpressionCountsInAllClusters = Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
+
+    qDebug() << "length:" << this->allGenesWithExpressionCountsInAllClusters.length();
+    for (int i = 0; i < this->allGenesWithExpressionCountsInAllClusters.length(); i++) {
+        qDebug() << "\nGene:" << std::get<0>(this->allGenesWithExpressionCountsInAllClusters.at(i));
+        qDebug() << std::get<1>(this->allGenesWithExpressionCountsInAllClusters.at(i));
+        qDebug() << "mean:" << std::get<2>(this->allGenesWithExpressionCountsInAllClusters.at(i));
+    }
 }
 
 
@@ -20,7 +41,7 @@ GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions,
  */
 int GeneTableModel::rowCount(const QModelIndex & parent) const {
     Q_UNUSED(parent);
-    return this->completeGeneIDs.length() + 1;
+    return this->completeGeneIDs.length();
 }
 
 
@@ -31,7 +52,7 @@ int GeneTableModel::rowCount(const QModelIndex & parent) const {
  */
 int GeneTableModel::columnCount(const QModelIndex & parent) const {
     Q_UNUSED(parent);
-    return this->geneExpressions.length() + 2;
+    return this->numberOfClusters + 2;
 }
 
 
@@ -45,58 +66,24 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
     // Block invalid indices
     if (!index.isValid()) {
-        qDebug() << "Invalid";
         return QVariant();
     }
 
     if (index.row() >= this->rowCount() || index.row() < 0) {
-        qDebug() << "< >";
         return QVariant();
     }
 
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
-//        const FeatureCollection & featureCollection = geneExpressions.at(index.row());
-        QVector<double> geneExpressionCountsInAllClusters;
-        geneExpressionCountsInAllClusters.reserve(this->geneExpressions.length());
-        for (int i = 0; i < this->geneExpressions.length(); i++) {
-            geneExpressionCountsInAllClusters.append(this->geneExpressions.at(i).getFeatureExpressionCount(index.row()));
-        }
+        const std::tuple<QString, QVector<double>, double> & geneWithExpressions = this->allGenesWithExpressionCountsInAllClusters.at(index.row());
 
         if (index.column() == 0) {
-            qDebug() << "gene.";
-        } else if (index.column() == this->geneExpressions.length() + 1) {
-            qDebug() << "mean";
+            return std::get<0>(geneWithExpressions);
+        } else if (index.column() < this->numberOfClusters + 1) {
+            return std::get<1>(geneWithExpressions).at(index.column() -1);
         } else {
-            qDebug() << "cell.";
+            return std::get<2>(geneWithExpressions);
         }
-
-//            qDebug() << "column:" << index.column();
-//            qDebug() << "row:" << index.row();
-//            qDebug() << index.column() << ":" << this->completeGeneIDs.at(index.column());
-//            return 0;
-
-//            return this->completeGeneIDs.at(index.row());
-//        } else {
-//            qDebug() << index.column() << ": 1";
-//            return 1;
-//            Feature feature = this->geneExpressions.at(index.column()).getFeature(index.row());
-//            qDebug() << index.column() << "-" << this->geneExpressions.at(index.column()).ID << ":" <<
-//                        feature.ID << "-" << feature.count;
-//            return 1;
-//            return this->geneExpressions.at(index.column()).getFeatureExpressionCount(index.row());
-//        }
-
-//        if (index.column() == 0) {
-//            qDebug() << "0:" << featureCollection.getFeatureID(index.row());
-//            return featureCollection.getFeatureID(index.row());
-////        } else if (index.column() == this->columnCount() - 1) {
-////            qDebug() << index.column() << "sum:" << featureCollection.getExpressionCountSum();
-////            return featureCollection.getExpressionCountSum();
-//        } else {
-//            qDebug() << index.column() << ":" << featureCollection.getFeatureRawCount(index.column());
-//            return featureCollection.getFeatureRawCount(index.column());
-//        }
 
     // Decide which cell should be aligned in which way
     } else if (role == Qt::TextAlignmentRole) {
@@ -126,10 +113,10 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
     if (orientation == Qt::Horizontal) {
         if (section == 0) {
             return tr("Gene");
-        } else if (section == this->geneExpressions.length() + 1) {
+        } else if (section == this->numberOfClusters + 1) {
             return tr("mean");
         } else {
-            return tr(qPrintable(this->geneExpressions.at(section - 1).ID));
+            return tr(qPrintable(this->clusterNames.at(section - 1)));
         }
     }
 

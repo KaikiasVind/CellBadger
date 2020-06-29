@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QFile>
 
+#include "BioModels/FeatureCollection.h"
+
 namespace Helper
 {
 
@@ -23,6 +25,13 @@ extern QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTyp
 extern QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions);
 
 // ####################################### GUI #######################################
+
+
+// #################################### BIOMODELS ####################################
+
+extern QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs);
+
+// #################################### BIOMODELS ####################################
 
 }
 

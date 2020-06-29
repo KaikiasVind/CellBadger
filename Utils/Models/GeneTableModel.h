@@ -20,8 +20,11 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 private:
-    QVector<FeatureCollection> geneExpressions;
+    QVector<std::tuple<QString, QVector<double>, double>> allGenesWithExpressionCountsInAllClusters;
     QStringList completeGeneIDs;
+    QStringList clusterNames;
+
+    int numberOfClusters;
 };
 
 #endif // GENETABLEMODEL_H

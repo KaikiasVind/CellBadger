@@ -44,9 +44,16 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
 }
 
 
-//QVariant ProxyModel::headerData(int section, Qt::Orientation orientation, int role) const {
-//    return sourceModel()->headerData(section, orientation, role);
-//}
+/**
+ * @brief ProxyModel::headerData - Keeps the numbers of the vertical header ascending despite the order of the rows
+ * @param section - Section
+ * @param orientation - Orientation
+ * @param role - Role
+ * @return - Not - sorted vertical headers
+ */
+QVariant ProxyModel::headerData(int section, Qt::Orientation orientation, int role) const {
+    return sourceModel()->headerData(section, orientation, role);
+}
 
 
 /**

@@ -95,7 +95,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 
     this->tableView->verticalHeader()->setMinimumWidth(25);
     this->tableView->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->tableView->setSortingEnabled(true);
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);

@@ -6,6 +6,8 @@
 #include <QFile>
 #include <QDebug>
 
+#include "Utils/Math.h"
+
 namespace Helper {
 
 // ########################################### MISC ############################################
@@ -73,4 +75,53 @@ QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
 
 // ########################################### GUI ############################################
 
+
+// #################################### BIOMODELS ####################################
+
+/**
+ * @brief getFeatureCollectionsAsGenes - Get the list of feature collections as list of genes with expression counts in all feature collections
+ * @param featureCollections - List of feature collections from a file e.g.
+ * @param completeGeneIDs - List of all genes that are of interest
+ * @return - List of all given genes with corresponding expression counts in all given clusters
+ */
+QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs) {
+
+    // Create a list that will hold all genes with all corresponding expression counts in all clusters
+    QVector<std::tuple<QString, QVector<double>, double>> genesWithExpressionCountsInAllFeatureCollections;
+
+    // Go through every gene and search for the gene's expression count in all feature collections
+    for (QString geneID : completeGeneIDs) {
+
+        // Create a new pair that will hold all expression counts of the gene in all feature collections
+        std::tuple<QString, QVector<double>, double> geneWithExpressionCountsInAllFeatureCollections{geneID, {}, 0};
+
+        // Go through all feature collections and append the current gene's expression count if found
+        for (FeatureCollection featureCollection : featureCollections) {
+
+            bool isGeneFound = false;
+
+            // Search through all features in the current collection and append the expression count when found
+            for (Feature feature : featureCollection.getFeatures()) {
+                if (feature.ID.compare(geneID) == 0) {
+                    std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(feature.count);
+                    isGeneFound = true;
+                    break;
+                }
+            }
+
+            // If the gene has not been found, add zero as expression count for the feature collection
+            if (!isGeneFound) {
+                std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(0.0);
+            }
+
+            std::get<2>(geneWithExpressionCountsInAllFeatureCollections) = Math::mean(std::get<1>(geneWithExpressionCountsInAllFeatureCollections));
+        }
+
+        genesWithExpressionCountsInAllFeatureCollections.append(geneWithExpressionCountsInAllFeatureCollections);
+    }
+
+    return genesWithExpressionCountsInAllFeatureCollections;
+}
+
+// #################################### BIOMODELS ####################################
 };
