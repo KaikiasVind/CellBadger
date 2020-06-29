@@ -17,6 +17,7 @@
 #include "ExportDialog.h"
 #include "Utils/Plots.h"
 #include "Utils/Models/GeneTableModel.h"
+#include "Utils/Helper.h"
 
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
@@ -83,11 +84,28 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
  */
 void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs) {
 
-    this->geneTableModel = new GeneTableModel(geneExpressions, completeGeneIDs);
+    // ############################################ GENE TABLE MODEL ############################################
+    // Gather the expression counts of all genes in all clusters from the gene expressions list
+    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double> allGenesWithExpressionCountsInAllClusters =
+            Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
+
+    // Gather all cluster names from the gene expressions list
+    QStringList clusterNames;
+    std::transform(geneExpressions.begin(), geneExpressions.end(), std::back_inserter(clusterNames),
+                   [](FeatureCollection featureCollection) { return featureCollection.ID; });
+
+    this->geneTableModel = new GeneTableModel(std::get<0>(allGenesWithExpressionCountsInAllClusters), completeGeneIDs, clusterNames);
+
+    // Report the highest raw count and the highest fold change that has been found in the gene expression lists to the Main Window
+    // This is necessary to adjust the max values of the GUI slider and spinbox elements
+    emit this->highestMetRawCountAndFoldChangeValuesChanged(std::get<1>(allGenesWithExpressionCountsInAllClusters),
+                                                            std::get<2>(allGenesWithExpressionCountsInAllClusters));
+
+    // ############################################ PROXY MODEL ############################################
     this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1);
     this->proxyModel->setSourceModel(geneTableModel);
 
-
+    // ############################################ TABLE VIEW ############################################
     this->tableView = new QTableView;
     this->tableView->setModel(this->proxyModel);
 
@@ -99,6 +117,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
 
+    // ############################################ SIGNALS & SLOTS ############################################
     // Connect all signals that come from the Tab Widget with the slots of the Proxy Model
     // This connects the GUI elements with filtering options
     QObject::connect(this, &TabWidget::minRawCountSet, this->proxyModel, &ProxyModel::setMinRawCount);

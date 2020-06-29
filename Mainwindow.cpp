@@ -52,10 +52,14 @@ MainWindow::~MainWindow()
  */
 void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
     TabWidget * tabWidget = new TabWidget(this, datasetName);
+    QObject::connect(tabWidget, &TabWidget::highestMetRawCountAndFoldChangeValuesChanged, this, &MainWindow::on_highestRawCountAndFoldChangeValuesFound);
     this->runningTabWidgets.append(tabWidget);
 
     this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
+
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
 
     // Forward the gene expression values to the new tab
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
@@ -217,4 +221,15 @@ void MainWindow::on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled
 
 void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
     emit foldChangeInAtLeastChanged(number);
+}
+
+void MainWindow::on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange) {
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
+    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
+    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
+    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
+    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
 }

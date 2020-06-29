@@ -84,10 +84,13 @@ QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
  * @param completeGeneIDs - List of all genes that are of interest
  * @return - List of all given genes with corresponding expression counts in all given clusters
  */
-QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs) {
+std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs) {
 
     // Create a list that will hold all genes with all corresponding expression counts in all clusters
     QVector<std::tuple<QString, QVector<double>, double>> genesWithExpressionCountsInAllFeatureCollections;
+
+    double highestMetRawCount = 0.,
+           highestMetFoldChange = 0.;
 
     // Go through every gene and search for the gene's expression count in all feature collections
     for (QString geneID : completeGeneIDs) {
@@ -103,6 +106,16 @@ QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGen
 
             // Search through all features in the current collection and append the expression count when found
             for (Feature feature : featureCollection.getFeatures()) {
+
+                // Check whether the gene's raw count is higher than the previously observed values. In this case save it
+                if (feature.count > highestMetRawCount)
+                    highestMetRawCount = feature.count;
+
+                // Check whether the gene's fold change is higher than the previously observed values. In this case save it
+                if (feature.foldChange > highestMetFoldChange)
+                    highestMetFoldChange = feature.foldChange;
+
+                // Compare the gene's ID to the wanted gene ID and save it's raw count in case they are identical
                 if (feature.ID.compare(geneID) == 0) {
                     std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(feature.count);
                     isGeneFound = true;
@@ -121,7 +134,7 @@ QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGen
         genesWithExpressionCountsInAllFeatureCollections.append(geneWithExpressionCountsInAllFeatureCollections);
     }
 
-    return genesWithExpressionCountsInAllFeatureCollections;
+    return std::make_tuple(genesWithExpressionCountsInAllFeatureCollections, highestMetRawCount, highestMetFoldChange);
 }
 
 // #################################### BIOMODELS ####################################

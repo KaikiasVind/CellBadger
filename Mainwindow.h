@@ -30,6 +30,7 @@ public slots:
     void on_filesParsed(const InformationCenter & informationCenter);
     void on_correlatingFinished(const InformationCenter & informationCenter);
     void on_expressionValuesChanged(const InformationCenter & informationCenter);
+    void on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange);
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);

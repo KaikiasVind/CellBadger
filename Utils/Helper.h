@@ -29,7 +29,8 @@ extern QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensi
 
 // #################################### BIOMODELS ####################################
 
-extern QVector<std::tuple<QString, QVector<double>, double>> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs);
+// FIXME: This looks horrible
+extern std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double> getFeatureCollectionsAsGenes(const QVector<FeatureCollection> featureCollections, const QStringList completeGeneIDs);
 
 // #################################### BIOMODELS ####################################
 

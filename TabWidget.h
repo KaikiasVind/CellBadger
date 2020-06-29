@@ -39,6 +39,7 @@ signals:
     void rawCountInAtLeastToggled(bool state);
     void foldChangeInAtLeastSet(int numberOfClusters);
     void foldChangeInAtLeastToggled(bool state);
+    void highestMetRawCountAndFoldChangeValuesChanged(double highestMetRawCount, double highestMetFoldChange);
 
 public slots:
 

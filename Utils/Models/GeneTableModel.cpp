@@ -12,18 +12,15 @@
  * @param completeGeneIDs - Complete list of all genes that have been seen in any above cluster
  * @param parent - Parent widget
  */
-GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs, QObject * parent):
+//GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs, QObject * parent):
+GeneTableModel::GeneTableModel(const QVector<std::tuple<QString, QVector<double>, double>> allGenesWithExpressionCountsInAllClusters,
+                               const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent) :
     QAbstractTableModel(parent)
 {
+    this->allGenesWithExpressionCountsInAllClusters = allGenesWithExpressionCountsInAllClusters;
     this->completeGeneIDs = completeGeneIDs;
-    this->numberOfClusters = geneExpressions.length();
-
-    // Gather all cluster names
-    for (int i = 0; i < geneExpressions.length(); i++)
-        this->clusterNames.append(geneExpressions.at(i).ID);
-
-    // Gather gene raw counts from all clusters
-    this->allGenesWithExpressionCountsInAllClusters = Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
+    this->numberOfClusters = clusterNames.length();
+    this->clusterNames = clusterNames;
 }
 
 
