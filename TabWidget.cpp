@@ -10,6 +10,7 @@
 #include <QBarCategoryAxis>
 #include <QCategoryAxis>
 #include <QLineSeries>
+#include <set>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
@@ -18,6 +19,7 @@
 #include "Utils/Plots.h"
 #include "Utils/Models/GeneTableModel.h"
 #include "Utils/Helper.h"
+#include "Utils/Math.h"
 
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
@@ -114,6 +116,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->tableView->setSortingEnabled(true);
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
+    // The Contigous selection mode prevents the selection of single cells out of line
+    this->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
 
@@ -307,45 +311,78 @@ void TabWidget::showAlertForInvalidGeneID(QString geneID) {
 }
 
 
-//template<typename F>
+QVector<std::tuple<QString, QVector<double>, double>> TabWidget::retrieveExpressionDataForSelectedGenes() {
+
+    QVector<std::tuple<QString, QVector<double>, double>> dataForSelectedGenes;
+
+    QModelIndexList selectedIndices = this->tableView->selectionModel()->selectedIndexes();
+    QStringList geneIDs;
+
+    QMap<QString, QVector<double>> expressionDataForSelectedGenes;
+    for (QModelIndex modelIndex : selectedIndices) {
+
+        // Grab the gene ID corresponding to the currently selected cell's row
+        QModelIndex geneIDCellIndex = this->tableView->model()->index(modelIndex.row(), 0);
+        QString geneID = this->tableView->model()->data(geneIDCellIndex).toString();
+
+        // Grab the underlying value of the current selected cell
+        double currentCellData = this->tableView->model()->data(modelIndex).toDouble();
+
+        // And add it to a map to prevent multiple mentions of the same gene
+        expressionDataForSelectedGenes[geneID].append(currentCellData);
+    }
+
+    for (QString geneID : expressionDataForSelectedGenes.keys()) {
+        std::tuple<QString, QVector<double>, double> expressionDataForSelectedGene(geneID, {}, 0);
+
+        QVector<double> * geneExpressiondata = & expressionDataForSelectedGenes[geneID];
+
+        // Add the expression values to the list
+        std::get<1>(expressionDataForSelectedGene) = expressionDataForSelectedGenes[geneID];
+        std::get<2>(expressionDataForSelectedGene) = Math::mean(* geneExpressiondata);
+
+        dataForSelectedGenes.append(expressionDataForSelectedGene);
+    }
+
+    return dataForSelectedGenes;
+}
+
+
+template<typename F>
 /**
  * @brief TabWidget::openExportWidgetWithPlot - Ceates a plot with the given plotting function and opens it in an ExportDialog
  * @param plottingFunction - Function that creates a QChartView * that is used to create a plot which is then transfered onto an ExportDialog
  */
-//void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
+void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
 
-//    // If no genes have been selected, no plot can be generated, so return
-//    if (this->ui->lineEditGeneID->text() == "")
-//        return;
+    QVector<std::tuple<QString, QVector<double>, double>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
-//    QVector<QPair<QString, QPair<QVector<double>, double>>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
+    if (expressionDataForSelectedGenes.isEmpty())
+        return;
 
-//    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
-//    if (expressionDataForSelectedGenes.isEmpty())
-//        return;
+    QChartView * chartView = plottingFunction(expressionDataForSelectedGenes, this->title);
 
-//    QChartView * chartView = plottingFunction(expressionDataForSelectedGenes, this->title);
-
-//    ExportDialog * exportDialog = new ExportDialog(this);
-//    exportDialog->addPlot(chartView);
-//    exportDialog->show();
-//}
+    ExportDialog * exportDialog = new ExportDialog(this);
+    exportDialog->addPlot(chartView);
+    exportDialog->show();
+}
 
 
 /**
  * @brief TabWidget::on_pushButtonPlot_clicked
  */
-//void TabWidget::on_pushButtonScatterPlot_clicked() {
-//    this->openExportWidgetWithPlot(Plots::createScatterPlot);
-//}
+void TabWidget::on_pushButtonScatterPlot_clicked() {
+    this->openExportWidgetWithPlot(Plots::createScatterPlot);
+}
 
 
 /**
  * @brief TabWidget::on_pushButtonBarChart_clicked
  */
-//void TabWidget::on_pushButtonBarChart_clicked() {
-//    this->openExportWidgetWithPlot(Plots::createBarChart);
-//}
+void TabWidget::on_pushButtonBarChart_clicked() {
+    this->openExportWidgetWithPlot(Plots::createBarChart);
+}
 
 /**
  * @brief TabWidget::on_pushButtonCorrelationOptionsRun_clicked

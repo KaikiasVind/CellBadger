@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // Remove default window frame
-    this->setWindowFlags(Qt::FramelessWindowHint);
+//    this->setWindowFlags(Qt::FramelessWindowHint);
 
     // Set default maximized state
     this->setWindowState(Qt::WindowMaximized);
@@ -64,6 +64,7 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
     // Forward the gene expression values to the new tab
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
 
+    // Connect the signals of the main Window to the slots of the TabWidget
     QObject::connect(this, &MainWindow::minRawCountChanged, tabWidget, &TabWidget::on_minRawCountSet);
     QObject::connect(this, &MainWindow::maxRawCountChanged, tabWidget, &TabWidget::on_maxRawCountSet);
     QObject::connect(this, &MainWindow::minfoldChangeChanged, tabWidget, &TabWidget::on_minFoldChangeSet);
@@ -232,4 +233,8 @@ void MainWindow::on_highestRawCountAndFoldChangeValuesFound(const double highest
     this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
     this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
     this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
+    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setValue(highestMetRawCount);
+    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
+    emit this->maxRawCountChanged(highestMetRawCount);
+    emit this->maxfoldChangeChanged(highestMetFoldChange);
 }

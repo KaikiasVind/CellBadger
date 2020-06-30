@@ -32,21 +32,25 @@ namespace Plots {
  * @param plotTitle - The title the resulting plot should show
  * @return - A plot that combines one plotting series per given gene in one scatter plot
  */
-QtCharts::QChartView * createScatterPlot(QVector<QPair<QString, QPair<QVector<double>, double>>> geneExpressionValuesForClusters, QString plotTitle) {
+QtCharts::QChartView * createScatterPlot(QVector<std::tuple<QString, QVector<double>, double>> geneExpressionValuesForClusters, QString plotTitle) {
     QChart * chart = new QChart();
 
     // Collect the highest expression value for the correct y axis range
     double maxExpressionValue = .0;
 
-    int numberOfClusters = geneExpressionValuesForClusters.first().second.first.length();
+    int numberOfClusters = std::get<1>(geneExpressionValuesForClusters.first()).length();
+//    int numberOfClusters = geneExpressionValuesForClusters.first().second.first.length();
 
-    for (QPair<QString, QPair<QVector<double>, double>> selectedGene : geneExpressionValuesForClusters) {
+//    for (QPair<QString, QPair<QVector<double>, double>> selectedGene : geneExpressionValuesForClusters) {
+    for (std::tuple<QString, QVector<double>, double> selectedGene : geneExpressionValuesForClusters) {
         QScatterSeries * scatterSeries  = new QScatterSeries();
         scatterSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         scatterSeries->setMarkerSize(10);
 
-        for (int i = 0; i < selectedGene.second.first.length(); i++) {
-            double expressionValue = selectedGene.second.first[i];
+//        for (int i = 0; i < selectedGene.second.first.length(); i++) {
+        for (int i = 0; i < std::get<1>(selectedGene).length(); i++) {
+//            double expressionValue = selectedGene.second.first[i];
+            double expressionValue = std::get<1>(selectedGene)[i];
 
             scatterSeries->append(i, expressionValue);
 
@@ -56,7 +60,8 @@ QtCharts::QChartView * createScatterPlot(QVector<QPair<QString, QPair<QVector<do
         }
 
         // Set the scatter series name with mean expression value
-        scatterSeries->setName(selectedGene.first.toUpper() + " - ⌀: " + QString::number(selectedGene.second.second));
+//        scatterSeries->setName(selectedGene.first.toUpper() + " - ⌀: " + QString::number(selectedGene.second.second));
+        scatterSeries->setName(std::get<0>(selectedGene).toUpper() + " - ⌀: " + QString::number(std::get<2>(selectedGene)));
 
         // And add the scatter series for the current gene to the chart
         chart->addSeries(scatterSeries);
@@ -103,12 +108,11 @@ QtCharts::QChartView * createScatterPlot(QVector<QPair<QString, QPair<QVector<do
  * @param plotTitle - The title the resulting plot should show
  * @return - A bar chart that combines all given genes
  */
-QtCharts::QChartView * createBarChart(QVector<QPair<QString, QPair<QVector<double>, double>>> geneExpressionValuesForClusters, QString plotTitle) {
+QtCharts::QChartView * createBarChart(QVector<std::tuple<QString, QVector<double>, double>> geneExpressionValuesForClusters, QString plotTitle) {
 
     // Store the highest expression value for the range of the yAxis
     double maxExpressionValue = .0;
-
-    int numberOfClusters = geneExpressionValuesForClusters.first().second.first.length();
+    int numberOfClusters = std::get<1>(geneExpressionValuesForClusters.first()).length();
 
     QBarSeries * barSeries = new QBarSeries();
 
