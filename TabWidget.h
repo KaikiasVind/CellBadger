@@ -57,9 +57,9 @@ private slots:
 
 //    void on_tableWidgetGeneExpressions_cellDoubleClicked(int row, int column);
 
-//    void on_pushButtonScatterPlot_clicked();
+    void on_pushButtonScatterPlot_clicked();
 
-//    void on_pushButtonBarChart_clicked();
+    void on_pushButtonBarChart_clicked();
 
 //    void on_pushButtonCorrelationOptionsRun_clicked();
 
@@ -71,7 +71,7 @@ private:
     GeneTableModel * geneTableModel;
     ProxyModel * proxyModel;
 
-//    QVector<QPair<QString, QPair<QVector<double>, double>>> retrieveExpressionDataForSelectedGenes();
+    QVector<std::tuple<QString, QVector<double>, double>> retrieveExpressionDataForSelectedGenes();
 
     void showAlertForInvalidGeneID(QString geneID);
 
