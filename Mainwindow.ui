@@ -213,7 +213,11 @@
          </widget>
         </item>
         <item row="3" column="9">
-         <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast"/>
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="2" column="4">
          <widget class="QSlider" name="horizontalSliderCorrelationOptionsRawCountCutOffMin">
@@ -285,7 +289,11 @@
          </widget>
         </item>
         <item row="2" column="9">
-         <widget class="QSpinBox" name="spinBoxCorrelationOptionsRawCountCutOffInAtLeast"/>
+         <widget class="QSpinBox" name="spinBoxCorrelationOptionsRawCountCutOffInAtLeast">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="3" column="3">
          <widget class="QSpinBox" name="spinBoxCorrelationOptionsFoldChangeCutOffMin">

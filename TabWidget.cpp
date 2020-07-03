@@ -113,6 +113,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 
     this->tableView->verticalHeader()->setMinimumWidth(25);
     this->tableView->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    this->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->tableView->setSortingEnabled(true);
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
@@ -311,15 +312,23 @@ void TabWidget::showAlertForInvalidGeneID(QString geneID) {
 }
 
 
-QVector<std::tuple<QString, QVector<double>, double>> TabWidget::retrieveExpressionDataForSelectedGenes() {
+QVector<std::tuple<QString, QVector<double>, double, QStringList>> TabWidget::retrieveExpressionDataForSelectedGenes() {
 
-    QVector<std::tuple<QString, QVector<double>, double>> dataForSelectedGenes;
+    QVector<std::tuple<QString, QVector<double>, double, QStringList>> dataForSelectedGenes;
 
     QModelIndexList selectedIndices = this->tableView->selectionModel()->selectedIndexes();
-    QStringList geneIDs;
+    QStringList clusterNames;
 
     QMap<QString, QVector<double>> expressionDataForSelectedGenes;
     for (QModelIndex modelIndex : selectedIndices) {
+
+        // Skip the first column with gene IDs and the last column with the mean counts
+        if (modelIndex.column() == 0 || modelIndex.column() == this->tableView->model()->columnCount() - 1)
+            continue;
+
+        // Grab the cluster name from the horizontal header items and append it to the list of cluster names
+        QString clusterName = this->tableView->model()->headerData(modelIndex.column(), Qt::Horizontal).toString();
+        clusterNames.append(clusterName);
 
         // Grab the gene ID corresponding to the currently selected cell's row
         QModelIndex geneIDCellIndex = this->tableView->model()->index(modelIndex.row(), 0);
@@ -333,7 +342,7 @@ QVector<std::tuple<QString, QVector<double>, double>> TabWidget::retrieveExpress
     }
 
     for (QString geneID : expressionDataForSelectedGenes.keys()) {
-        std::tuple<QString, QVector<double>, double> expressionDataForSelectedGene(geneID, {}, 0);
+        std::tuple<QString, QVector<double>, double, QStringList> expressionDataForSelectedGene(geneID, {}, 0, clusterNames);
 
         QVector<double> * geneExpressiondata = & expressionDataForSelectedGenes[geneID];
 
@@ -355,7 +364,7 @@ template<typename F>
  */
 void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
 
-    QVector<std::tuple<QString, QVector<double>, double>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+    QVector<std::tuple<QString, QVector<double>, double, QStringList>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
     // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
     if (expressionDataForSelectedGenes.isEmpty())
@@ -383,14 +392,6 @@ void TabWidget::on_pushButtonScatterPlot_clicked() {
 void TabWidget::on_pushButtonBarChart_clicked() {
     this->openExportWidgetWithPlot(Plots::createBarChart);
 }
-
-/**
- * @brief TabWidget::on_pushButtonCorrelationOptionsRun_clicked
- */
-//void TabWidget::on_pushButtonCorrelationOptionsRun_clicked() {
-
-//}
-
 
 // ################################### SLOTS ###################################
 
@@ -456,5 +457,3 @@ void TabWidget::on_foldChangeInAtLeastToggled(bool state) {
     this->includeFoldChangeInAtLeast  = state;
     emit this->foldChangeInAtLeastToggled(state);
 }
-
-

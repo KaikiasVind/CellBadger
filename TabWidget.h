@@ -61,8 +61,6 @@ private slots:
 
     void on_pushButtonBarChart_clicked();
 
-//    void on_pushButtonCorrelationOptionsRun_clicked();
-
 private:
     Ui::TabWidget *ui;
     QString title;
@@ -71,7 +69,7 @@ private:
     GeneTableModel * geneTableModel;
     ProxyModel * proxyModel;
 
-    QVector<std::tuple<QString, QVector<double>, double>> retrieveExpressionDataForSelectedGenes();
+    QVector<std::tuple<QString, QVector<double>, double, QStringList>> retrieveExpressionDataForSelectedGenes();
 
     void showAlertForInvalidGeneID(QString geneID);
 
