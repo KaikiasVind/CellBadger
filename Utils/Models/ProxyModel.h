@@ -25,6 +25,7 @@ public slots:
     void setIncludeRawCountInAtLeast(bool state);
     void setFoldChangeInAtLeast(int amount);
     void setIncludeFoldChangeInAtLeast(bool state);
+    void setSearchedGeneIDs(QStringList searchedGeneIDs);
 
 private:
     int rowCount;
@@ -38,6 +39,7 @@ private:
     bool includeRawCountInAtLeast;
     double foldChangeInAtLeast;
     bool includeFoldChangeInAtLeast;
+    QStringList searchedGeneIDs;
 };
 
 #endif // PROXYMODEL_H

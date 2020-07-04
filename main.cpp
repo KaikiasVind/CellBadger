@@ -26,29 +26,29 @@ int main(int argc, char * argv[])
 
 #if !run
 
-    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
-    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
+//    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
+//    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
 
-    qDebug() << "Parsing.";
-    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {1, 0});
-    QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
-    qDebug() << "Finished.";
+//    qDebug() << "Parsing.";
+//    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {1, 0});
+//    QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
+//    qDebug() << "Finished.";
 
-    QStringList allGeneIDs;
-    for (Feature feature : samples.first().getFeatures()) {
-        allGeneIDs.append(feature.ID);
-    }
+//    QStringList allGeneIDs;
+//    for (Feature feature : samples.first().getFeatures()) {
+//        allGeneIDs.append(feature.ID);
+//    }
 
-    samples.removeFirst();
+//    samples.removeFirst();
 
-    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
+//    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
 
-    qDebug() << "length:" << genesWithRawCountsInClusters.length();
-    for (int i = 0; i < genesWithRawCountsInClusters.length(); i++) {
-        qDebug() << "\nGene:" << std::get<0>(genesWithRawCountsInClusters.at(i));
-        qDebug() << std::get<1>(genesWithRawCountsInClusters.at(i));
-        qDebug() << "mean:" << std::get<2>(genesWithRawCountsInClusters.at(i));
-    }
+//    qDebug() << "length:" << genesWithRawCountsInClusters.length();
+//    for (int i = 0; i < genesWithRawCountsInClusters.length(); i++) {
+//        qDebug() << "\nGene:" << std::get<0>(genesWithRawCountsInClusters.at(i));
+//        qDebug() << std::get<1>(genesWithRawCountsInClusters.at(i));
+//        qDebug() << "mean:" << std::get<2>(genesWithRawCountsInClusters.at(i));
+//    }
 
 #endif
 #if run

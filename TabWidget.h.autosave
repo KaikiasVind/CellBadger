@@ -30,7 +30,7 @@ public:
 
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
 
-
+    
 
 signals:
     void minRawCountSet(double minRawCount);

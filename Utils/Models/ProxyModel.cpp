@@ -1,6 +1,7 @@
 #include "ProxyModel.h"
 
 #include <QSortFilterProxyModel>
+#include <QDebug>
 
 ProxyModel::ProxyModel(QObject * parent) : QSortFilterProxyModel(parent),
     minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0) {}
@@ -22,19 +23,41 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
     clusterIndices.reserve(this->columnCount);
 
     for (int i = 0; i < columnCount; i++) {
-        clusterIndices.append(sourceModel()->index(source_row, i, source_parent));
+        clusterIndices.append(this->sourceModel()->index(source_row, i, source_parent));
     }
 
     int numberOfClustersWithValidRawCount = 0;
 //    int numberOfClustersWithValidFoldChange = 0;
     for (int i = 0; i < clusterIndices.length(); i++) {
 
-        if (sourceModel()->data(clusterIndices.at(i)).toDouble() > this->minRawCount &&
-                sourceModel()->data(clusterIndices.at(i)).toDouble() < this->maxRawCount) {
+        // ################################ GENE-IDS ################################
+        // If there are gene IDs the table should be filtered by check the selected rows for those gene IDs
+        if (!this->searchedGeneIDs.isEmpty()) {
+
+            QModelIndex currentRowGeneIDModelIndex = this->sourceModel()->index(source_row, 0);
+            QString currentRowGeneID = this->sourceModel()->data(currentRowGeneIDModelIndex).toString().toLower();
+
+            // Go through the list of given gene IDs and search for the current row's gene ID
+            // Accept the row if one has been found
+            QStringList unseenGeneIDs = this->searchedGeneIDs;
+            bool isIDHasBeenSeen = false;
+            for (int i = 0; i < unseenGeneIDs.length(); i++) {
+                if (currentRowGeneID.contains(this->searchedGeneIDs.at(i))) {
+                    isIDHasBeenSeen = true;
+                }
+            }
+            if (!isIDHasBeenSeen)
+                return false;
+        }
+
+        // ################################ CUT-OFFS ################################
+        if (this->sourceModel()->data(clusterIndices.at(i)).toDouble() > this->minRawCount &&
+                this->sourceModel()->data(clusterIndices.at(i)).toDouble() < this->maxRawCount) {
             numberOfClustersWithValidRawCount += 1;
         }
     }
 
+    // ################################ IN-AT-LEAST-OFFS #############################
     if (!this->includeRawCountInAtLeast) {
         // If enough cluster raw counts have met the required cut-off accept the row
         if (numberOfClustersWithValidRawCount >= this->rawCountinAtLeast)
@@ -144,5 +167,16 @@ void ProxyModel::setFoldChangeInAtLeast(int amount) {
 void ProxyModel::setIncludeFoldChangeInAtLeast(bool state) {
     if (this->includeFoldChangeInAtLeast != state)
         this->includeFoldChangeInAtLeast = state;
+    invalidateFilter();
+}
+
+
+/**
+ * @brief ProxyModel::setSearchedGeneIDs - Sets the list of gene IDs the table is filtered by
+ * @param searchedGeneIDs - List of gene IDs for filtering
+ */
+void ProxyModel::setSearchedGeneIDs(QStringList searchedGeneIDs) {
+    if (this->searchedGeneIDs != searchedGeneIDs)
+        this->searchedGeneIDs = searchedGeneIDs;
     invalidateFilter();
 }

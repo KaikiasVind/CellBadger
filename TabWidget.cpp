@@ -131,117 +131,25 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     QObject::connect(this, &TabWidget::maxFoldChangeSet, this->proxyModel, &ProxyModel::setMaxFoldChange);
     QObject::connect(this, &TabWidget::rawCountInAtLeastSet, this->proxyModel, &ProxyModel::setRawCountInAtLeast);
     QObject::connect(this, &TabWidget::foldChangeInAtLeastSet, this->proxyModel, &ProxyModel::setFoldChangeInAtLeast);
+    QObject::connect(this, &TabWidget::searchedGenIDsChanged, this->proxyModel, &ProxyModel::setSearchedGeneIDs);
 }
 
-
-/**
- * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Parse the gene expression table and grab the expression values for the selected genes
- * @return - List of QPairs: The QString is a geneID, the QVector is a list of the corresponding gene expressions for the clusters
- */
-//QVector<QPair<QString, QPair<QVector<double>, double>>> TabWidget::retrieveExpressionDataForSelectedGenes() {
-//    QVector<QPair<QString, QPair<QVector<double>, double>>> expressionDataForSelectedGenes;
-
-//    QStringList idsOfSelectedGenes = this->ui->lineEditGeneID->text().toLower().split(this->lineEditDelimiter);
-
-//    // Remove the " " after the last ,
-//    // REMEMBER: This should be done elsewhere
-//    idsOfSelectedGenes.removeLast();
-
-//    expressionDataForSelectedGenes.reserve(idsOfSelectedGenes.length());
-
-//    // For every selected gene go through every cluster and grab the expression values
-//    for (QString geneID : idsOfSelectedGenes) {
-//        QVector<double> expressionValues;
-//        // Reserve space in the list for the n expression values of the n clusters
-//        // -1 because the last column is reserved for the mean value
-//        expressionValues.reserve(this->ui->tableWidgetGeneExpressions->rowCount() - 1);
-
-//        double meanGeneExpressionValue = 0.;
-
-//        bool isGeneHasBeenFound = false;
-
-//        for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
-
-//            // Compare the header item with the current gene ID
-//            bool isSameGeneID = this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().compare(geneID) == 0;
-
-//            // If the IDs are the same this means the correct row has been found, now collect information from the cells of the row
-//            if (isSameGeneID) {
-//                isGeneHasBeenFound = true;
-
-//                // Go through every cell and grab the expression value from that cell and append it to the current plotting series
-//                for (int j = 0; j < this->ui->tableWidgetGeneExpressions->columnCount(); j++) {
-
-//                    // Grab the expression value from the cell
-//                    // In case the conversion QString::toDouble does not work because the cell contained text, the value will be 0
-//                    double geneExpressionValueForCluster = this->ui->tableWidgetGeneExpressions->item(i, j)->text().toDouble();
-
-//                    // The last column is reserved for the mean value, if this column is reached, save the current gene's mean value
-//                    if (j == this->ui->tableWidgetGeneExpressions->columnCount() - 1) {
-//                        // REMEMBER: Exchange with RegEx?
-//                        meanGeneExpressionValue = this->ui->tableWidgetGeneExpressions->item(i, j)->text().split(" ").last().toDouble();
-//                    } else {
-//                        expressionValues.append(geneExpressionValueForCluster);
-//                    }
-//                }
-//            }
-//        }
-
-//        // In case one of the gene IDs has not been found in the list, the gene ID is written wrong or is invalid otherwise
-//        if (!isGeneHasBeenFound) {
-//            this->showAlertForInvalidGeneID(geneID);
-//            return expressionDataForSelectedGenes;
-//        }
-
-//        expressionDataForSelectedGenes.append(qMakePair(geneID, qMakePair(expressionValues, meanGeneExpressionValue)));
-//  }
-
-//    return expressionDataForSelectedGenes;
-//}
 
 /**
  * @brief TabWidget::on_lineEditGeneID_textEdited - When the line edit text has been edited the corresponding table is filtered according to the line edit content
  * @param lineEditContent - The string that is currently written in the line edit - Used to filter the table
  */
-//void TabWidget::on_lineEditGeneID_textChang/*ed(const QString & lineEditContent) {
-    // Reset the previously hidden rows
-//    for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
-//        this->ui->tableWidgetGeneExpressions->setRowHidden(i, false);
-//    }
+void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
+    // Read search string from line edit
+    QString searchString = lineEditContent.toLower();
 
-//    // Read search string from line edit
-//    QString searchString = lineEditContent.toLower();
-
-//    // In case the user deleted the search string, unhide the rows, disable the plot functionality and and return
-//    if (searchString == " " || searchString == "") {
-//        this->ui->pushButtonScatterPlot->setEnabled(false);
-//        this->ui->pushButtonScatterPlot->setEnabled(false);
-//        return;
-//    }
-
-//    QStringList searchStrings = searchString.split(this->lineEditDelimiter);
-
-//    // Filter list of gene IDs for search string and hide rows that don't contain it
-//    for (int i = 0; i < this->ui->tableWidgetGeneExpressions->rowCount(); i++) {
-//        bool isContainsAtLeastOneSearchString = false;
-//        for (QString string : searchStrings) {
-//            if (this->ui->tableWidgetGeneExpressions->verticalHeaderItem(i)->text().toLower().contains(string)) {
-//                isContainsAtLeastOneSearchString = true;
-
-//                // If a valid gene ID has been entered, enable the plotting functionality
-//                // REMEMBER: This does not work as intended, plotting should only been enabled when a valid ID has been entered
-//                if (!this->ui->pushButtonScatterPlot->isEnabled() && !this->ui->pushButtonBarChart->isEnabled()) {
-//                    this->ui->pushButtonScatterPlot->setEnabled(true);
-//                    this->ui->pushButtonBarChart->setEnabled(true);
-//                }
-//            }
-//        }
-//        if (!isContainsAtLeastOneSearchString) {
-//            this->ui->tableWidgetGeneExpressions->setRowHidden(i, true);
-//        }
-//    }
-
-//}
+    // If empty report an empty list to the TableView
+    if (searchString == "")
+        emit this->searchedGenIDsChanged(QStringList());
+    // Else report the separated gene IDs
+    else
+        emit this->searchedGenIDsChanged(searchString.split(','));
+}
 
 /**
  * @brief TabWidget::on_tableWidgetGeneExpressions_cellDoubleClicked - Adds the gene ID (header item) for the clicked item to the list of selected IDs - handles duplicates and autocomplete
@@ -303,15 +211,19 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
  * @brief TabWidget::showAlertForInvalidGeneID - Show an alert with the given gene ID
  * @param geneID - ID that is shown as invalid in the alert
  */
-void TabWidget::showAlertForInvalidGeneID(QString geneID) {
-    QMessageBox invalidGeneIDAlert;
-    invalidGeneIDAlert.setText("Invalid gene ID: " + geneID);
-    invalidGeneIDAlert.setWindowFlags(Qt::FramelessWindowHint);
-    invalidGeneIDAlert.exec();
-    return;
-}
+//void TabWidget::showAlertForInvalidGeneID(QString geneID) {
+//    QMessageBox invalidGeneIDAlert;
+//    invalidGeneIDAlert.setText("Invalid gene ID: " + geneID);
+//    invalidGeneIDAlert.setWindowFlags(Qt::FramelessWindowHint);
+//    invalidGeneIDAlert.exec();
+//    return;
+//}
 
 
+/**
+ * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Go through the TableView and gather all data that has been selected
+ * @return - IDs and gene expression data for selected genes
+ */
 QVector<std::tuple<QString, QVector<double>, double, QStringList>> TabWidget::retrieveExpressionDataForSelectedGenes() {
 
     QVector<std::tuple<QString, QVector<double>, double, QStringList>> dataForSelectedGenes;
@@ -393,7 +305,7 @@ void TabWidget::on_pushButtonBarChart_clicked() {
     this->openExportWidgetWithPlot(Plots::createBarChart);
 }
 
-// ################################### SLOTS ###################################
+// ################################### PUBLIC SLOTS ###################################
 
 void TabWidget::on_minRawCountSet(double minRawCount) {
     if (this->minRawCount == minRawCount)
