@@ -17,7 +17,7 @@
  * @brief Coordinator::Coordinator
  */
 Coordinator::Coordinator(InformationCenter informationCenter)
-    : informationCenter {informationCenter}
+    : informationCenter {informationCenter}, needsCleaning(false)
 {}
 
 
@@ -94,11 +94,13 @@ void Coordinator::correlateDatasets(const QVector<QVector<FeatureCollection>> xC
  * @brief Coordinator::saveInformationAfterCorrelatingFinished - Gathers the information from the finished correlation from the opened threads and reports it to the information center
  */
 void Coordinator::saveInformationAfterCorrelatingFinished() {
+
     // Gather the results from every finished thread
     for (int i = 0; i < correlatorThreadsWatcher.futures().length(); i++) {
         // and report it to the information center
         this->informationCenter.correlatedDatasets.append(correlatorThreadsWatcher.futures()[i].result());
     }
+    qDebug() << "Saved.";
 }
 
 
@@ -148,6 +150,17 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
 }
 
 
+/**
+ * @brief Coordinator::cleanData - Clean all data structures that have been filled by a previous analysis
+ */
+void Coordinator::cleanData() {
+    this->parsingThreadsWatcher.clearFutures();
+    this->correlatorThreadsWatcher.clearFutures();
+    this->informationCenter.correlatedDatasets.clear();
+    this->informationCenter.correlatedDatasets.squeeze();
+}
+
+
 // ###################################### INTERACTION WITH MAIN WINDOW ###########################################
 /**
  * @brief Coordinator::on_filesUploaded
@@ -166,8 +179,12 @@ void Coordinator::on_filesUploaded(const QStringList filePaths) {
 void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions) {
     qDebug() << "Coordinator: Received signal for run analyis.";
 
+    if (this->needsCleaning)
+        this->cleanData();
+
     qDebug() << "Correlating datasets";
     // Correlate the datasets with the given cell type markers in separate threads
+
     this->correlateDatasets(allClustersFromAllDatasetsWithGeneExpressions, informationCenter.cellMarkersForTypes);
     qDebug() << "Finished correlating. Gathering information";
 
@@ -178,6 +195,8 @@ void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClusters
     // Report that the last correlation thread has finished to the main window
     emit finishedCorrelating(this->informationCenter);
 
+    // Before a new analysis can be made, the resulting data of the old analysis has to be deleted
+    this->needsCleaning = true;
 }
 
 // ###################################### INTERACTION WITH MAIN WINDOW ###########################################

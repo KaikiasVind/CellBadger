@@ -20,8 +20,7 @@
 #include "BioModels/FeatureCollection.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -141,12 +140,12 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
  * @brief MainWindow::on_expressionValuesChanged
  * @param informationCenter
  */
-void MainWindow::on_expressionValuesChanged(const InformationCenter & informationCenter) {
-    qDebug() << "Received signal that expression values changed.";
-    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
-        this->runningTabWidgets[i]->populateTableGeneExpressions(informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
-    }
-}
+//void MainWindow::on_expressionValuesChanged(const InformationCenter & informationCenter) {
+//    qDebug() << "Received signal that expression values changed.";
+//    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
+//        this->runningTabWidgets[i]->populateTableGeneExpressions(informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+//    }
+//}
 
 
 void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
@@ -170,14 +169,14 @@ void MainWindow::on_receivedExpressionDataFromTabWidgets(QVector<FeatureCollecti
 
 
 // ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
-void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
-    this->mouseClickXCoordinate = mousePressEvent->x();
-    this->mouseClickYCoordinate = mousePressEvent->y();
-}
+//void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
+//    this->mouseClickXCoordinate = mousePressEvent->x();
+//    this->mouseClickYCoordinate = mousePressEvent->y();
+//}
 
-void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
-    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
-}
+//void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
+//    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
+//}
 
 void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
     this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMin->setValue(value);

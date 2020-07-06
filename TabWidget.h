@@ -79,6 +79,7 @@ private:
 
     template<typename F>
     void openExportWidgetWithPlot(F plottingFunction);
+    void cleanCorrelationTable();
 
     double minRawCount;
     double maxRawCount;

@@ -10,7 +10,6 @@
 #include <QBarCategoryAxis>
 #include <QCategoryAxis>
 #include <QLineSeries>
-#include <set>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
@@ -21,13 +20,6 @@
 #include "Utils/Helper.h"
 #include "Utils/Math.h"
 
-using QtCharts::QScatterSeries;
-using QtCharts::QChart;
-using QtCharts::QChartView;
-using QtCharts::QValueAxis;
-using QtCharts::QBarCategoryAxis;
-using QtCharts::QCategoryAxis;
-using QtCharts::QLineSeries;
 
 TabWidget::TabWidget(QWidget *parent, QString title) :
     QWidget(parent),
@@ -48,6 +40,11 @@ TabWidget::~TabWidget()
  * @param numberOfItems - Number of items that should be shown in the table.
  */
 void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems) {
+
+    if(this->ui->tableWidgetTypeCorrelations->columnCount() > 0) {
+        this->cleanCorrelationTable();
+    }
+
     int numberOfClusters = correlations.length();
 
     this->ui->tableWidgetTypeCorrelations->setColumnCount(numberOfClusters);
@@ -323,6 +320,20 @@ void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
     exportDialog->show();
 }
 
+
+/**
+ * @brief TabWidget::cleanCorrelationTable - Deletes all instances of QTableWidget items from the correlation TabWidget
+ */
+void TabWidget::cleanCorrelationTable() {
+    for (int i = 0; i < this->ui->tableWidgetTypeCorrelations->rowCount(); i++) {
+        for (int j = 0; j < this->ui->tableWidgetTypeCorrelations->columnCount(); j++) {
+            delete this->ui->tableWidgetTypeCorrelations->item(i, j);
+        }
+    }
+}
+
+
+// ############################################### SLOTS ###############################################
 
 /**
  * @brief TabWidget::on_pushButtonPlot_clicked

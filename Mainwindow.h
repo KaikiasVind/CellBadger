@@ -27,11 +27,11 @@ public:
     ~MainWindow();
 
 public slots:
-    void on_filesParsed(const InformationCenter & informationCenter);
-    void on_correlatingFinished(const InformationCenter & informationCenter);
-    void on_expressionValuesChanged(const InformationCenter & informationCenter);
+//    void on_expressionValuesChanged(const InformationCenter & informationCenter);
     void on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange);
     void on_receivedExpressionDataFromTabWidgets(const QVector<FeatureCollection> clustersWithGeneExpressions);
+    void on_filesParsed(const InformationCenter & informationCenter);
+    void on_correlatingFinished(const InformationCenter & informationCenter);
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
@@ -91,9 +91,9 @@ private:
     void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);
 
     // Mouse interaction - Necessary for frameless windows
-    void mousePressEvent(QMouseEvent * mousePressEvent);
-    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
-    int mouseClickXCoordinate;
-    int mouseClickYCoordinate;
+//    void mousePressEvent(QMouseEvent * mousePressEvent);
+//    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
+//    int mouseClickXCoordinate;
+//    int mouseClickYCoordinate;
 };
 #endif // MAINWINDOW_H

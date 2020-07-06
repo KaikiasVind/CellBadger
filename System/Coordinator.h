@@ -27,6 +27,9 @@ private:
     void saveInformationAfterParsingFinished();
     void correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes);
     void saveInformationAfterCorrelatingFinished();
+    void cleanData();
+
+    bool needsCleaning;
 
 public:
     Coordinator(InformationCenter informationCenter);
