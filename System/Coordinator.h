@@ -45,7 +45,7 @@ public slots:
     // ################### INTERACTION WITH START DIALOG ########################
 
     // ################### INTERACTION WITH MAIN WINDOW #########################
-    void on_runAnalysis();
+    void on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     // ################### INTERACTION WITH MAIN WINDOW #########################
 
     // ######################### FILE PROCESSING ################################

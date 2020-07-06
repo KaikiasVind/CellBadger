@@ -166,12 +166,12 @@ void Coordinator::on_filesUploaded(const QStringList filePaths) {
 }
 
 
-void Coordinator::on_runAnalysis() {
+void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions) {
     qDebug() << "Coordinator: Received signal for run analyis.";
 
     cout << "Correlating datasets" << endl;
     // Correlate the datasets with the given cell type markers in separate threads
-    this->correlateDatasets(informationCenter.xClusterCollections, informationCenter.cellMarkersForTypes);
+    this->correlateDatasets(allClustersFromAllDatasetsWithGeneExpressions, informationCenter.cellMarkersForTypes);
     cout << "Finished correlating. Gathering information" << endl;
 
     // Gather and save the information from the correlation from the different threads

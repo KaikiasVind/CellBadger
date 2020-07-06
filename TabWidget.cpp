@@ -224,9 +224,9 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
  * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Go through the TableView and gather all data that has been selected
  * @return - IDs and gene expression data for selected genes
  */
-QVector<std::tuple<QString, QVector<double>, double, QStringList>> TabWidget::retrieveExpressionDataForSelectedGenes() {
+std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> TabWidget::retrieveExpressionDataForSelectedGenes() {
 
-    QVector<std::tuple<QString, QVector<double>, double, QStringList>> dataForSelectedGenes;
+    QVector<std::tuple<QString, QVector<double>, double>> dataForSelectedGenes;
 
     QModelIndexList selectedIndices = this->tableView->selectionModel()->selectedIndexes();
     QStringList clusterNames;
@@ -254,7 +254,7 @@ QVector<std::tuple<QString, QVector<double>, double, QStringList>> TabWidget::re
     }
 
     for (QString geneID : expressionDataForSelectedGenes.keys()) {
-        std::tuple<QString, QVector<double>, double, QStringList> expressionDataForSelectedGene(geneID, {}, 0, clusterNames);
+        std::tuple<QString, QVector<double>, double> expressionDataForSelectedGene(geneID, {}, 0);
 
         QVector<double> * geneExpressiondata = & expressionDataForSelectedGenes[geneID];
 
@@ -265,7 +265,39 @@ QVector<std::tuple<QString, QVector<double>, double, QStringList>> TabWidget::re
         dataForSelectedGenes.append(expressionDataForSelectedGene);
     }
 
-    return dataForSelectedGenes;
+    return std::make_tuple(dataForSelectedGenes, clusterNames);
+}
+
+
+/**
+ * @brief TabWidget::retrieveAllSeenData
+ * @return
+ */
+QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
+    QVector<FeatureCollection> allSeenClusters;
+
+    QAbstractItemModel * itemModel = this->tableView->model();
+
+    // Grab all cluster names from the horizontal table header and create a FeatureCollection for each
+    for (int i = 1; i < itemModel->columnCount() - 1; i++) {
+        QString clusterName = itemModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
+        allSeenClusters.append(FeatureCollection(clusterName));
+    }
+
+    // Go through every row and every column and grab the expression values for the genes and sort them to the correct cluster
+    for (int row = 0; row < itemModel->rowCount(); row++) {
+        QModelIndex geneNameCellIndex = itemModel->index(row, 0);
+        QString geneName = itemModel->data(geneNameCellIndex).toString();
+
+        for (int column = 1; column < itemModel->columnCount() - 1; column++) {
+            QModelIndex cellIndex = itemModel->index(row, column);
+            double geneRawCount = itemModel->data(cellIndex).toDouble();
+
+            allSeenClusters[column - 1].addFeature(geneName, "nAn", geneRawCount, 0, 0);
+        }
+    }
+
+    return allSeenClusters;
 }
 
 
@@ -276,10 +308,10 @@ template<typename F>
  */
 void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
 
-    QVector<std::tuple<QString, QVector<double>, double, QStringList>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
     // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
-    if (expressionDataForSelectedGenes.isEmpty())
+    if (std::get<0>(expressionDataForSelectedGenes).isEmpty())
         return;
 
     QChartView * chartView = plottingFunction(expressionDataForSelectedGenes, this->title);
@@ -368,4 +400,13 @@ void TabWidget::on_foldChangeInAtLeastToggled(bool state) {
         return;
     this->includeFoldChangeInAtLeast  = state;
     emit this->foldChangeInAtLeastToggled(state);
+}
+
+
+void TabWidget::on_runAnalysisRequested() {
+
+    // Gather the expression data for the currently selected genes
+    QVector<FeatureCollection> collectionsOfSelectedGenes = this->retrieveAllSeenData();
+
+    emit this->expressionDataGathered(collectionsOfSelectedGenes);
 }

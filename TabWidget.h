@@ -30,8 +30,6 @@ public:
 
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
 
-
-
 signals:
     void minRawCountSet(double minRawCount);
     void maxRawCountSet(double maxRawCount);
@@ -43,6 +41,7 @@ signals:
     void foldChangeInAtLeastToggled(bool state);
     void highestMetRawCountAndFoldChangeValuesChanged(double highestMetRawCount, double highestMetFoldChange);
     void searchedGenIDsChanged(QStringList searchedGeneIDs);
+    void expressionDataGathered(QVector<FeatureCollection> clustersWithFeatureExpressions);
 
 public slots:
 
@@ -54,6 +53,7 @@ public slots:
     void on_rawCountInAtLeastToggled(bool state);
     void on_foldChangeinAtLeastSet(int numberOfClusters);
     void on_foldChangeInAtLeastToggled(bool state);
+    void on_runAnalysisRequested();
 
 private slots:
     void on_lineEditGeneID_textChanged(const QString &arg1);
@@ -72,7 +72,8 @@ private:
     GeneTableModel * geneTableModel;
     ProxyModel * proxyModel;
 
-    QVector<std::tuple<QString, QVector<double>, double, QStringList>> retrieveExpressionDataForSelectedGenes();
+    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
+    QVector<FeatureCollection> retrieveAllSeenData();
 
 //    void showAlertForInvalidGeneID(QString geneID);
 

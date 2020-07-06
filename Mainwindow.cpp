@@ -73,6 +73,8 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
     QObject::connect(this, &MainWindow::rawCountInAtLeastToggled, tabWidget, &TabWidget::on_rawCountInAtLeastToggled);
     QObject::connect(this, &MainWindow::foldChangeInAtLeastChanged, tabWidget, &TabWidget::on_foldChangeinAtLeastSet);
     QObject::connect(this, &MainWindow::foldChangeInAtLeastToggled, tabWidget, &TabWidget::on_foldChangeInAtLeastToggled);
+    QObject::connect(this, &MainWindow::requestGeneExpressionData, tabWidget, &TabWidget::on_runAnalysisRequested);
+    QObject::connect(tabWidget, &TabWidget::expressionDataGathered, this, &MainWindow::on_receivedExpressionDataFromTabWidgets);
 }
 
 
@@ -156,7 +158,14 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
 
 void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
     this->ui->labelStatus->setText("Running correlation...");
-    emit runAnalysis();
+    emit this->requestGeneExpressionData();
+}
+
+
+void MainWindow::on_receivedExpressionDataFromTabWidgets(QVector<FeatureCollection> clustersWithGeneExpressions) {
+    QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
+    allClustersFromAllDatasetsWithGeneExpressions << clustersWithGeneExpressions;
+    emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
 }
 
 

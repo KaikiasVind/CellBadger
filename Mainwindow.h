@@ -31,10 +31,12 @@ public slots:
     void on_correlatingFinished(const InformationCenter & informationCenter);
     void on_expressionValuesChanged(const InformationCenter & informationCenter);
     void on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange);
+    void on_receivedExpressionDataFromTabWidgets(const QVector<FeatureCollection> clustersWithGeneExpressions);
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
-    void runAnalysis();
+    void requestGeneExpressionData();
+    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
 
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);

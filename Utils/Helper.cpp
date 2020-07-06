@@ -137,5 +137,24 @@ std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double
     return std::make_tuple(genesWithExpressionCountsInAllFeatureCollections, highestMetRawCount, highestMetFoldChange);
 }
 
+
+QVector<FeatureCollection> getGenesAsFeatureCollections(const std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> genesWithGeneExpressionsForClusters) {
+    QVector<FeatureCollection> featureCollections;
+
+    // Add clusters with the given cluster names
+    std::transform(std::get<1>(genesWithGeneExpressionsForClusters).begin(), std::get<1>(genesWithGeneExpressionsForClusters).end(),
+                   std::back_inserter(featureCollections), [](QString clusterName) { return FeatureCollection(clusterName); });
+
+    for (std::tuple<QString, QVector<double>, double> geneWithExpressionValues : std::get<0>(genesWithGeneExpressionsForClusters)) {
+        QString featureID = std::get<0>(geneWithExpressionValues);
+
+        for (int i = 0; i < std::get<1>(geneWithExpressionValues).length(); i++) {
+            featureCollections[i].addFeature(featureID, "nAn", std::get<1>(geneWithExpressionValues).at(i), 0, 0);
+        }
+    }
+
+    return featureCollections;
+}
+
 // #################################### BIOMODELS ####################################
 };
