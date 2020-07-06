@@ -29,17 +29,39 @@ int main(int argc, char * argv[])
 //    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
 //    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
 
-//    qDebug() << "Parsing.";
-//    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {1, 0});
+    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\Pbmc_expression.csv";
+    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\PanglaoDB_markers.csv";
+
+    qDebug() << "Parsing.";
+    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {15, 0});
 //    QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
-//    qDebug() << "Finished.";
+    qDebug() << "Finished.";
+
 
 //    QStringList allGeneIDs;
 //    for (Feature feature : samples.first().getFeatures()) {
 //        allGeneIDs.append(feature.ID);
 //    }
 
-//    samples.removeFirst();
+    samples.removeFirst();
+//    cellTypes.removeFirst();
+
+    for (FeatureCollection collection : samples) {
+        qDebug() << "\n" << collection.ID;
+        for (int i = 0; i < 16; i++) {
+            Feature feature = collection.getFeature(i);
+            qDebug() << feature.ID << "-" << feature.count;
+        }
+    }
+
+//    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
+
+//    for (int i = 0; i < correlations.length(); i++) {
+//        qDebug() << "\ncluster" << i;
+//        for (int j = 0; j < 5; j++) {
+//            qDebug() << correlations.at(i).at(j).first << "-" << correlations.at(i).at(j).second;
+//        }
+//    }
 
 //    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
 

@@ -4,11 +4,14 @@
 #include <QDebug>
 
 ProxyModel::ProxyModel(QObject * parent) : QSortFilterProxyModel(parent),
-    minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0) {}
+    minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0), rawCountinAtLeast(0), includeRawCountInAtLeast(false),
+    foldChangeInAtLeast(0), includeFoldChangeInAtLeast(false), searchedGeneIDs(QStringList()) {}
 
 
 ProxyModel::ProxyModel(int rowCount, int colCount, QObject * parent) : QSortFilterProxyModel(parent),
-    rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0) {}
+    rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0),
+  rawCountinAtLeast(0), includeRawCountInAtLeast(false),foldChangeInAtLeast(0), includeFoldChangeInAtLeast(false),
+  searchedGeneIDs(QStringList()) {}
 
 
 /**
@@ -58,7 +61,7 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
     }
 
     // ################################ IN-AT-LEAST-OFFS #############################
-    if (!this->includeRawCountInAtLeast) {
+    if (this->includeRawCountInAtLeast) {
         // If enough cluster raw counts have met the required cut-off accept the row
         if (numberOfClustersWithValidRawCount >= this->rawCountinAtLeast)
             return true;

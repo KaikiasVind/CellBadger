@@ -35,9 +35,9 @@ private:
     double maxRawCount;
     double minFoldChange;
     double maxFoldChange;
-    double rawCountinAtLeast;
+    int rawCountinAtLeast;
     bool includeRawCountInAtLeast;
-    double foldChangeInAtLeast;
+    int foldChangeInAtLeast;
     bool includeFoldChangeInAtLeast;
     QStringList searchedGeneIDs;
 };

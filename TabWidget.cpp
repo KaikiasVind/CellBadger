@@ -132,6 +132,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     QObject::connect(this, &TabWidget::rawCountInAtLeastSet, this->proxyModel, &ProxyModel::setRawCountInAtLeast);
     QObject::connect(this, &TabWidget::foldChangeInAtLeastSet, this->proxyModel, &ProxyModel::setFoldChangeInAtLeast);
     QObject::connect(this, &TabWidget::searchedGenIDsChanged, this->proxyModel, &ProxyModel::setSearchedGeneIDs);
+    QObject::connect(this, &TabWidget::rawCountInAtLeastToggled, this->proxyModel, &ProxyModel::setIncludeRawCountInAtLeast);
+    QObject::connect(this, &TabWidget::foldChangeInAtLeastToggled, this->proxyModel, &ProxyModel::setIncludeFoldChangeInAtLeast);
 }
 
 
@@ -270,8 +272,8 @@ std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> T
 
 
 /**
- * @brief TabWidget::retrieveAllSeenData
- * @return
+ * @brief TabWidget::retrieveAllSeenData - Gathers all data that is currently seen in the table view
+ * @return - All data currently seen in the table view
  */
 QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
     QVector<FeatureCollection> allSeenClusters;
@@ -398,7 +400,7 @@ void TabWidget::on_rawCountInAtLeastToggled(bool state) {
 void TabWidget::on_foldChangeInAtLeastToggled(bool state) {
     if (this->includeFoldChangeInAtLeast == state)
         return;
-    this->includeFoldChangeInAtLeast  = state;
+    this->includeFoldChangeInAtLeast = state;
     emit this->foldChangeInAtLeastToggled(state);
 }
 

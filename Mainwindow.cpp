@@ -198,8 +198,8 @@ void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueCha
 }
 
 void MainWindow::on_checkBoxCorrelationOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setDisabled(!checked);
-    emit rawCountInAtLeastToggled(!checked);
+    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setEnabled(checked);
+    emit rawCountInAtLeastToggled(checked);
 }
 
 void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffInAtLeast_valueChanged(int number) {
@@ -225,8 +225,8 @@ void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueC
 }
 
 void MainWindow::on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setDisabled(!checked);
-    emit foldChangeInAtLeastToggled(!checked);
+    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setEnabled(checked);
+    emit foldChangeInAtLeastToggled(checked);
 }
 
 void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {

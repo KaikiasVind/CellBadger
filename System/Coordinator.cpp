@@ -7,9 +7,6 @@
 #include <QFuture>
 #include <QDebug>
 
-#include <iostream>
-using std::cout;
-using std::endl;
 #include <QThread>
 
 #include "System/InformationCenter.h"
@@ -129,25 +126,25 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
 
     qDebug() << "Parsing:" << cellMarkerFilePaths.first();
     // Parse the cell marker file in separate threads
-    cout << "Parsing cell marker file." << endl;
+    qDebug() << "Parsing cell marker file.";
     this->parseFiles(cellMarkerFilePaths, CSVReader::readCellTypesFromPanglaoDBFile, {});
 
-    // Parse the dataset files in separate threads
-    cout << "Parsing datasets." << endl;
+    // Parse the dataset files in separate threads - A raw count cut-off of 1 is used to remove all underrepresented genes
+    qDebug() << "Parsing datasets.";
     this->parseFiles(datasetFilePaths, CSVReader::read10xGenomicsClustersFromFile, {1, 0});
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();
-    cout << "Finished parsing. Gathering information" << endl;
+    qDebug() << "Finished parsing. Gathering information";
 
     // Gather and save the information that was parsed from the different threads
     this->saveInformationAfterParsingFinished();
-    cout << "Saving information successfull." << endl;
+    qDebug() << "Saving information successfull.";
 
     // Report that the last parsing thread has finished to the main window
     emit finishedFileParsing(this->informationCenter);
 
-    qDebug() << "Finished workflow. YEAY." << endl;
+    qDebug() << "Finished workflow. YEAY.";
 }
 
 
@@ -169,14 +166,14 @@ void Coordinator::on_filesUploaded(const QStringList filePaths) {
 void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions) {
     qDebug() << "Coordinator: Received signal for run analyis.";
 
-    cout << "Correlating datasets" << endl;
+    qDebug() << "Correlating datasets";
     // Correlate the datasets with the given cell type markers in separate threads
     this->correlateDatasets(allClustersFromAllDatasetsWithGeneExpressions, informationCenter.cellMarkersForTypes);
-    cout << "Finished correlating. Gathering information" << endl;
+    qDebug() << "Finished correlating. Gathering information";
 
     // Gather and save the information from the correlation from the different threads
     this->saveInformationAfterCorrelatingFinished();
-    cout << "Saving correlation data successfull." << endl;
+    qDebug() << "Saving correlation data successfull.";
 
     // Report that the last correlation thread has finished to the main window
     emit finishedCorrelating(this->informationCenter);
