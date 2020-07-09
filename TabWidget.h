@@ -27,8 +27,9 @@ public:
     ~TabWidget();
 
     void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems);
-
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
+
+    QVector<FeatureCollection> retrieveAllSeenData();
 
 signals:
     void minRawCountSet(double minRawCount);
@@ -73,7 +74,6 @@ private:
     ProxyModel * proxyModel;
 
     std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
-    QVector<FeatureCollection> retrieveAllSeenData();
 
 //    void showAlertForInvalidGeneID(QString geneID);
 

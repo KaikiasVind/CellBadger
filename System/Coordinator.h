@@ -38,7 +38,7 @@ signals:
     void finishedFileParsing(const InformationCenter informationCenter);
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
-    void finishedCorrelating(const InformationCenter informationCenter);
+    void finishedCorrelating(const InformationCenter & informationCenter);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################

@@ -3,11 +3,22 @@
 #include <QSortFilterProxyModel>
 #include <QDebug>
 
+
+/**
+ * @brief ProxyModel::ProxyModel
+ * @param parent
+ */
 ProxyModel::ProxyModel(QObject * parent) : QSortFilterProxyModel(parent),
     minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0), rawCountinAtLeast(0), includeRawCountInAtLeast(false),
     foldChangeInAtLeast(0), includeFoldChangeInAtLeast(false), searchedGeneIDs(QStringList()) {}
 
 
+/**
+ * @brief ProxyModel::ProxyModel
+ * @param rowCount
+ * @param colCount
+ * @param parent
+ */
 ProxyModel::ProxyModel(int rowCount, int colCount, QObject * parent) : QSortFilterProxyModel(parent),
     rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0),
   rawCountinAtLeast(0), includeRawCountInAtLeast(false),foldChangeInAtLeast(0), includeFoldChangeInAtLeast(false),
@@ -24,13 +35,15 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
 
     QVector<QModelIndex> clusterIndices;
     clusterIndices.reserve(this->columnCount);
+//    qDebug() << "min:" << this->minRawCount;
+//    qDebug() << "max:" << this->maxRawCount;
 
     for (int i = 0; i < columnCount; i++) {
         clusterIndices.append(this->sourceModel()->index(source_row, i, source_parent));
     }
 
-    int numberOfClustersWithValidRawCount = 0;
 //    int numberOfClustersWithValidFoldChange = 0;
+    int numberOfClustersWithValidRawCount = 0;
     for (int i = 0; i < clusterIndices.length(); i++) {
 
         // ################################ GENE-IDS ################################
@@ -54,10 +67,13 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
         }
 
         // ################################ CUT-OFFS ################################
-        if (this->sourceModel()->data(clusterIndices.at(i)).toDouble() > this->minRawCount &&
-                this->sourceModel()->data(clusterIndices.at(i)).toDouble() < this->maxRawCount) {
+        double currentCellValue = this->sourceModel()->data(clusterIndices.at(i)).toDouble();
+
+        bool isMinRawCountCutOffMet = (currentCellValue == this->minRawCount || currentCellValue > this->minRawCount);
+        bool isMaxRawCountCutOffMet = (currentCellValue == this->maxRawCount || currentCellValue < this->maxRawCount);
+
+        if (isMinRawCountCutOffMet && isMaxRawCountCutOffMet)
             numberOfClustersWithValidRawCount += 1;
-        }
     }
 
     // ################################ IN-AT-LEAST-OFFS #############################
@@ -105,6 +121,7 @@ void ProxyModel::setMaxRawCount(double maxRawCount) {
     if (this->maxRawCount != maxRawCount)
         this->maxRawCount = maxRawCount;
     invalidateFilter();
+    qDebug() << "set max:" << maxRawCount;
 }
 
 
