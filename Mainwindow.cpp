@@ -52,9 +52,9 @@ MainWindow::~MainWindow()
 void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
     TabWidget * tabWidget = new TabWidget(this, datasetName);
     QObject::connect(tabWidget, &TabWidget::highestMetRawCountAndFoldChangeValuesChanged, this, &MainWindow::on_highestRawCountAndFoldChangeValuesFound);
-    this->runningTabWidgets.push_front(tabWidget);
+    this->runningTabWidgets.append(tabWidget);
 
-    this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
+    this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
 
     this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
@@ -161,24 +161,9 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
 
 void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
     this->ui->labelStatus->setText("Running correlation...");
-//    emit this->requestGeneExpressionData();
     QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
-    for (TabWidget * tabWidget : this->runningTabWidgets) {
-        allClustersFromAllDatasetsWithGeneExpressions.push_front(tabWidget->retrieveAllSeenData());
-
-        // REMEMBER -> PUSH FRONT??!?!
-
-
-//        qDebug() << "\n\nTABWIDGET";
-//        QVector<FeatureCollection> collection = tabWidget->retrieveAllSeenData();
-//        for (int i = 0; i < collection.length(); i++) {
-//            qDebug() << "\n" << collection.at(i).ID;
-//            for (int j = 0; j < 5 ; j++) {
-//                Feature feature = collection.at(i).getFeature(j);
-//                qDebug() << feature.ID << "-" << feature.count;
-//            }
-//        }
-    }
+    for (TabWidget * tabWidget : this->runningTabWidgets)
+        allClustersFromAllDatasetsWithGeneExpressions.append(tabWidget->retrieveAllSeenData());
     emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
 }
 
