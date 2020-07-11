@@ -27,8 +27,6 @@ public:
     ~MainWindow();
 
 public slots:
-//    void on_expressionValuesChanged(const InformationCenter & informationCenter);
-    void on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange);
     void on_receivedExpressionDataFromTabWidgets(const QVector<FeatureCollection> clustersWithGeneExpressions);
     void on_filesParsed(const InformationCenter & informationCenter);
     void on_correlatingFinished(const InformationCenter & informationCenter);
@@ -57,30 +55,6 @@ private slots:
     void on_tabWidgetDatasets_currentChanged(int index);
 
     void on_pushButtonCorrelationOptionsRun_clicked();
-
-    void on_spinBoxCorrelationOptionsRawCountCutOffMin_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsRawCountCutOffMin_valueChanged(int value);
-
-    void on_spinBoxCorrelationOptionsRawCountCutOffMax_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueChanged(int value);
-
-    void on_checkBoxCorrelationOptionsRawCountCutOffInAtLeast_toggled(bool checked);
-
-    void on_spinBoxCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value);
-
-    void on_spinBoxCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value);
-
-    void on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked);
-
-    void on_spinBoxCorrelationOptionsRawCountCutOffInAtLeast_valueChanged(int number);
-
-    void on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

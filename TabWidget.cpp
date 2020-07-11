@@ -27,6 +27,10 @@ TabWidget::TabWidget(QWidget *parent, QString title) :
     title(title)
 {
     ui->setupUi(this);
+
+    // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setDisabled(true);
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
 }
 
 TabWidget::~TabWidget()
@@ -95,14 +99,21 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
 
     this->geneTableModel = new GeneTableModel(std::get<0>(allGenesWithExpressionCountsInAllClusters), completeGeneIDs, clusterNames);
 
-    // Report the highest raw count and the highest fold change that has been found in the gene expression lists to the Main Window
-    // This is necessary to adjust the max values of the GUI slider and spinbox elements
-    emit this->highestMetRawCountAndFoldChangeValuesChanged(std::get<1>(allGenesWithExpressionCountsInAllClusters),
-                                                            std::get<2>(allGenesWithExpressionCountsInAllClusters));
+    // Save the highest met values for the raw count and the fold change from the expression values
+    // This is neccessary to control the max set cut-off values
+    double highestMetRawCount = std::get<1>(allGenesWithExpressionCountsInAllClusters),
+           highestMetFoldChange = std::get<2>(allGenesWithExpressionCountsInAllClusters);
+
+    // Use the highest met values for raw count and fold change to change tweek the gui values
+    this->setMaxValuesForGUIElements(highestMetRawCount, highestMetFoldChange);
 
     // ############################################ PROXY MODEL ############################################
     this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1);
     this->proxyModel->setSourceModel(geneTableModel);
+
+    // Report the max values to the proxymodel
+    this->proxyModel->setMaxRawCount(highestMetRawCount);
+    this->proxyModel->setMaxFoldChange(highestMetFoldChange);
 
     // ############################################ TABLE VIEW ############################################
     this->tableView = new QTableView;
@@ -118,19 +129,6 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
-
-    // ############################################ SIGNALS & SLOTS ############################################
-    // Connect all signals that come from the Tab Widget with the slots of the Proxy Model
-    // This connects the GUI elements with filtering options
-    QObject::connect(this, &TabWidget::minRawCountSet, this->proxyModel, &ProxyModel::setMinRawCount);
-    QObject::connect(this, &TabWidget::maxRawCountSet, this->proxyModel, &ProxyModel::setMaxRawCount);
-    QObject::connect(this, &TabWidget::minFoldChangeSet, this->proxyModel, &ProxyModel::setMinFoldChange);
-    QObject::connect(this, &TabWidget::maxFoldChangeSet, this->proxyModel, &ProxyModel::setMaxFoldChange);
-    QObject::connect(this, &TabWidget::rawCountInAtLeastSet, this->proxyModel, &ProxyModel::setRawCountInAtLeast);
-    QObject::connect(this, &TabWidget::foldChangeInAtLeastSet, this->proxyModel, &ProxyModel::setFoldChangeInAtLeast);
-    QObject::connect(this, &TabWidget::searchedGenIDsChanged, this->proxyModel, &ProxyModel::setSearchedGeneIDs);
-    QObject::connect(this, &TabWidget::rawCountInAtLeastToggled, this->proxyModel, &ProxyModel::setIncludeRawCountInAtLeast);
-    QObject::connect(this, &TabWidget::foldChangeInAtLeastToggled, this->proxyModel, &ProxyModel::setIncludeFoldChangeInAtLeast);
 }
 
 
@@ -333,7 +331,45 @@ void TabWidget::cleanCorrelationTable() {
 }
 
 
+/**
+ * @brief TabWidget::setHighestRawCountAndFoldChangeValuesInGUI - Set the given max values for all gui elements
+ * @param highestMetRawCount - Max possible raw count cut-off
+ * @param highestMetFoldChange - Max possible fold change cut-off
+ */
+void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange) {
+    this->ui->spinBoxFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
+    this->ui->spinBoxFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(highestMetRawCount);
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
+}
+
+
+/**
+ * @brief TabWidget::setMaxRawCountInAtLeast - Sets the number of clusters that should meet the raw count cut-off
+ * @param number - Number of clusters
+ */
+void TabWidget::setMaxRawCountInAtLeast(int number) {
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(number);
+}
+
+
+/**
+* @brief TabWidget::setMaxFoldChangeInAtLeast - Sets the number of clusters that should meet the fold change cut-off
+* @param number - Number of clusters
+*/
+void TabWidget::setMaxFoldChangeInAtLeast(int number) {
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(number);
+}
+
+
 // ############################################### SLOTS ###############################################
+
 
 /**
  * @brief TabWidget::on_pushButtonPlot_clicked
@@ -350,76 +386,92 @@ void TabWidget::on_pushButtonBarChart_clicked() {
     this->openExportWidgetWithPlot(Plots::createBarChart);
 }
 
-// ################################### PUBLIC SLOTS ###################################
 
-void TabWidget::on_minRawCountSet(double minRawCount) {
-    if (this->minRawCount == minRawCount)
-        return;
-    this->minRawCount = minRawCount;
-    emit this->minRawCountSet(minRawCount);
+void TabWidget::on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value) {
+    qDebug() << "min raw count";
+//    if (this->minRawCount == value)
+//        return;
+//    this->minRawCount = value;
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setValue(value);
+    this->proxyModel->setMinRawCount(value);
 }
 
 
-void TabWidget::on_maxRawCountSet(double maxRawCount) {
-    if (this->maxRawCount == maxRawCount)
-        return;
-    this->maxRawCount = maxRawCount;
-    emit this->maxRawCountSet(maxRawCount);
+void TabWidget::on_horizontalSliderFilterOptionsRawCountCutOffMin_valueChanged(int value) {
+//    if (this->minRawCount == value)
+//        return;
+    this->ui->spinBoxFilterOptionsRawCountCutOffMin->setValue(value);
 }
 
 
-void TabWidget::on_minFoldChangeSet(double minFoldChange) {
-    if (this->minFoldChange == minFoldChange)
-        return;
-    this->minFoldChange = minFoldChange;
-    emit this->minFoldChangeSet(minFoldChange);
+void TabWidget::on_spinBoxFilterOptionsRawCountCutOffMax_valueChanged(int value) {
+    qDebug() << "spinbox: max raw count";
+//    if (this->maxRawCount == value)
+//        return;
+//    this->maxRawCount = value;
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(value);
+    this->proxyModel->setMaxRawCount(value);
+    qDebug() << "bla";
 }
 
 
-void TabWidget::on_maxFoldChangeSet(double maxFoldChange) {
-    if (this->maxFoldChange == maxFoldChange)
-        return;
-    this->maxFoldChange = maxFoldChange;
-    emit this->maxFoldChangeSet(maxFoldChange);
+void TabWidget::on_horizontalSliderFilterOptionsRawCountCutOffMax_valueChanged(int value) {
+    qDebug() << "slider: max raw count";
+//    if (this->maxRawCount == value)
+//        return;
+    this->ui->spinBoxFilterOptionsRawCountCutOffMax->setValue(value);
 }
 
 
-void TabWidget::on_rawCountInAtLeastSet(int number) {
-    if (this->rawCountInAtLeast == number)
-        return;
-    this->rawCountInAtLeast = number;
-    emit this->rawCountInAtLeastSet(number);
+void TabWidget::on_checkBoxFilterOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setEnabled(checked);
+    this->proxyModel->setIncludeRawCountInAtLeast(checked);
 }
 
 
-void TabWidget::on_foldChangeinAtLeastSet(int number) {
-    if (this->foldChangeInAtLeast == number)
-        return;
-    this->foldChangeInAtLeast = number;
-    emit this->foldChangeInAtLeastSet(number);
+void TabWidget::on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number) {
+    this->proxyModel->setRawCountInAtLeast(number);
 }
 
 
-void TabWidget::on_rawCountInAtLeastToggled(bool state) {
-    if (this->includeRawCountInAtLeast == state)
-        return;
-    this->includeRawCountInAtLeast = state;
-    emit this->rawCountInAtLeastToggled(state);
+void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffMin_valueChanged(int value) {
+//    if (this->minFoldChange == value)
+//        return;
+//    this->minFoldChange = value;
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setValue(value);
+    this->proxyModel->setMinFoldChange(value);
 }
 
 
-void TabWidget::on_foldChangeInAtLeastToggled(bool state) {
-    if (this->includeFoldChangeInAtLeast == state)
-        return;
-    this->includeFoldChangeInAtLeast = state;
-    emit this->foldChangeInAtLeastToggled(state);
+void TabWidget::on_horizontalSliderFilterOptionsFoldChangeCutOffMin_valueChanged(int value) {
+//    if (this->minFoldChange == value)
+//        return;
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setValue(value);
 }
 
 
-void TabWidget::on_runAnalysisRequested() {
+void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffMax_valueChanged(int value) {
+//    if (this->maxFoldChange == value)
+//        return;
+//    this->maxFoldChange = value;
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(value);
+    this->proxyModel->setMaxFoldChange(value);
+}
 
-    // Gather the expression data for the currently selected genes
-    QVector<FeatureCollection> collectionsOfSelectedGenes = this->retrieveAllSeenData();
 
-    emit this->expressionDataGathered(collectionsOfSelectedGenes);
+void TabWidget::on_horizontalSliderFilterOptionsFoldChangeCutOffMax_valueChanged(int value) {
+//    if (this->maxFoldChange == value)
+//        return;
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setValue(value);
+}
+
+
+void TabWidget::on_checkBoxFilterOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setEnabled(checked);
+    this->proxyModel->setIncludeFoldChangeInAtLeast(checked);
+}
+
+
+void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
+    this->proxyModel->setFoldChangeInAtLeast(number);
 }

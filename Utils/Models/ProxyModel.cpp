@@ -118,8 +118,13 @@ void ProxyModel::setMinRawCount(double minRawCount) {
  * @param maxRawCoun - Raw Countt
  */
 void ProxyModel::setMaxRawCount(double maxRawCount) {
-    if (this->maxRawCount != maxRawCount)
+    qDebug() << this->maxRawCount;
+    qDebug() << "setting raw count:" << maxRawCount;
+    if (this->maxRawCount != maxRawCount) {
+        qDebug() << "Trying to change:";
         this->maxRawCount = maxRawCount;
+    }
+    qDebug() << "invalidating filter.";
     invalidateFilter();
     qDebug() << "set max:" << maxRawCount;
 }
