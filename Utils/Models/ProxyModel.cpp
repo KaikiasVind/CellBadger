@@ -19,10 +19,10 @@ ProxyModel::ProxyModel(QObject * parent) : QSortFilterProxyModel(parent),
  * @param colCount
  * @param parent
  */
-ProxyModel::ProxyModel(int rowCount, int colCount, QObject * parent) : QSortFilterProxyModel(parent),
-    rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (0.0), minFoldChange(0.0), maxFoldChange(0.0),
+ProxyModel::ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QObject * parent) : QSortFilterProxyModel(parent),
+    rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (maxRawCount), minFoldChange(0.0), maxFoldChange(maxFoldChange),
   rawCountinAtLeast(0), includeRawCountInAtLeast(false),foldChangeInAtLeast(0), includeFoldChangeInAtLeast(false),
-  searchedGeneIDs(QStringList()) {}
+  searchedGeneIDs(QStringList()) {};
 
 
 /**
@@ -35,8 +35,6 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
 
     QVector<QModelIndex> clusterIndices;
     clusterIndices.reserve(this->columnCount);
-//    qDebug() << "min:" << this->minRawCount;
-//    qDebug() << "max:" << this->maxRawCount;
 
     for (int i = 0; i < columnCount; i++) {
         clusterIndices.append(this->sourceModel()->index(source_row, i, source_parent));
@@ -118,15 +116,9 @@ void ProxyModel::setMinRawCount(double minRawCount) {
  * @param maxRawCoun - Raw Countt
  */
 void ProxyModel::setMaxRawCount(double maxRawCount) {
-    qDebug() << this->maxRawCount;
-    qDebug() << "setting raw count:" << maxRawCount;
-    if (this->maxRawCount != maxRawCount) {
-        qDebug() << "Trying to change:";
+    if (this->maxRawCount != maxRawCount)
         this->maxRawCount = maxRawCount;
-    }
-    qDebug() << "invalidating filter.";
     invalidateFilter();
-    qDebug() << "set max:" << maxRawCount;
 }
 
 

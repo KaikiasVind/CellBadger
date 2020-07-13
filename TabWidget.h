@@ -54,18 +54,28 @@ private slots:
 
     void on_pushButtonScatterPlot_clicked();
     void on_pushButtonBarChart_clicked();
+
+    // MIN RAW COUNT
     void on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsRawCountCutOffMin_valueChanged(int value);
+    void on_horizontalSliderFilterOptionsRawCountCutOffMin_sliderMoved(int position);
+
+    // MAX RAW COUNT
     void on_spinBoxFilterOptionsRawCountCutOffMax_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsRawCountCutOffMax_valueChanged(int value);
-    void on_checkBoxFilterOptionsRawCountCutOffInAtLeast_toggled(bool checked);
+    void on_horizontalSliderFilterOptionsRawCountCutOffMax_sliderMoved(int position);
+
+    // MIN FOLD CHANGE
     void on_spinBoxFilterOptionsFoldChangeCutOffMin_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsFoldChangeCutOffMin_valueChanged(int value);
+    void on_horizontalSliderFilterOptionsFoldChangeCutOffMin_sliderMoved(int position);
+
+    // MAX FOLD CHANGE
     void on_spinBoxFilterOptionsFoldChangeCutOffMax_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsFoldChangeCutOffMax_valueChanged(int value);
+    void on_horizontalSliderFilterOptionsFoldChangeCutOffMax_sliderMoved(int position);
+
+    // IN AT LEAST
+    void on_checkBoxFilterOptionsRawCountCutOffInAtLeast_toggled(bool checked);
     void on_checkBoxFilterOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked);
     void on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number);
-    void on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int arg1);
+    void on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number);
 
 private:
     Ui::TabWidget *ui;

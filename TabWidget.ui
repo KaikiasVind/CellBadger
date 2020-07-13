@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
+    <width>436</width>
     <height>400</height>
    </rect>
   </property>
@@ -156,6 +156,9 @@
      </property>
      <item row="2" column="7">
       <widget class="QSlider" name="horizontalSliderFilterOptionsRawCountCutOffMax">
+       <property name="pageStep">
+        <number>0</number>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -163,6 +166,9 @@
      </item>
      <item row="3" column="7">
       <widget class="QSlider" name="horizontalSliderFilterOptionsFoldChangeCutOffMax">
+       <property name="pageStep">
+        <number>0</number>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -215,8 +221,17 @@
        <property name="maximum">
         <number>5000</number>
        </property>
+       <property name="pageStep">
+        <number>0</number>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -250,6 +265,9 @@
       <widget class="QSlider" name="horizontalSliderFilterOptionsFoldChangeCutOffMin">
        <property name="maximum">
         <number>50</number>
+       </property>
+       <property name="pageStep">
+        <number>0</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

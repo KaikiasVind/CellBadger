@@ -10,13 +10,12 @@ class ProxyModel : public QSortFilterProxyModel
 
 public:
     ProxyModel(QObject * parent = nullptr);
-    ProxyModel(int rowCount, int colCount, QObject * parent = nullptr);
+    ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QObject * parent = nullptr);
 
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-public slots:
     void setMinRawCount(double minRawCount);
     void setMaxRawCount(double maxRawCount);
     void setMinFoldChange(double minFoldChange);
