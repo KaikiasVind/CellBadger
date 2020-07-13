@@ -52,9 +52,6 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
     this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
 
-    tabWidget->setMaxRawCountInAtLeast(geneExpressions.length());
-    tabWidget->setMaxFoldChangeInAtLeast(geneExpressions.length());
-
     // Forward the gene expression values to the new tab
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
 }

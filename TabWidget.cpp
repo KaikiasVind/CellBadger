@@ -105,6 +105,9 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     double highestMetRawCount = std::get<1>(allGenesWithExpressionCountsInAllClusters),
            highestMetFoldChange = std::get<2>(allGenesWithExpressionCountsInAllClusters);
 
+    // Set the maximum that stands for the number of clusters
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
 
     // ############################################ PROXY MODEL ############################################
     this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1, highestMetRawCount, highestMetFoldChange);
@@ -141,10 +144,10 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
 
     // If empty report an empty list to the TableView
     if (searchString == "")
-        emit this->searchedGenIDsChanged(QStringList());
+        this->proxyModel->setSearchedGeneIDs(QStringList());
     // Else report the separated gene IDs
     else
-        emit this->searchedGenIDsChanged(searchString.split(','));
+        this->proxyModel->setSearchedGeneIDs(searchString.split(','));
 }
 
 /**
@@ -348,24 +351,6 @@ void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, cons
     this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
     emit this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->sliderMoved(highestMetRawCount);
     emit this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->sliderMoved(highestMetFoldChange);
-}
-
-
-/**
- * @brief TabWidget::setMaxRawCountInAtLeast - Sets the number of clusters that should meet the raw count cut-off
- * @param number - Number of clusters
- */
-void TabWidget::setMaxRawCountInAtLeast(int number) {
-    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(number);
-}
-
-
-/**
-* @brief TabWidget::setMaxFoldChangeInAtLeast - Sets the number of clusters that should meet the fold change cut-off
-* @param number - Number of clusters
-*/
-void TabWidget::setMaxFoldChangeInAtLeast(int number) {
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(number);
 }
 
 

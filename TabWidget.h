@@ -31,22 +31,6 @@ public:
 
     QVector<FeatureCollection> retrieveAllSeenData();
 
-    void setMaxRawCountInAtLeast(int number);
-    void setMaxFoldChangeInAtLeast(int number);
-
-signals:
-    void minRawCountSet(double minRawCount);
-    void maxRawCountSet(double maxRawCount);
-    void minFoldChangeSet(double minFoldChange);
-    void maxFoldChangeSet(double maxFoldChange);
-    void rawCountInAtLeastSet(int numberOfClusters);
-    void rawCountInAtLeastToggled(bool state);
-    void foldChangeInAtLeastSet(int numberOfClusters);
-    void foldChangeInAtLeastToggled(bool state);
-    void highestMetRawCountAndFoldChangeValuesChanged(double highestMetRawCount, double highestMetFoldChange);
-    void searchedGenIDsChanged(QStringList searchedGeneIDs);
-    void expressionDataGathered(QVector<FeatureCollection> clustersWithFeatureExpressions);
-
 private slots:
     void on_lineEditGeneID_textChanged(const QString &arg1);
 
