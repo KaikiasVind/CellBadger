@@ -12,6 +12,7 @@ namespace Math {
     extern double mean(QVector<double> numbers);
     extern double mean(QVector<int> numbers);
     extern double invertLog(int base, double realNumber);
+    extern QVector<double> calculateQualityScores(QVector<QVector<QPair<QString, double>>> correlatedDataset);
 }
 
 #endif // MATH_H

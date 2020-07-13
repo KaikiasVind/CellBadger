@@ -99,6 +99,9 @@ void Coordinator::saveInformationAfterCorrelatingFinished() {
     for (int i = 0; i < correlatorThreadsWatcher.futures().length(); i++) {
         // and report it to the information center
         this->informationCenter.correlatedDatasets.append(correlatorThreadsWatcher.futures()[i].result());
+
+        // Calculate the quality scores and append them to the list of previous quality scores
+        this->informationCenter.qualityScores.append(Math::calculateQualityScores(this->informationCenter.correlatedDatasets.last()));
     }
     qDebug() << "Saved.";
 }
@@ -158,6 +161,8 @@ void Coordinator::cleanData() {
     this->correlatorThreadsWatcher.clearFutures();
     this->informationCenter.correlatedDatasets.clear();
     this->informationCenter.correlatedDatasets.squeeze();
+    this->informationCenter.qualityScores.clear();
+    this->informationCenter.qualityScores.squeeze();
 }
 
 

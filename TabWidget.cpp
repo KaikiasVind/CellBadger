@@ -44,7 +44,7 @@ TabWidget::~TabWidget()
  * @param correlations - List of clusters with corresponding type corrlations - sorted.
  * @param numberOfItems - Number of items that should be shown in the table.
  */
-void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems) {
+void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems) {
 
     if(this->ui->tableWidgetTypeCorrelations->columnCount() > 0) {
         this->cleanCorrelationTable();
@@ -58,7 +58,7 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
     // Create header with cluster numbers
     QStringList clusterNameHeaderItems;
     for (int i = 1; i < numberOfClusters + 1; i++) {
-        clusterNameHeaderItems.append("Cluster " + QString::number(i));
+        clusterNameHeaderItems.append("Cluster " + QString::number(i) + " - qs: " + QString::number(qualityScores.at(i - 1), 'g', 3));
     }
 
     // Add it to the table

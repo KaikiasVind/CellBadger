@@ -22,6 +22,7 @@ struct InformationCenter
 
     // FIXME: This looks very ugly!
     QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets;
+    QVector<QVector<double>> qualityScores;
 
     InformationCenter(ConfigFile configFile);
 };

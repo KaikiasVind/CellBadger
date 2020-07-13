@@ -26,7 +26,7 @@ public:
     explicit TabWidget(QWidget *parent = nullptr, QString title = "");
     ~TabWidget();
 
-    void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, int numberOfItems);
+    void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems);
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
 
     QVector<FeatureCollection> retrieveAllSeenData();

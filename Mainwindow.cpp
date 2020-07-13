@@ -115,7 +115,7 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
     this->ui->labelStatus->setText("Correlation finished.");
 
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-        this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), 5);
+        this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), informationCenter.qualityScores.at(i), 5);
     }
 }
 

@@ -16,6 +16,7 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Utils/Helper.h"
+#include "Utils/Math.h"
 
 
 #define run 1
@@ -26,14 +27,11 @@ int main(int argc, char * argv[])
 
 #if !run
 
-    qDebug() << (3 <= 3);
+    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
+    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
 
-    exit(0);
-//    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
-//    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
-
-    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\Pbmc_expression.csv";
-    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\PanglaoDB_markers.csv";
+//    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\Pbmc_expression.csv";
+//    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\PanglaoDB_markers.csv";
 
     qDebug() << "Parsing.";
     QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {15, 0});
@@ -59,12 +57,16 @@ int main(int argc, char * argv[])
 
     QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
 
+    QVector<double> qualityScores = Math::calculateQualityScores(correlations);
+
     for (int i = 0; i < correlations.length(); i++) {
-        qDebug() << "\ncluster" << i;
+        qDebug() << "\ncluster" << i << "- qs:" << qualityScores.at(i);
         for (int j = 0; j < 5; j++) {
             qDebug() << correlations.at(i).at(j).first << "-" << correlations.at(i).at(j).second;
         }
     }
+
+
 
 //    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
 
