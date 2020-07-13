@@ -27,14 +27,14 @@ public:
     ~MainWindow();
 
 public slots:
+    void on_receivedExpressionDataFromTabWidgets(const QVector<FeatureCollection> clustersWithGeneExpressions);
     void on_filesParsed(const InformationCenter & informationCenter);
     void on_correlatingFinished(const InformationCenter & informationCenter);
-    void on_expressionValuesChanged(const InformationCenter & informationCenter);
-    void on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange);
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
-    void runAnalysis();
+    void requestGeneExpressionData();
+    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
 
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);
@@ -56,30 +56,6 @@ private slots:
 
     void on_pushButtonCorrelationOptionsRun_clicked();
 
-    void on_spinBoxCorrelationOptionsRawCountCutOffMin_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsRawCountCutOffMin_valueChanged(int value);
-
-    void on_spinBoxCorrelationOptionsRawCountCutOffMax_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueChanged(int value);
-
-    void on_checkBoxCorrelationOptionsRawCountCutOffInAtLeast_toggled(bool checked);
-
-    void on_spinBoxCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value);
-
-    void on_spinBoxCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value);
-
-    void on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value);
-
-    void on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked);
-
-    void on_spinBoxCorrelationOptionsRawCountCutOffInAtLeast_valueChanged(int number);
-
-    void on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int arg1);
-
 private:
     Ui::MainWindow *ui;
 
@@ -89,9 +65,9 @@ private:
     void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);
 
     // Mouse interaction - Necessary for frameless windows
-    void mousePressEvent(QMouseEvent * mousePressEvent);
-    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
-    int mouseClickXCoordinate;
-    int mouseClickYCoordinate;
+//    void mousePressEvent(QMouseEvent * mousePressEvent);
+//    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
+//    int mouseClickXCoordinate;
+//    int mouseClickYCoordinate;
 };
 #endif // MAINWINDOW_H

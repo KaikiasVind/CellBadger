@@ -20,8 +20,7 @@
 #include "BioModels/FeatureCollection.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -33,10 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
-
-    // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setDisabled(true);
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -52,27 +47,16 @@ MainWindow::~MainWindow()
  */
 void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
     TabWidget * tabWidget = new TabWidget(this, datasetName);
-    QObject::connect(tabWidget, &TabWidget::highestMetRawCountAndFoldChangeValuesChanged, this, &MainWindow::on_highestRawCountAndFoldChangeValuesFound);
     this->runningTabWidgets.append(tabWidget);
 
-    this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
+    this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
 
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
+    tabWidget->setMaxRawCountInAtLeast(geneExpressions.length());
+    tabWidget->setMaxFoldChangeInAtLeast(geneExpressions.length());
 
     // Forward the gene expression values to the new tab
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
-
-    // Connect the signals of the main Window to the slots of the TabWidget
-    QObject::connect(this, &MainWindow::minRawCountChanged, tabWidget, &TabWidget::on_minRawCountSet);
-    QObject::connect(this, &MainWindow::maxRawCountChanged, tabWidget, &TabWidget::on_maxRawCountSet);
-    QObject::connect(this, &MainWindow::minfoldChangeChanged, tabWidget, &TabWidget::on_minFoldChangeSet);
-    QObject::connect(this, &MainWindow::maxfoldChangeChanged, tabWidget, &TabWidget::on_maxFoldChangeSet);
-    QObject::connect(this, &MainWindow::rawCountInAtLeastChanged, tabWidget, &TabWidget::on_rawCountInAtLeastSet);
-    QObject::connect(this, &MainWindow::rawCountInAtLeastToggled, tabWidget, &TabWidget::on_rawCountInAtLeastToggled);
-    QObject::connect(this, &MainWindow::foldChangeInAtLeastChanged, tabWidget, &TabWidget::on_foldChangeinAtLeastSet);
-    QObject::connect(this, &MainWindow::foldChangeInAtLeastToggled, tabWidget, &TabWidget::on_foldChangeInAtLeastToggled);
 }
 
 
@@ -124,6 +108,10 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
 }
 
 
+/**
+ * @brief MainWindow::on_correlatingFinished - Transfers the data given by the coordinator to the corresponding TabWidgets
+ * @param informationCenter - The core information structure containing e.g. the correllation analysis data
+ */
 void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
     qDebug() << "Received signal after correlation finished.";
 
@@ -139,12 +127,12 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
  * @brief MainWindow::on_expressionValuesChanged
  * @param informationCenter
  */
-void MainWindow::on_expressionValuesChanged(const InformationCenter & informationCenter) {
-    qDebug() << "Received signal that expression values changed.";
-    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
-        this->runningTabWidgets[i]->populateTableGeneExpressions(informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
-    }
-}
+//void MainWindow::on_expressionValuesChanged(const InformationCenter & informationCenter) {
+//    qDebug() << "Received signal that expression values changed.";
+//    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
+//        this->runningTabWidgets[i]->populateTableGeneExpressions(informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+//    }
+//}
 
 
 void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
@@ -156,85 +144,26 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
 
 void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
     this->ui->labelStatus->setText("Running correlation...");
-    emit runAnalysis();
+    QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
+    for (TabWidget * tabWidget : this->runningTabWidgets)
+        allClustersFromAllDatasetsWithGeneExpressions.append(tabWidget->retrieveAllSeenData());
+    emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
+}
+
+
+void MainWindow::on_receivedExpressionDataFromTabWidgets(QVector<FeatureCollection> clustersWithGeneExpressions) {
+    QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
+    allClustersFromAllDatasetsWithGeneExpressions << clustersWithGeneExpressions;
+    emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
 }
 
 
 // ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
-void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
-    this->mouseClickXCoordinate = mousePressEvent->x();
-    this->mouseClickYCoordinate = mousePressEvent->y();
-}
+//void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
+//    this->mouseClickXCoordinate = mousePressEvent->x();
+//    this->mouseClickYCoordinate = mousePressEvent->y();
+//}
 
-void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
-    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
-}
-
-void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
-    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMin->setValue(value);
-    emit minRawCountChanged(value);
-}
-
-void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMin_valueChanged(int value) {
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffMin->setValue(value);
-}
-
-void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffMax_valueChanged(int value) {
-    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setValue(value);
-    emit maxRawCountChanged(value);
-}
-
-void MainWindow::on_horizontalSliderCorrelationOptionsRawCountCutOffMax_valueChanged(int value) {
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffMax->setValue(value);
-}
-
-void MainWindow::on_checkBoxCorrelationOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffInAtLeast->setDisabled(!checked);
-    emit rawCountInAtLeastToggled(!checked);
-}
-
-void MainWindow::on_spinBoxCorrelationOptionsRawCountCutOffInAtLeast_valueChanged(int number) {
-    emit rawCountInAtLeastChanged(number);
-}
-
-void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value) {
-    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMin->setValue(value);
-    emit minfoldChangeChanged(value);
-}
-
-void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMin_valueChanged(int value) {
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMin->setValue(value);
-}
-
-void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value) {
-    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setValue(value);
-    emit maxfoldChangeChanged(value);
-}
-
-void MainWindow::on_horizontalSliderCorrelationOptionsFoldChangeCutOffMax_valueChanged(int value) {
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMax->setValue(value);
-}
-
-void MainWindow::on_checkBoxCorrelationOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast->setDisabled(!checked);
-    emit foldChangeInAtLeastToggled(!checked);
-}
-
-void MainWindow::on_spinBoxCorrelationOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
-    emit foldChangeInAtLeastChanged(number);
-}
-
-void MainWindow::on_highestRawCountAndFoldChangeValuesFound(const double highestMetRawCount, const double highestMetFoldChange) {
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
-    this->ui->spinBoxCorrelationOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
-    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
-    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
-    this->ui->spinBoxCorrelationOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
-    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
-    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
-    this->ui->horizontalSliderCorrelationOptionsRawCountCutOffMax->setValue(highestMetRawCount);
-    this->ui->horizontalSliderCorrelationOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
-    emit this->maxRawCountChanged(highestMetRawCount);
-    emit this->maxfoldChangeChanged(highestMetFoldChange);
-}
+//void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
+//    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
+//}

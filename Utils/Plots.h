@@ -9,8 +9,8 @@ using QtCharts::QChartView;
 
 namespace Plots {
 
-extern QChartView * createScatterPlot(QVector<std::tuple<QString, QVector<double>, double>> geneExpressionValuesForClusters, QString plotTitle);
-extern QChartView * createBarChart(QVector<std::tuple<QString, QVector<double>, double>> geneExpressionValuesForClusters, QString plotTitle);
+extern QChartView * createScatterPlot(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle);
+extern QChartView * createBarChart(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle);
 
 };
 

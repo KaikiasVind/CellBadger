@@ -27,6 +27,9 @@ private:
     void saveInformationAfterParsingFinished();
     void correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes);
     void saveInformationAfterCorrelatingFinished();
+    void cleanData();
+
+    bool needsCleaning;
 
 public:
     Coordinator(InformationCenter informationCenter);
@@ -35,7 +38,7 @@ signals:
     void finishedFileParsing(const InformationCenter informationCenter);
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
-    void finishedCorrelating(const InformationCenter informationCenter);
+    void finishedCorrelating(const InformationCenter & informationCenter);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
@@ -45,7 +48,7 @@ public slots:
     // ################### INTERACTION WITH START DIALOG ########################
 
     // ################### INTERACTION WITH MAIN WINDOW #########################
-    void on_runAnalysis();
+    void on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     // ################### INTERACTION WITH MAIN WINDOW #########################
 
     // ######################### FILE PROCESSING ################################
