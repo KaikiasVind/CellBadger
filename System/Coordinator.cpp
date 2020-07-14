@@ -12,6 +12,7 @@
 #include "System/InformationCenter.h"
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
+#include "Utils/Math.h"
 
 /**
  * @brief Coordinator::Coordinator
@@ -70,6 +71,13 @@ void Coordinator::saveInformationAfterParsingFinished() {
 
         // And add the set of gene IDs that belongs to this dataset to the list of all gene ID sets
         this->informationCenter.completeSetsOfGeneIDsPerDataset.append(completeSetOfGeneIDs);
+
+        // Gather all cluster names from the gene expressions list
+        QStringList clusterNames;
+        std::transform(this->informationCenter.xClusterCollections.last().begin(), this->informationCenter.xClusterCollections.last().end(),
+                       std::back_inserter(clusterNames), [](FeatureCollection featureCollection) { return featureCollection.ID; });
+
+        this->informationCenter.clusterNamesForDatasets.append(clusterNames);
     }
 }
 

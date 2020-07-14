@@ -22,10 +22,8 @@
 #include "Utils/Math.h"
 
 
-TabWidget::TabWidget(QWidget *parent, QString title) :
-    QWidget(parent),
-    ui(new Ui::TabWidget),
-    title(title)
+TabWidget::TabWidget(QWidget *parent, QString title, QStringList clusterNames) :
+    QWidget(parent), ui(new Ui::TabWidget), title(title), clusterNames(clusterNames)
 {
     ui->setupUi(this);
 
@@ -57,9 +55,8 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
 
     // Create header with cluster numbers
     QStringList clusterNameHeaderItems;
-    for (int i = 1; i < numberOfClusters + 1; i++) {
-        clusterNameHeaderItems.append("Cluster " + QString::number(i) + " - qs: " + QString::number(qualityScores.at(i - 1), 'g', 3));
-    }
+    for (int i = 0; i < numberOfClusters; i++)
+        clusterNameHeaderItems.append(this->clusterNames.at(i) + " - qs: " + QString::number(qualityScores.at(i), 'g', 3));
 
     // Add it to the table
     this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(clusterNameHeaderItems);
@@ -93,12 +90,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double> allGenesWithExpressionCountsInAllClusters =
             Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
 
-    // Gather all cluster names from the gene expressions list
-    QStringList clusterNames;
-    std::transform(geneExpressions.begin(), geneExpressions.end(), std::back_inserter(clusterNames),
-                   [](FeatureCollection featureCollection) { return featureCollection.ID; });
-
-    this->geneTableModel = new GeneTableModel(std::get<0>(allGenesWithExpressionCountsInAllClusters), completeGeneIDs, clusterNames);
+    this->geneTableModel = new GeneTableModel(std::get<0>(allGenesWithExpressionCountsInAllClusters), completeGeneIDs, this->clusterNames);
 
     // Save the highest met values for the raw count and the fold change from the expression values
     // This is neccessary to control the max set cut-off values

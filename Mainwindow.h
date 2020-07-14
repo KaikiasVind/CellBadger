@@ -61,7 +61,7 @@ private:
 
     QVector<TabWidget *> runningTabWidgets;
 
-    void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs);
+    void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames);
     void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);
 
     // Mouse interaction - Necessary for frameless windows

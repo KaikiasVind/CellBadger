@@ -19,6 +19,7 @@ struct InformationCenter
     QVector<QStringList> completeSetsOfGeneIDsPerDataset;
     QVector<FeatureCollection> cellMarkersForTypes;
     QVector<QVector<FeatureCollection>> xClusterCollections;
+    QVector<QStringList> clusterNamesForDatasets;
 
     // FIXME: This looks very ugly!
     QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets;

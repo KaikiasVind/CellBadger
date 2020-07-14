@@ -23,11 +23,11 @@ class TabWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit TabWidget(QWidget *parent = nullptr, QString title = "");
+    explicit TabWidget(QWidget *parent = nullptr, QString title = "", QStringList clusterNames = QStringList());
     ~TabWidget();
 
-    void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems);
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
+    void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems);
 
     QVector<FeatureCollection> retrieveAllSeenData();
 
@@ -68,6 +68,7 @@ private:
     QTableView * tableView;
     GeneTableModel * geneTableModel;
     ProxyModel * proxyModel;
+    QStringList clusterNames;
 
     double minRawCount;
     double maxRawCount;

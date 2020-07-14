@@ -45,8 +45,8 @@ MainWindow::~MainWindow()
  * @param datasetName - File name of the given dataset
  * @param correlations - List of clusters with corresponding correlated types
  */
-void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs) {
-    TabWidget * tabWidget = new TabWidget(this, datasetName);
+void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames) {
+    TabWidget * tabWidget = new TabWidget(this, datasetName, clusterNames);
     this->runningTabWidgets.append(tabWidget);
 
     this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
@@ -100,7 +100,7 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
     std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
 
     for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
-        this->createDatasetItem(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
+        this->createDatasetItem(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i), informationCenter.clusterNamesForDatasets.at(i));
     }
 }
 
