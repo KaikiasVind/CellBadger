@@ -44,7 +44,7 @@ QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(Q
 
             for (int k = 0; k < cellTypes[j].getNumberOfFeatures(); k++) {
 
-                double cellTypeFeatureFoldChange = cellTypes[j].getFeatureFoldChange(k);
+                double cellTypeFeatureFoldChange = cellTypes[j].getFeatureRawCount(k);
 
                 cellTypeFeatureFoldChanges.append(cellTypeFeatureFoldChange);
 
@@ -57,7 +57,7 @@ QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(Q
                     if (isFeatureIDEqual) {
                         isFeatureExpressedInCluster = true;
 
-                        double clusterFeatureFoldChange = clusters[i].getFeatureFoldChange(l);
+                        double clusterFeatureFoldChange = clusters[i].getFeatureRawCount(l);
 
                         clusterFeatureFoldChanges.append(clusterFeatureFoldChange);
 

@@ -91,6 +91,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
             Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
 
     this->geneTableModel = new GeneTableModel(std::get<0>(allGenesWithExpressionCountsInAllClusters), completeGeneIDs, this->clusterNames);
+    this->geneTableModel->clustersWithGeneExpressions = geneExpressions;
 
     // Save the highest met values for the raw count and the fold change from the expression values
     // This is neccessary to control the max set cut-off values

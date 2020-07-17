@@ -1,6 +1,7 @@
 #include "GeneTableModel.h"
 
 #include <QDebug>
+#include <cmath>
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Helper.h"
@@ -38,11 +39,11 @@ int GeneTableModel::rowCount(const QModelIndex & parent) const {
 /**
  * @brief GeneTableModel::columnCount - Fetch the number of columns the gene expressions shows.
  * @param parent - Parent widget (unused)
- * @return - Number of columns of the table (number of clusters + gene id column + mean count column)
+ * @return - Number of columns of the table (number of clusters * 2) + gene id column + mean count column
  */
 int GeneTableModel::columnCount(const QModelIndex & parent) const {
     Q_UNUSED(parent);
-    return this->numberOfClusters + 2;
+    return (this->numberOfClusters * 2) + 2;
 }
 
 
@@ -65,12 +66,42 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
+        if (this->columnCount() < this->clusterNames.length())
+            qDebug() << "column couhnt < clusternames.length()";
         const std::tuple<QString, QVector<double>, double> & geneWithExpressions = this->allGenesWithExpressionCountsInAllClusters.at(index.row());
 
+        // Calculate the correct index to retrieve the correct cluster name
+        int correctClusterIndex;
+        if (0 < index.column() < (this->clusterNames.length() * 2) + 1)
+            correctClusterIndex  = ceil((double) index.column() / 2) - 1;
+
+//        Feature currentGene = this->clustersWithGeneExpressions.at(correctIndex).getFeature(currentGeneID);
+//        qDebug() << "correct index:" << correctIndex;
+//        qDebug() << "column:" << index.column();
+//        qDebug() << "ceil:" << correctClusterIndex;
+
+        QString currentGeneID = this->completeGeneIDs.at(index.row());
+
         if (index.column() == 0) {
-            return std::get<0>(geneWithExpressions);
-        } else if (index.column() < this->numberOfClusters + 1) {
-            return std::get<1>(geneWithExpressions).at(index.column() - 1);
+//            return std::get<0>(geneWithExpressions);
+            return this->completeGeneIDs.at(index.row());
+        } else if (index.column() < (this->numberOfClusters * 2) + 1) {
+            // Search for the current gene with its ID
+            Feature currentGene = this->clustersWithGeneExpressions.at(correctClusterIndex).getFeature(currentGeneID);
+
+            // If the gene has not been found return 0 for the count and fold change
+            if (currentGene.ID.compare("nAn") != 1)
+                return -1;
+
+            // Otherwise return the corresponding count or fold change value
+            if (index.column() % 2 == 1) {
+                return currentGene.count;
+            } else {
+                return currentGene.foldChange;
+            }
+//            return std::get<1>(geneWithExpressions).at(index.column() - 1);
+//            return this->clustersWithGeneExpressions.at(ceil((double) index.column()) - 1).getFeature(currentGeneID).count;
+//            return currentGene.count;
         } else {
             return std::get<2>(geneWithExpressions);
         }
@@ -103,10 +134,14 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
     if (orientation == Qt::Horizontal) {
         if (section == 0) {
             return tr("Gene");
-        } else if (section == this->numberOfClusters + 1) {
+        } else if (section == (this->numberOfClusters * 2) + 1) {
             return tr("mean");
+        } else if ((section % 2) == 1) {
+            QString currentClusterName = this->clusterNames.at(ceil((double) section / 2) - 1);
+            return tr(qPrintable(currentClusterName + " raw count"));
         } else {
-            return tr(qPrintable(this->clusterNames.at(section - 1)));
+            QString currentClusterName = this->clusterNames.at(ceil((double) section / 2) - 1);
+            return tr(qPrintable(currentClusterName + " fold change"));
         }
     }
 

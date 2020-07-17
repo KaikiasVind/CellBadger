@@ -11,7 +11,6 @@
 #include "System/InformationCenter.h"
 
 #include <QDebug>
-#include "Utils/Helper.h"
 
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
@@ -38,14 +37,7 @@ int main(int argc, char * argv[])
     QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
     qDebug() << "Finished.";
 
-
-//    QStringList allGeneIDs;
-//    for (Feature feature : samples.first().getFeatures()) {
-//        allGeneIDs.append(feature.ID);
-//    }
-
     samples.removeFirst();
-//    cellTypes.removeFirst();
 
 //    for (FeatureCollection collection : samples) {
 //        qDebug() << "\n" << collection.ID;

@@ -113,6 +113,21 @@ Feature FeatureCollection::getFeature(int index) const {
 
 
 /**
+* @brief FeatureCollection::getFeature
+ * @param index
+ * @return
+ */
+Feature FeatureCollection::getFeature(QString featureName) const {
+    for (Feature feature : this->features) {
+        if (feature.ID.compare(featureName) == 0)
+            return feature;
+    }
+
+    return Feature();
+}
+
+
+/**
  * @brief Cluster::getFeatureID
  * @param index
  * @return

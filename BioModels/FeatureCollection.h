@@ -31,6 +31,7 @@ public:
     bool isFeatureExpressed(Feature feature);
 
     Feature getFeature(int index) const;
+    Feature getFeature(QString featureName) const;
     QString getFeatureID(int index) const;
     double getFeatureExpressionCount(int index) const;
     int getNumberOfFeatures() const;

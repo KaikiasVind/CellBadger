@@ -117,7 +117,7 @@ std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double
 
                 // Compare the gene's ID to the wanted gene ID and save it's raw count in case they are identical
                 if (feature.ID.compare(geneID) == 0) {
-                    std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(feature.count);
+                    std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(feature.foldChange);
                     isGeneFound = true;
                     break;
                 }
@@ -125,7 +125,7 @@ std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double
 
             // If the gene has not been found, add zero as expression count for the feature collection
             if (!isGeneFound) {
-                std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(0.0);
+                std::get<1>(geneWithExpressionCountsInAllFeatureCollections).append(1.0);
             }
 
             std::get<2>(geneWithExpressionCountsInAllFeatureCollections) = Math::mean(std::get<1>(geneWithExpressionCountsInAllFeatureCollections));
