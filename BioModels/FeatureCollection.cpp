@@ -200,7 +200,7 @@ double FeatureCollection::getFoldChangeSum() const {
 
 
 /**
- * @brief FeatureCollection::getExpressionCountSum - Calculates the normalized fold change sum for the current genes
+ * @brief FeatureCollection::getExpressionCountSum - Calculates the normalized raw count sum for the current genes
  * @return - Sum of all gene expression counts currently listed in this FeatureCollection normalized with the number of features
  */
 double FeatureCollection::getExpressionCountSum() const {

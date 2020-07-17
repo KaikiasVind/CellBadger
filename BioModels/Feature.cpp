@@ -3,7 +3,7 @@
 #include <QString>
 
 Feature::Feature()
-    : ID {"nAn"}
+    : ID ("nAn"), ensemblID("nAn"), count(-1), log2FoldChange(-1), foldChange(-1)
 {}
 
 /**
@@ -12,7 +12,7 @@ Feature::Feature()
  * @param count - Measurement for the expression of the given feature
  */
 Feature::Feature(const QString ID)
-    : ID {ID}
+    : ID {ID}, ensemblID("nAn"), count(-1), log2FoldChange(-1), foldChange(-1)
 {}
 
 

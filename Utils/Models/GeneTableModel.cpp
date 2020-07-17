@@ -71,7 +71,7 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         const std::tuple<QString, QVector<double>, double> & geneWithExpressions = this->allGenesWithExpressionCountsInAllClusters.at(index.row());
 
         // Calculate the correct index to retrieve the correct cluster name
-        int correctClusterIndex;
+        int correctClusterIndex = 0;
         if (0 < index.column() < (this->clusterNames.length() * 2) + 1)
             correctClusterIndex  = ceil((double) index.column() / 2) - 1;
 
@@ -82,28 +82,48 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
+//        qDebug() << "Col:" << index.column();
+//        qDebug() << "Correct cluster index:" << correctClusterIndex;
+
         if (index.column() == 0) {
-//            return std::get<0>(geneWithExpressions);
+//            qDebug() << "gene";
             return this->completeGeneIDs.at(index.row());
-        } else if (index.column() < (this->numberOfClusters * 2) + 1) {
+        } else if (index.column() == (this->numberOfClusters * 2) + 1) {
+//            qDebug() << "mean";
+
+            // Calculate the mean
+            double meanRawCount = 0;
+            for (FeatureCollection cluster : this->clustersWithGeneExpressions) {
+                double rawCountForCurrentGene = cluster.getFeature(currentGeneID).count;
+                if (rawCountForCurrentGene != -1)
+                    meanRawCount += rawCountForCurrentGene;
+            }
+
+            return meanRawCount / this->numberOfClusters;
+        } else {
+//            qDebug() << "raw count / fold change.";
+
             // Search for the current gene with its ID
             Feature currentGene = this->clustersWithGeneExpressions.at(correctClusterIndex).getFeature(currentGeneID);
 
+            bool isCurrentGeneNotFoundInCluster = false;
+
             // If the gene has not been found return 0 for the count and fold change
-            if (currentGene.ID.compare("nAn") != 1)
-                return -1;
+            if (currentGene.ID.compare("nAn") == 0)
+                isCurrentGeneNotFoundInCluster = true;
 
             // Otherwise return the corresponding count or fold change value
             if (index.column() % 2 == 1) {
-                return currentGene.count;
+                if (isCurrentGeneNotFoundInCluster)
+                    return 0;
+                else
+                    return currentGene.count;
             } else {
-                return currentGene.foldChange;
+                if (isCurrentGeneNotFoundInCluster)
+                    return 1;
+                else
+                    return currentGene.foldChange;
             }
-//            return std::get<1>(geneWithExpressions).at(index.column() - 1);
-//            return this->clustersWithGeneExpressions.at(ceil((double) index.column()) - 1).getFeature(currentGeneID).count;
-//            return currentGene.count;
-        } else {
-            return std::get<2>(geneWithExpressions);
         }
 
     // Decide which cell should be aligned in which way

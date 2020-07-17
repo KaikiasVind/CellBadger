@@ -33,58 +33,89 @@ ProxyModel::ProxyModel(int rowCount, int colCount, double maxRawCount, double ma
  */
 bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 
-    QVector<QModelIndex> clusterIndices;
-    clusterIndices.reserve(this->columnCount);
 
-    for (int i = 0; i < columnCount; i++) {
-        clusterIndices.append(this->sourceModel()->index(source_row, i, source_parent));
+    // ################################ GENE-IDS ################################
+    // If there are gene IDs the table should be filtered by check the selected rows for those gene IDs
+    if (!this->searchedGeneIDs.isEmpty()) {
+
+        QModelIndex currentRowGeneIDModelIndex = this->sourceModel()->index(source_row, 0);
+        QString currentRowGeneID = this->sourceModel()->data(currentRowGeneIDModelIndex).toString().toLower();
+
+        // Go through the list of given gene IDs and search for the current row's gene ID
+        // Accept the row if one has been found
+        QStringList unseenGeneIDs = this->searchedGeneIDs;
+        bool isIDHasBeenSeen = false;
+        for (int i = 0; i < unseenGeneIDs.length(); i++) {
+            if (currentRowGeneID.contains(this->searchedGeneIDs.at(i))) {
+                isIDHasBeenSeen = true;
+            }
+        }
+        if (!isIDHasBeenSeen)
+            return false;
     }
 
-//    int numberOfClustersWithValidFoldChange = 0;
-    int numberOfClustersWithValidRawCount = 0;
-    for (int i = 0; i < clusterIndices.length(); i++) {
+    // ################################ CUT-OFFS ################################
+    QVector<QModelIndex> cellIndices;
+    cellIndices.reserve(this->columnCount);
 
-        // ################################ GENE-IDS ################################
-        // If there are gene IDs the table should be filtered by check the selected rows for those gene IDs
-        if (!this->searchedGeneIDs.isEmpty()) {
+    for (int i = 0; i < columnCount; i++) {
+        cellIndices.append(this->sourceModel()->index(source_row, i, source_parent));
+    }
 
-            QModelIndex currentRowGeneIDModelIndex = this->sourceModel()->index(source_row, 0);
-            QString currentRowGeneID = this->sourceModel()->data(currentRowGeneIDModelIndex).toString().toLower();
+    int numberOfClustersWithValidRawCount = 0,
+        numberOfClustersWithValidFoldChange = 0;
 
-            // Go through the list of given gene IDs and search for the current row's gene ID
-            // Accept the row if one has been found
-            QStringList unseenGeneIDs = this->searchedGeneIDs;
-            bool isIDHasBeenSeen = false;
-            for (int i = 0; i < unseenGeneIDs.length(); i++) {
-                if (currentRowGeneID.contains(this->searchedGeneIDs.at(i))) {
-                    isIDHasBeenSeen = true;
-                }
+    for (int i = 0; i < cellIndices.length(); i++) {
+        QVariant currentCell =  this->sourceModel()->data(cellIndices.at(i));
+
+        double currentCellValue = currentCell.toDouble();
+        bool isCurrentCellContainsRawCount = (i % 2) == 1;
+
+
+        // ########### RAW COUNT ###########
+        if (isCurrentCellContainsRawCount) {
+//            qDebug() << "raw count:" << currentCellValue;
+            bool isMinRawCountCutOffMet = (currentCellValue == this->minRawCount || currentCellValue > this->minRawCount);
+            bool isMaxRawCountCutOffMet = (currentCellValue == this->maxRawCount || currentCellValue < this->maxRawCount);
+
+            if (isMinRawCountCutOffMet && isMaxRawCountCutOffMet)
+                numberOfClustersWithValidRawCount += 1;
+
+        // ########### FOLD CHANGE ###########
+        } else {
+//            qDebug() << "fold change:" << currentCellValue;
+            bool isMinFoldChangeCutOffMet = (currentCellValue == this->minFoldChange || currentCellValue > this->minFoldChange);
+            bool isMaxFoldChangeCutOffMet = (currentCellValue == this->maxFoldChange || currentCellValue < this->maxFoldChange);
+
+            if (isMinFoldChangeCutOffMet && isMaxFoldChangeCutOffMet) {
+                numberOfClustersWithValidFoldChange += 1;
             }
-            if (!isIDHasBeenSeen)
-                return false;
         }
-
-        // ################################ CUT-OFFS ################################
-        double currentCellValue = this->sourceModel()->data(clusterIndices.at(i)).toDouble();
-
-        bool isMinRawCountCutOffMet = (currentCellValue == this->minRawCount || currentCellValue > this->minRawCount);
-        bool isMaxRawCountCutOffMet = (currentCellValue == this->maxRawCount || currentCellValue < this->maxRawCount);
-
-        if (isMinRawCountCutOffMet && isMaxRawCountCutOffMet)
-            numberOfClustersWithValidRawCount += 1;
     }
 
     // ################################ IN-AT-LEAST-OFFS #############################
+
+    // ########### RAW COUNT ###########
     if (this->includeRawCountInAtLeast) {
         // If enough cluster raw counts have met the required cut-off accept the row
-        if (numberOfClustersWithValidRawCount >= this->rawCountinAtLeast)
-            return true;
+        if (numberOfClustersWithValidRawCount < this->rawCountinAtLeast)
+            return false;
     } else {
-        if (numberOfClustersWithValidRawCount > 0)
-            return true;
+        if (numberOfClustersWithValidRawCount == 0)
+            return false;
     }
 
-    return false;
+    // ########### FOLD CHANGE ###########
+    if (this->includeFoldChangeInAtLeast) {
+        // If enough cluster fold changes have met the required cut-off accept the row
+        if (numberOfClustersWithValidFoldChange < this->foldChangeInAtLeast)
+            return false;
+    } else {
+        if (numberOfClustersWithValidFoldChange == 0)
+            return false;
+    }
+
+    return true;
 }
 
 

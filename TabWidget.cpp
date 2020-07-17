@@ -103,7 +103,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
 
     // ############################################ PROXY MODEL ############################################
-    this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1, highestMetRawCount, highestMetFoldChange);
+    this->proxyModel = new ProxyModel(completeGeneIDs.length(), (geneExpressions.length() * 2) + 1, highestMetRawCount, highestMetFoldChange);
     this->proxyModel->setSourceModel(geneTableModel);
 
     // Use the highest met values for raw count and fold change to change tweek the gui values
