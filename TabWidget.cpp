@@ -30,12 +30,52 @@ TabWidget::TabWidget(QWidget *parent, QString title, QStringList clusterNames) :
     // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
     this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setDisabled(true);
     this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
+
+    // Add a frame to the horizontal header to better distinguish between the header and the table
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setFrameStyle(QFrame::Panel | QFrame::Plain);
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setLineWidth(1);
+    this->ui->tableWidgetTypeCorrelations->setColumnCount(clusterNames.length() * 2);
+
+    // Populate the header of the correlation table with only the cluster names
+    this->populateTableTypeCorrelationHeader(QVector<double>());
 }
+
 
 TabWidget::~TabWidget()
 {
     delete ui;
 }
+
+
+void TabWidget::populateTableTypeCorrelationHeader(const QVector<double> qualityScores) {
+
+    // Create header with cluster numbers
+    QStringList headerItems;
+    headerItems.reserve(this->clusterNames.length() * 2);
+
+    for (int i = 0; i < this->clusterNames.length(); i++) {
+        headerItems.append(this->clusterNames.at(i));
+        QString qualityScoreText = " ";
+
+        // If no quality score has been given ignore it
+        if (!qualityScores.isEmpty())
+            qualityScoreText = "qs: " + QString::number(qualityScores.at(i), 'g', 3);
+
+        headerItems.append(qualityScoreText);
+    }
+
+    // Add it to the table
+    this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(headerItems);
+
+//    QString qualityScoreTooltip = "The qs (quality score) is the subtraction of the first two correlation values and resembles the "
+//                                  "unambiguousness of the found correlation";
+//    for (int i = 0; i < headerItems.length(); i++) {
+//        if ((i % 2) == 1)
+//            this->ui->tableWidgetTypeCorrelations->horizontalHeaderItem(i)->setToolTip(qualityScoreTooltip);
+//    }
+
+}
+
 
 /**
  * @brief TabWidget::populateTableTypeCorrelations - Populates the table showing the top n correlations for each cluster.
@@ -44,30 +84,14 @@ TabWidget::~TabWidget()
  */
 void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems) {
 
-    qDebug() << "Cleaning";
-    if(this->ui->tableWidgetTypeCorrelations->columnCount() > 0)
-        this->cleanCorrelationTable();
+    this->cleanCorrelationTable();
 
     int numberOfHeaderItems = correlations.length() * 2;
 
-    qDebug() << "Setting row and column counts.";
     this->ui->tableWidgetTypeCorrelations->setColumnCount(numberOfHeaderItems);
     this->ui->tableWidgetTypeCorrelations->setRowCount(numberOfItems);
 
-    qDebug() << "Setting header items.";
-    // Create header with cluster numbers
-    QStringList clusterNameHeaderItems;
-    for (int i = 0; i < correlations.length(); i++) {
-        clusterNameHeaderItems.append(this->clusterNames.at(i));
-        clusterNameHeaderItems.append("qs: " + QString::number(qualityScores.at(i), 'g', 3));
-    }
-
-    // Add it to the table
-    this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(clusterNameHeaderItems);
-
-    // Add a frame to the horizontal header to better distinguish between the header and the table
-    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setFrameStyle(QFrame::Panel | QFrame::Plain);
-    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setLineWidth(1);
+    this->populateTableTypeCorrelationHeader(qualityScores);
 
     // Go through the top n of every cluster and populate the table with it
     for (int i = 0; i < numberOfHeaderItems; i++) {
@@ -79,20 +103,15 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
             QTableWidgetItem * tableItem = new QTableWidgetItem(0);
 
             QString cellContent = "NA";
-            int index = i;
 
             // In case a valid correlation value exists
             if (type.second > 0) {
 
-                // Add the correlation value
-                if ((i % 2) == 0) {
+                // Add the correlation value or the correlated type
+                if ((i % 2) == 0)
                     cellContent = type.first;
-
-                // Or the correlated type
-                } else {
+                else
                     cellContent = QString::number(type.second);
-                    index = i + 1;
-                }
             }
 
             tableItem->setTextAlignment(Qt::AlignCenter);

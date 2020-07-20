@@ -28,6 +28,7 @@ public:
 
     void populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs);
     void populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems);
+    void populateTableTypeCorrelationHeader(const QVector<double> qualityScores);
 
     QVector<FeatureCollection> retrieveAllSeenData();
 
