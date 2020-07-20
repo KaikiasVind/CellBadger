@@ -44,34 +44,60 @@ TabWidget::~TabWidget()
  */
 void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, double>>> correlations, QVector<double> qualityScores, int numberOfItems) {
 
-    if(this->ui->tableWidgetTypeCorrelations->columnCount() > 0) {
+    qDebug() << "Cleaning";
+    if(this->ui->tableWidgetTypeCorrelations->columnCount() > 0)
         this->cleanCorrelationTable();
-    }
 
-    int numberOfClusters = correlations.length();
+    int numberOfHeaderItems = correlations.length() * 2;
 
-    this->ui->tableWidgetTypeCorrelations->setColumnCount(numberOfClusters);
+    qDebug() << "Setting row and column counts.";
+    this->ui->tableWidgetTypeCorrelations->setColumnCount(numberOfHeaderItems);
     this->ui->tableWidgetTypeCorrelations->setRowCount(numberOfItems);
 
+    qDebug() << "Setting header items.";
     // Create header with cluster numbers
     QStringList clusterNameHeaderItems;
-    for (int i = 0; i < numberOfClusters; i++)
-        clusterNameHeaderItems.append(this->clusterNames.at(i) + " - qs: " + QString::number(qualityScores.at(i), 'g', 3));
+    for (int i = 0; i < correlations.length(); i++) {
+        clusterNameHeaderItems.append(this->clusterNames.at(i));
+        clusterNameHeaderItems.append("qs: " + QString::number(qualityScores.at(i), 'g', 3));
+    }
 
     // Add it to the table
     this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(clusterNameHeaderItems);
 
+    // Add a frame to the horizontal header to better distinguish between the header and the table
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setFrameStyle(QFrame::Panel | QFrame::Plain);
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setLineWidth(1);
+
     // Go through the top n of every cluster and populate the table with it
-    for (int i = 0; i < correlations.length(); i++) {
-        for (int j = 0; j < numberOfClusters; j++) {
-            QPair<QString, double> type = correlations[i][j];
-            QString cell = QString::number(type.second) + ": " + type.first;
+    for (int i = 0; i < numberOfHeaderItems; i++) {
+        for (int j = 0; j < numberOfItems; j++) {
+            int correctClusterIndex = ceil(i / 2);
+            QPair<QString, double> & type = correlations[correctClusterIndex][j];
 
             // A TableWidgetItem is needed for every cell
-            QTableWidgetItem * tableWidgetItem = new QTableWidgetItem(0);
-            tableWidgetItem->setData(Qt::DisplayRole, cell);
+            QTableWidgetItem * tableItem = new QTableWidgetItem(0);
 
-            this->ui->tableWidgetTypeCorrelations->setItem(j, i, tableWidgetItem);
+            QString cellContent = "NA";
+            int index = i;
+
+            // In case a valid correlation value exists
+            if (type.second > 0) {
+
+                // Add the correlation value
+                if ((i % 2) == 0) {
+                    cellContent = type.first;
+
+                // Or the correlated type
+                } else {
+                    cellContent = QString::number(type.second);
+                    index = i + 1;
+                }
+            }
+
+            tableItem->setTextAlignment(Qt::AlignCenter);
+            tableItem->setData(Qt::DisplayRole, cellContent);
+            this->ui->tableWidgetTypeCorrelations->setItem(j, i, tableItem);
         }
     }
 
