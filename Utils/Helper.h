@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QFile>
 
+#include "BioModels/FeatureCollection.h"
+
 namespace Helper
 {
 
@@ -13,6 +15,8 @@ namespace Helper
 // ####################################### MISC #######################################
 
 extern QString chopFileName(QString filePath);
+extern int getCorrectClusterIndex(int column);
+extern double calculateMeanRawCountForGene(QString geneID, QVector<FeatureCollection> clusters);
 
 // ####################################### GUI #######################################
 

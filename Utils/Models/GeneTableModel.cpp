@@ -67,7 +67,7 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         // Calculate the correct index to retrieve the correct cluster name
         int correctClusterIndex = 0;
         if (0 < index.column() < (this->clusterNames.length() * 2) + 1)
-            correctClusterIndex  = ceil((double) index.column() / 2) - 1;
+            correctClusterIndex = Helper::getCorrectClusterIndex(index.column());
 
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
@@ -75,14 +75,8 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
             return this->completeGeneIDs.at(index.row());
         } else if (index.column() == (this->numberOfClusters * 2) + 1) {
 
-            // Calculate the mean
-            double meanRawCount = 0;
-            for (FeatureCollection cluster : this->clustersWithGeneExpressions) {
-                double rawCountForCurrentGene = cluster.getFeature(currentGeneID).count;
-                if (rawCountForCurrentGene != -1)
-                    meanRawCount += rawCountForCurrentGene;
-            }
-            return meanRawCount / this->numberOfClusters;
+            // Calculate the mean raw count for the table
+            return Helper::calculateMeanRawCountForGene(currentGeneID, this->clustersWithGeneExpressions);
 
         } else {
             // Search for the current gene with its ID
@@ -139,14 +133,23 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
         } else if (section == (this->numberOfClusters * 2) + 1) {
             return tr("mean");
         } else if ((section % 2) == 1) {
-            QString currentClusterName = this->clusterNames.at(ceil((double) section / 2) - 1);
+            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
             return tr(qPrintable(currentClusterName + " raw count"));
         } else {
-            QString currentClusterName = this->clusterNames.at(ceil((double) section / 2) - 1);
+            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
             return tr(qPrintable(currentClusterName + " fold change"));
         }
     }
 
     return section + 1;
+}
+
+
+/**
+ * @brief GeneTableModel::getClusterNames
+ * @return
+ */
+QStringList GeneTableModel::getClusterNames() const {
+    return clusterNames;
 }
 

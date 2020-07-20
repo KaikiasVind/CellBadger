@@ -271,26 +271,38 @@ std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> T
  */
 QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
     QVector<FeatureCollection> allSeenClusters;
+    allSeenClusters.reserve(this->geneTableModel->getClusterNames().length());
 
     QAbstractItemModel * itemModel = this->tableView->model();
 
-    // Grab all cluster names from the horizontal table header and create a FeatureCollection for each
-    for (int i = 1; i < itemModel->columnCount() - 1; i++) {
-        QString clusterName = itemModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
+    // Grab all cluster names from the gene table model and create a FeatureCollection for each
+    for (QString clusterName : this->geneTableModel->getClusterNames())
         allSeenClusters.append(FeatureCollection(clusterName));
-    }
 
     // Go through every row and every column and grab the expression values for the genes and sort them to the correct cluster
     for (int row = 0; row < itemModel->rowCount(); row++) {
         QModelIndex geneNameCellIndex = itemModel->index(row, 0);
         QString geneName = itemModel->data(geneNameCellIndex).toString();
 
+        QVector<double> rawCountsForGenes, foldChangesForGenes;
+        rawCountsForGenes.reserve(clusterNames.length());
+        foldChangesForGenes.reserve(clusterNames.length());
+
+        // Gather the raw counts and the fold changes for the genes in the current row
         for (int column = 1; column < itemModel->columnCount() - 1; column++) {
             QModelIndex cellIndex = itemModel->index(row, column);
-            double geneRawCount = itemModel->data(cellIndex).toDouble();
 
-            allSeenClusters[column - 1].addFeature(geneName, "nAn", geneRawCount, 0, 0);
+            // The raw counts and fold changes are separated by columns -> Split them up
+            // And add them to the lists to add them as genes to the corresponding clusters later on
+            if ((column % 2) == 1)
+                rawCountsForGenes.append(itemModel->data(cellIndex).toDouble());
+            else
+                foldChangesForGenes.append(itemModel->data(cellIndex).toDouble());
         }
+
+        // Add the gathered information about the gene to the corresponding clusters
+        for (int i = 0; i < clusterNames.length(); i++)
+            allSeenClusters[i].addFeature(geneName, "nAn", rawCountsForGenes.at(i), 0, foldChangesForGenes.at(i));
     }
 
     return allSeenClusters;

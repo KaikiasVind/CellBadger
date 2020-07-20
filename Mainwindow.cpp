@@ -89,7 +89,7 @@ void MainWindow::on_buttonMinimize_clicked() {
 // REACTING TO CONTROLLER
 void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
     this->show();
-    qDebug() << "Received signal after correlation finished.";
+    qDebug() << "Received signal after parsing finished.";
 
     ui->labelStatus->setText("Finished parsing.");
 
@@ -110,26 +110,12 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
  * @param informationCenter - The core information structure containing e.g. the correllation analysis data
  */
 void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
-    qDebug() << "Received signal after correlation finished.";
-
-    this->ui->labelStatus->setText("Correlation finished.");
+    this->ui->labelStatus->setText("Finished correlation.");
 
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
         this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), informationCenter.qualityScores.at(i), 5);
     }
 }
-
-
-/**
- * @brief MainWindow::on_expressionValuesChanged
- * @param informationCenter
- */
-//void MainWindow::on_expressionValuesChanged(const InformationCenter & informationCenter) {
-//    qDebug() << "Received signal that expression values changed.";
-//    for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
-//        this->runningTabWidgets[i]->populateTableGeneExpressions(informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i));
-//    }
-//}
 
 
 void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {

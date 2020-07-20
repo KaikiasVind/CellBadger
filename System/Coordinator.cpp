@@ -196,8 +196,8 @@ void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClusters
         this->cleanData();
 
     qDebug() << "Correlating datasets";
-    // Correlate the datasets with the given cell type markers in separate threads
 
+    // Correlate the datasets with the given cell type markers in separate threads
     this->correlateDatasets(allClustersFromAllDatasetsWithGeneExpressions, informationCenter.cellMarkersForTypes);
     qDebug() << "Finished correlating. Gathering information";
 
