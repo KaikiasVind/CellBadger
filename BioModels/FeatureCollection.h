@@ -15,6 +15,8 @@ private:
     QVector<Feature> features;
 
     double expressionCountSum;
+    double highestRawCount;
+    double highestFoldChange;
 
 public:
     QString ID;
@@ -32,15 +34,18 @@ public:
 
     Feature getFeature(int index) const;
     Feature getFeature(QString featureName) const;
+    QVector<Feature> getFeatures() const;
+
+    int getNumberOfFeatures() const;
+
     QString getFeatureID(int index) const;
     double getFeatureExpressionCount(int index) const;
-    int getNumberOfFeatures() const;
-    QVector<Feature> getFeatures() const;
-    QVector<double> getMostExpressedFeaturesCounts(int number) const;
     double getFeatureFoldChange(int index) const;
     double getFeatureRawCount(int index) const;
     double getFoldChangeSum() const;
     double getExpressionCountSum() const;
+    double getHighestRawCount() const;
+    double getHighestFoldChange() const;
 };
 
 #endif // CLUSTER_H

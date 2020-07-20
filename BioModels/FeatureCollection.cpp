@@ -3,7 +3,6 @@
 #include <QStringList>
 #include <QVector>
 #include <math.h>
-#include <QDebug>
 
 #include "BioModels/Feature.h"
 
@@ -13,8 +12,7 @@ FeatureCollection::FeatureCollection(){}
  * @brief Cluster::Cluster - Only container class - only default constructor
  */
 FeatureCollection::FeatureCollection(QString collectionID)
-    : ID (collectionID)
-{}
+    : ID (collectionID) {}
 
 
 /**
@@ -23,11 +21,19 @@ FeatureCollection::FeatureCollection(QString collectionID)
  */
 void FeatureCollection::addFeature(const Feature feature) {
     this->expressionCountSum += feature.count;
+
+    // Add highest raw count
+    if (feature.count > this->highestRawCount)
+        this->highestRawCount = feature.count;
+
+    // Add highest fold change
+    if (feature.foldChange > this->highestFoldChange)
+        this->highestFoldChange = feature.foldChange;
+
     this->features.append(feature);
 }
 
 
-// REMEMBER: Do I need this one?
 /**
  * @brief FeatureCollection::addFeature - The FeatureCollection that is appended to here represents a 10x Cluster and the new Feature represents an expressed gene in that cluster
  * @param featureID - Gene ID
@@ -35,7 +41,7 @@ void FeatureCollection::addFeature(const Feature feature) {
  */
 void FeatureCollection::addFeature(const QString featureID) {
     Feature feature(featureID);
-    this->features.append(feature);
+    this->addFeature(feature);
 }
 
 
@@ -50,7 +56,7 @@ void FeatureCollection::addFeature(const QString featureID, const QString featur
     double log2FoldChange = log2(foldChange);
 
     Feature feature(featureID, featureEnsemblID, log2FoldChange, foldChange);
-    this->features.append(feature);
+    this->addFeature(feature);
 }
 
 
@@ -63,31 +69,16 @@ void FeatureCollection::addFeature(const QString featureID, const QString featur
  */
 void FeatureCollection::addFeature(const QString featureID, const QString featureEnsemblID, const double featureMeanCount, const double featureLog2FoldChange, const double featureFoldChange) {
     Feature feature(featureID, featureEnsemblID, featureMeanCount, featureLog2FoldChange, featureFoldChange);
-    this->features.append(feature);
+    this->addFeature(feature);
 }
 
 
 /**
- * @brief FeatureCollection::filterFeatures - Keep only $number most expressed features
- * @param number - Number of features to keep
+ * @brief FeatureCollection::isFeatureExpressed
+ * @param markerID
+ * @return
  */
-QVector<double> FeatureCollection::getMostExpressedFeaturesCounts(int number) const {
-    QVector<double> sortedFeaturesExpressions;
-    sortedFeaturesExpressions.reserve(this->getNumberOfFeatures());
-    for (int i = 0; i < this->getNumberOfFeatures(); i++) {
-        sortedFeaturesExpressions.append(this->getFeatureExpressionCount(i));
-    }
-    std::sort(sortedFeaturesExpressions.begin(), sortedFeaturesExpressions.end());
-    sortedFeaturesExpressions.resize(number);
-    sortedFeaturesExpressions.squeeze();
-    return sortedFeaturesExpressions;
-}
-
-
 bool FeatureCollection::isFeatureExpressed(QString markerID) {
-    //REMEMBER: MAYBE -> WOULDTHAT WORK?
-//    Feature feature(markerID, COUNT);
-//    return features.contains(feature);
     for (Feature feature : this->features) {
         bool isSameFeature = feature.ID == markerID;
         if (isSameFeature)
@@ -205,4 +196,22 @@ double FeatureCollection::getFoldChangeSum() const {
  */
 double FeatureCollection::getExpressionCountSum() const {
     return this->expressionCountSum / this->getNumberOfFeatures();
+}
+
+
+/**
+ * @brief FeatureCollection::getHighestRawCount - Get the highest raw count of all expressed genes in the cluster
+ * @return - Double value representing the highest seen raw count
+ */
+double FeatureCollection::getHighestRawCount() const {
+    return highestRawCount;
+}
+
+
+/**
+ * @brief FeatureCollection::getHighestFoldChange - Get the highest fold change of all expressed genes in the cluster
+ * @return - Double value representing the highest seen fold change
+ */
+double FeatureCollection::getHighestFoldChange() const {
+    return highestFoldChange;
 }

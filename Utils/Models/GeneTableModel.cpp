@@ -13,15 +13,10 @@
  * @param completeGeneIDs - Complete list of all genes that have been seen in any above cluster
  * @param parent - Parent widget
  */
-//GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs, QObject * parent):
-GeneTableModel::GeneTableModel(const QVector<std::tuple<QString, QVector<double>, double>> allGenesWithExpressionCountsInAllClusters,
-                               const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent) :
-    QAbstractTableModel(parent)
+GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent)
+    : QAbstractTableModel(parent), clustersWithGeneExpressions(geneExpressions), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames)
 {
-    this->allGenesWithExpressionCountsInAllClusters = allGenesWithExpressionCountsInAllClusters;
-    this->completeGeneIDs = completeGeneIDs;
     this->numberOfClusters = clusterNames.length();
-    this->clusterNames = clusterNames;
 }
 
 
@@ -68,28 +63,17 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
     if (role == Qt::DisplayRole) {
         if (this->columnCount() < this->clusterNames.length())
             qDebug() << "column couhnt < clusternames.length()";
-        const std::tuple<QString, QVector<double>, double> & geneWithExpressions = this->allGenesWithExpressionCountsInAllClusters.at(index.row());
 
         // Calculate the correct index to retrieve the correct cluster name
         int correctClusterIndex = 0;
         if (0 < index.column() < (this->clusterNames.length() * 2) + 1)
             correctClusterIndex  = ceil((double) index.column() / 2) - 1;
 
-//        Feature currentGene = this->clustersWithGeneExpressions.at(correctIndex).getFeature(currentGeneID);
-//        qDebug() << "correct index:" << correctIndex;
-//        qDebug() << "column:" << index.column();
-//        qDebug() << "ceil:" << correctClusterIndex;
-
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
-//        qDebug() << "Col:" << index.column();
-//        qDebug() << "Correct cluster index:" << correctClusterIndex;
-
         if (index.column() == 0) {
-//            qDebug() << "gene";
             return this->completeGeneIDs.at(index.row());
         } else if (index.column() == (this->numberOfClusters * 2) + 1) {
-//            qDebug() << "mean";
 
             // Calculate the mean
             double meanRawCount = 0;
@@ -98,11 +82,9 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
                 if (rawCountForCurrentGene != -1)
                     meanRawCount += rawCountForCurrentGene;
             }
-
             return meanRawCount / this->numberOfClusters;
-        } else {
-//            qDebug() << "raw count / fold change.";
 
+        } else {
             // Search for the current gene with its ID
             Feature currentGene = this->clustersWithGeneExpressions.at(correctClusterIndex).getFeature(currentGeneID);
 

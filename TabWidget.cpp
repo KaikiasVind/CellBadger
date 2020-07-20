@@ -86,17 +86,21 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
 void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs) {
 
     // ############################################ GENE TABLE MODEL ############################################
-    // Gather the expression counts of all genes in all clusters from the gene expressions list
-    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, double, double> allGenesWithExpressionCountsInAllClusters =
-            Helper::getFeatureCollectionsAsGenes(geneExpressions, completeGeneIDs);
-
-    this->geneTableModel = new GeneTableModel(std::get<0>(allGenesWithExpressionCountsInAllClusters), completeGeneIDs, this->clusterNames);
-    this->geneTableModel->clustersWithGeneExpressions = geneExpressions;
+    this->geneTableModel = new GeneTableModel(geneExpressions, completeGeneIDs, this->clusterNames);
 
     // Save the highest met values for the raw count and the fold change from the expression values
     // This is neccessary to control the max set cut-off values
-    double highestMetRawCount = std::get<1>(allGenesWithExpressionCountsInAllClusters),
-           highestMetFoldChange = std::get<2>(allGenesWithExpressionCountsInAllClusters);
+    double highestMetRawCount, highestMetFoldChange;
+
+    for (FeatureCollection cluster : geneExpressions) {
+        // Check for the highest raw count
+        if (cluster.getHighestRawCount() > highestMetRawCount)
+            highestMetRawCount = cluster.getHighestRawCount();
+
+        // Check for the highest fold change
+        if (cluster.getHighestFoldChange() > highestMetFoldChange)
+            highestMetFoldChange = cluster.getHighestFoldChange();
+    }
 
     // Set the maximum that stands for the number of clusters
     this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
