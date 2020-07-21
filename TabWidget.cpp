@@ -499,3 +499,38 @@ void TabWidget::on_checkBoxFilterOptionsFoldChangeCutOfftInAtLeast_toggled(bool 
 void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
     this->proxyModel->setFoldChangeInAtLeast(number);
 }
+
+// EXPORTING CORRELATION VALUES
+void TabWidget::on_pushButton_clicked() {
+    QString selectedFilePath = Helper::openSaveFileDialog(this, "csv");
+
+    // If the chose file dialog has been canceled return
+    if (selectedFilePath.isEmpty())
+        return;
+
+    if (!selectedFilePath.split(".").endsWith("csv"))
+        selectedFilePath += ".csv";
+
+    QFile file(selectedFilePath);
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream textStream(& file);
+    QString content, cellDelimiter = ";", newLineCharacter = "\n";
+
+    // Add the header items
+    for (int i = 0; i < this->ui->tableWidgetTypeCorrelations->horizontalHeader()->count(); i++) {
+        content += this->ui->tableWidgetTypeCorrelations->horizontalHeaderItem(i)->text() + cellDelimiter;
+    }
+    content += newLineCharacter;
+
+    // Add the table items
+    for (int i = 0; i < this->ui->tableWidgetTypeCorrelations->rowCount(); i++) {
+        for (int j = 0; j < this->ui->tableWidgetTypeCorrelations->columnCount(); j++) {
+            content += this->ui->tableWidgetTypeCorrelations->item(i,j)->text() + cellDelimiter;
+        }
+        content += newLineCharacter;
+    }
+
+    textStream << content;
+    file.close() ;
+}
