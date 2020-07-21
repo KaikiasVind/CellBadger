@@ -502,9 +502,14 @@ void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(in
 
 // EXPORTING CORRELATION VALUES
 void TabWidget::on_pushButton_clicked() {
+
+    // If no correlation values are now to be seen, return
+    if (this->ui->tableWidgetTypeCorrelations->rowCount() == 0)
+        return;
+
     QString selectedFilePath = Helper::openSaveFileDialog(this, "csv");
 
-    // If the chose file dialog has been canceled return
+    // If the chose file dialog has been canceled, return
     if (selectedFilePath.isEmpty())
         return;
 
