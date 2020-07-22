@@ -11,6 +11,7 @@
 #include <QCategoryAxis>
 #include <QLineSeries>
 #include <set>
+#include <math.h>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
@@ -66,6 +67,7 @@ void TabWidget::populateTableTypeCorrelationHeader(const QVector<double> quality
 
     // Add it to the table
     this->ui->tableWidgetTypeCorrelations->setHorizontalHeaderLabels(headerItems);
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 //    QString qualityScoreTooltip = "The qs (quality score) is the subtraction of the first two correlation values and resembles the "
 //                                  "unambiguousness of the found correlation";
@@ -520,7 +522,7 @@ void TabWidget::on_pushButton_clicked() {
     file.open(QIODevice::WriteOnly);
 
     QTextStream textStream(& file);
-    QString content, cellDelimiter = ";", newLineCharacter = "\n";
+    QString content, cellDelimiter = ",", newLineCharacter = "\n";
 
     // Add the header items
     for (int i = 0; i < this->ui->tableWidgetTypeCorrelations->horizontalHeader()->count(); i++) {

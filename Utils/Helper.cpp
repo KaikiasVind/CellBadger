@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFile>
+#include <math.h>
 #include <QDebug>
 
 #include "Utils/Math.h"
