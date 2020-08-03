@@ -11,6 +11,7 @@
 
 #include "StartDialog.h"
 #include "TabWidget.h"
+#include "AnalysisTab.h"
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
 
@@ -60,6 +61,7 @@ private:
     Ui::MainWindow *ui;
 
     QVector<TabWidget *> runningTabWidgets;
+    AnalysisTab * analysisTab;
 
     void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames);
     void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);

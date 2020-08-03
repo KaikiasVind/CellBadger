@@ -32,6 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
+
+    // Create the Analysis Tab
+    this->analysisTab = new AnalysisTab(this);
+    // and add it to the TabWidget
+    this->ui->tabWidgetDatasets->insertTab(0, this->analysisTab, "Analysis");
 }
 
 MainWindow::~MainWindow()
@@ -49,7 +54,8 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
     TabWidget * tabWidget = new TabWidget(this, datasetName, clusterNames);
     this->runningTabWidgets.append(tabWidget);
 
-    this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
+//    this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
+    this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
 
     // Forward the gene expression values to the new tab
@@ -101,6 +107,7 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
 
     for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
         this->createDatasetItem(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i), informationCenter.clusterNamesForDatasets.at(i));
+        this->analysisTab->addExperiment(datasetNames.at(i), informationCenter.xClusterCollections.at(i));
     }
 }
 
