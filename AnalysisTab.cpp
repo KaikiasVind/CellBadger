@@ -8,6 +8,7 @@ AnalysisTab::AnalysisTab(QWidget *parent) :
 {
 
     ui->setupUi(this);
+    this->ui->tableWidgetExperimentsSelection->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 AnalysisTab::~AnalysisTab() {
@@ -17,25 +18,25 @@ AnalysisTab::~AnalysisTab() {
 
 void AnalysisTab::addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment) {
 
-    // Make room for one more column
-    this->ui->tableWidgetExperimentsSelection->setColumnCount(this->ui->tableWidgetExperimentsSelection->columnCount() + 1);
+    // Insert an empty column for the new values
+    this->ui->tableWidgetExperimentsSelection->insertColumn(0);
 
     // And add additional rows in case the experiment has more clusters than previously added experiments
     if (this->ui->tableWidgetExperimentsSelection->rowCount() < experiment.length())
         this->ui->tableWidgetExperimentsSelection->setRowCount(experiment.length());
 
-    int currentNumberOfHeaderItems = this->ui->tableWidgetExperimentsSelection->columnCount();
 
-    qDebug() << "header items:" << currentNumberOfHeaderItems;
     // Create a new header item for the new experiment and add it to the horizontal header
     QTableWidgetItem * newHeaderItem = new QTableWidgetItem(0);
     newHeaderItem->setData(Qt::DisplayRole, experimentName);
-    this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(currentNumberOfHeaderItems - 1, newHeaderItem);
+    newHeaderItem->setTextAlignment(Qt::AlignCenter);
+    this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(0, newHeaderItem);
 
     // Add every cluster to the table
-    for (int i = 0; i < this->ui->tableWidgetExperimentsSelection->rowCount(); i++) {
+    for (int i = 0; i < experiment.length(); i++) {
         QTableWidgetItem * newTableItem = new QTableWidgetItem(0);
         newTableItem->setData(Qt::DisplayRole, experiment.at(i).ID);
-        this->ui->tableWidgetExperimentsSelection->setItem(i, currentNumberOfHeaderItems - 1, newTableItem);
+        newTableItem->setTextAlignment(Qt::AlignCenter);
+        this->ui->tableWidgetExperimentsSelection->setItem(i, 0, newTableItem);
     }
 }
