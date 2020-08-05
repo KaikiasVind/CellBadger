@@ -29,7 +29,11 @@ private slots:
 private:
     Ui::ExportDialog *ui;
 
-   QChartView * chartView;
+    QChartView * chartView;
+
+    void closeEvent(QCloseEvent *);
+
+    void hideAndClean();
 };
 
 #endif // EXPORTDIALOG_H

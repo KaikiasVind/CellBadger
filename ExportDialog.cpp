@@ -35,6 +35,16 @@ void ExportDialog::addPlot(QChartView * chartView) {
 
 
 /**
+ * @brief ExportDialog::hideAndClean - Hide the ExportDialog and delete created instances
+ */
+void ExportDialog::hideAndClean() {
+    this->hide();
+    delete this->chartView;
+    this->~ExportDialog();
+}
+
+// ############################################ SLOTS ############################################
+/**
  * @brief ExportDialog::on_pushButtonSave_clicked
  */
 void ExportDialog::on_pushButtonSave_clicked() {
@@ -66,6 +76,13 @@ void ExportDialog::on_pushButtonSave_clicked() {
  * @brief ExportDialog::on_pushButtonBack_clicked
  */
 void ExportDialog::on_pushButtonBack_clicked() {
-    this->hide();
-    this->~ExportDialog();
+    this->hideAndClean();
+}
+
+
+/**
+ * @brief ExportDialog::closeEvent
+ */
+void ExportDialog::closeEvent(QCloseEvent *) {
+    this->hideAndClean();
 }
