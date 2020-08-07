@@ -59,21 +59,22 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
     cellIndices.reserve(this->columnCount);
 
     for (int i = 0; i < columnCount; i++) {
+        qDebug() << "index:" << i;
         cellIndices.append(this->sourceModel()->index(source_row, i, source_parent));
     }
 
-    int numberOfClustersWithValidRawCount = 0,
-        numberOfClustersWithValidFoldChange = 0;
+    int numberOfClustersWithValidRawCount = 0;
+//        numberOfClustersWithValidFoldChange = 0;
 
-    for (int i = 0; i < cellIndices.length(); i++) {
+    for (int i = 1; i < cellIndices.length(); i++) {
         QVariant currentCell =  this->sourceModel()->data(cellIndices.at(i));
 
         double currentCellValue = currentCell.toDouble();
-        bool isCurrentCellContainsRawCount = (i % 2) == 1;
+//        bool isCurrentCellContainsRawCount = (i % 2) == 1;
 
 
         // ########### RAW COUNT ###########
-        if (isCurrentCellContainsRawCount) {
+//        if (isCurrentCellContainsRawCount) {
 //            qDebug() << "raw count:" << currentCellValue;
             bool isMinRawCountCutOffMet = (currentCellValue == this->minRawCount || currentCellValue > this->minRawCount);
             bool isMaxRawCountCutOffMet = (currentCellValue == this->maxRawCount || currentCellValue < this->maxRawCount);
@@ -82,18 +83,18 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
                 numberOfClustersWithValidRawCount += 1;
 
         // ########### FOLD CHANGE ###########
-        } else {
-//            qDebug() << "fold change:" << currentCellValue;
-            bool isMinFoldChangeCutOffMet = (currentCellValue == this->minFoldChange || currentCellValue > this->minFoldChange);
-            bool isMaxFoldChangeCutOffMet = (currentCellValue == this->maxFoldChange || currentCellValue < this->maxFoldChange);
+//        } else {
+////            qDebug() << "fold change:" << currentCellValue;
+//            bool isMinFoldChangeCutOffMet = (currentCellValue == this->minFoldChange || currentCellValue > this->minFoldChange);
+//            bool isMaxFoldChangeCutOffMet = (currentCellValue == this->maxFoldChange || currentCellValue < this->maxFoldChange);
 
-            if (isMinFoldChangeCutOffMet && isMaxFoldChangeCutOffMet) {
-                numberOfClustersWithValidFoldChange += 1;
-            }
-        }
+//            if (isMinFoldChangeCutOffMet && isMaxFoldChangeCutOffMet) {
+//                numberOfClustersWithValidFoldChange += 1;
+//            }
+//        }
     }
 
-    // ################################ IN-AT-LEAST-OFFS #############################
+//    // ################################ IN-AT-LEAST-OFFS #############################
 
     // ########### RAW COUNT ###########
     if (this->includeRawCountInAtLeast) {
@@ -106,14 +107,14 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
     }
 
     // ########### FOLD CHANGE ###########
-    if (this->includeFoldChangeInAtLeast) {
-        // If enough cluster fold changes have met the required cut-off accept the row
-        if (numberOfClustersWithValidFoldChange < this->foldChangeInAtLeast)
-            return false;
-    } else {
-        if (numberOfClustersWithValidFoldChange == 0)
-            return false;
-    }
+//    if (this->includeFoldChangeInAtLeast) {
+//        // If enough cluster fold changes have met the required cut-off accept the row
+//        if (numberOfClustersWithValidFoldChange < this->foldChangeInAtLeast)
+//            return false;
+//    } else {
+//        if (numberOfClustersWithValidFoldChange == 0)
+//            return false;
+//    }
 
     return true;
 }

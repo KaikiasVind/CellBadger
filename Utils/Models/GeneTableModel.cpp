@@ -38,7 +38,7 @@ int GeneTableModel::rowCount(const QModelIndex & parent) const {
  */
 int GeneTableModel::columnCount(const QModelIndex & parent) const {
     Q_UNUSED(parent);
-    return (this->numberOfClusters * 2) + 2;
+    return this->numberOfClusters + 2;
 }
 
 
@@ -61,19 +61,23 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
+        qDebug() << "col count:" << this->columnCount();
         if (this->columnCount() < this->clusterNames.length())
-            qDebug() << "column couhnt < clusternames.length()";
+            qDebug() << "column count < clusternames.length()";
 
         // Calculate the correct index to retrieve the correct cluster name
         int correctClusterIndex = 0;
-        if (0 < index.column() < (this->clusterNames.length() * 2) + 1)
-            correctClusterIndex = Helper::getCorrectClusterIndex(index.column());
+        if (0 < index.column() < this->clusterNames.length() + 1)
+            correctClusterIndex = index.column() - 1;
+//            correctClusterIndex = Helper::getCorrectClusterIndex(index.column());
+
+        qDebug() << "index:" << correctClusterIndex;
 
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
         if (index.column() == 0) {
             return this->completeGeneIDs.at(index.row());
-        } else if (index.column() == (this->numberOfClusters * 2) + 1) {
+        } else if (index.column() == this->numberOfClusters + 1) {
 
             // Calculate the mean raw count for the table
             return Helper::calculateMeanRawCountForGene(currentGeneID, this->clustersWithGeneExpressions);
@@ -88,18 +92,23 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
             if (currentGene.ID.compare("nAn") == 0)
                 isCurrentGeneNotFoundInCluster = true;
 
+            if (isCurrentGeneNotFoundInCluster)
+                return 0;
+            else
+                return currentGene.count;
+
             // Otherwise return the corresponding count or fold change value
-            if (index.column() % 2 == 1) {
-                if (isCurrentGeneNotFoundInCluster)
-                    return 0;
-                else
-                    return currentGene.count;
-            } else {
-                if (isCurrentGeneNotFoundInCluster)
-                    return 1;
-                else
-                    return currentGene.foldChange;
-            }
+//            if (index.column() % 2 == 1) {
+//                if (isCurrentGeneNotFoundInCluster)
+//                    return 0;
+//                else
+//                    return currentGene.count;
+//            } else {
+//                if (isCurrentGeneNotFoundInCluster)
+//                    return 1;
+//                else
+//                    return currentGene.foldChange;
+//            }
         }
 
     // Decide which cell should be aligned in which way
@@ -132,12 +141,12 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
             return tr("Gene");
         } else if (section == (this->numberOfClusters * 2) + 1) {
             return tr("mean");
-        } else if ((section % 2) == 1) {
-            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
-            return tr(qPrintable(currentClusterName + " raw count"));
+//        } else if ((section % 2) == 1) {
+//            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
+//            return tr(qPrintable(currentClusterName + " raw count"));
         } else {
             QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
-            return tr(qPrintable(currentClusterName + " fold change"));
+            return tr(qPrintable(currentClusterName + " raw count"));
         }
     }
 
