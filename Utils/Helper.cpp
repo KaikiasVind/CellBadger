@@ -37,16 +37,6 @@ QString chopFileName(QString filepath) {
 
 
 /**
- * @brief getCorrectClusterIndex
- * @param column
- * @return
- */
-int getCorrectClusterIndex(int column) {
-    return ceil((double) column / 2) - 1;
-}
-
-
-/**
  * @brief calculateManRawCountForGene - Calculate the mean of the expression counts of the given gene in all clusters
  * @param geneID - Name of the given gene
  * @param clusters - All clusters maybe expressing the gene

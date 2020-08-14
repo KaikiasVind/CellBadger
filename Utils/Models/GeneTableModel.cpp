@@ -61,7 +61,6 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
-        qDebug() << "col count:" << this->columnCount();
         if (this->columnCount() < this->clusterNames.length())
             qDebug() << "column count < clusternames.length()";
 
@@ -70,8 +69,6 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         if (0 < index.column() < this->clusterNames.length() + 1)
             correctClusterIndex = index.column() - 1;
 //            correctClusterIndex = Helper::getCorrectClusterIndex(index.column());
-
-        qDebug() << "index:" << correctClusterIndex;
 
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
@@ -139,14 +136,11 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
     if (orientation == Qt::Horizontal) {
         if (section == 0) {
             return tr("Gene");
-        } else if (section == (this->numberOfClusters * 2) + 1) {
+        } else if (section == (this->numberOfClusters + 1)) {
             return tr("mean");
-//        } else if ((section % 2) == 1) {
-//            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
-//            return tr(qPrintable(currentClusterName + " raw count"));
         } else {
-            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
-            return tr(qPrintable(currentClusterName + " raw count"));
+            QString currentClusterName = this->clusterNames.at(section - 1);
+            return tr(qPrintable(currentClusterName));
         }
     }
 
