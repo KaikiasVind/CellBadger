@@ -62,7 +62,9 @@ private slots:
     void on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number);
     void on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number);
 
-    void on_pushButton_clicked();
+    void on_pushButtonExportCorrelations_clicked();
+
+    void on_pushButtonExportGeneExpressions_clicked();
 
 private:
     Ui::TabWidget *ui;

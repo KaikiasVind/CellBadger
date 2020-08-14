@@ -87,8 +87,8 @@ QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtens
  * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
  * @return - List of Strings representing the file paths for the selected files
  */
-QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
-    return QFileDialog::getSaveFileName(parent, "Save plot as png file", QDir::home().path(), validMimeTypeExtensions);
+QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions) {
+    return QFileDialog::getSaveFileName(parent, description, QDir::home().path(), validMimeTypeExtensions);
 }
 
 }

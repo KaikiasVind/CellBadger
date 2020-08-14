@@ -502,14 +502,17 @@ void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(in
     this->proxyModel->setFoldChangeInAtLeast(number);
 }
 
-// EXPORTING CORRELATION VALUES
-void TabWidget::on_pushButton_clicked() {
+
+/**
+ * @brief TabWidget::on_pushButtonExportCorrelations_clicked - Export correlation values
+ */
+void TabWidget::on_pushButtonExportCorrelations_clicked() {
 
     // If no correlation values are now to be seen, return
     if (this->ui->tableWidgetTypeCorrelations->rowCount() == 0)
         return;
 
-    QString selectedFilePath = Helper::openSaveFileDialog(this, "csv");
+    QString selectedFilePath = Helper::openSaveFileDialog(this, "Export correlation values as csv.", "csv");
 
     // If the chose file dialog has been canceled, return
     if (selectedFilePath.isEmpty())
@@ -539,5 +542,44 @@ void TabWidget::on_pushButton_clicked() {
     }
 
     textStream << content;
-    file.close() ;
+    file.close();
+}
+
+
+/**
+ * @brief TabWidget::on_pushButtonExportGeneExpressions_clicked - Export gene expression values
+ */
+void TabWidget::on_pushButtonExportGeneExpressions_clicked() {
+    QString selectedFilePath = Helper::openSaveFileDialog(this, "Export expression values as csv.", "csv");
+
+    // If the chose file dialog has been canceled, return
+    if (selectedFilePath.isEmpty())
+        return;
+
+    if (!selectedFilePath.split(".").endsWith("csv"))
+        selectedFilePath += ".csv";
+
+    QFile file(selectedFilePath);
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream textStream(& file);
+    QString content, cellDelimiter = ",", newLineCharacter = "\n";
+
+    // Add the header items
+    for (int i = 0; i < this->tableView->horizontalHeader()->count(); i++) {
+        content += this->tableView->model()->headerData(i, Qt::Horizontal).toString() + cellDelimiter;
+    }
+    content += newLineCharacter;
+
+    // Add the table items
+    for (int i = 0; i < this->tableView->model()->rowCount(); i++) {
+        for (int j = 0; j < this->tableView->model()->columnCount(); j++) {
+            QModelIndex cellModelIndex = this->tableView->model()->index(i, j);
+            content += this->tableView->model()->data(cellModelIndex).toString() + cellDelimiter;
+        }
+        content += newLineCharacter;
+    }
+
+    textStream << content;
+    file.close();
 }

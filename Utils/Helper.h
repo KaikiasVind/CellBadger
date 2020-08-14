@@ -20,7 +20,7 @@ extern double calculateMeanRawCountForGene(QString geneID, QVector<FeatureCollec
 // ####################################### GUI #######################################
 
 extern QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles);
-extern QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions);
+extern QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions);
 
 }
 
