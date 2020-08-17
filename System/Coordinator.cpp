@@ -144,7 +144,7 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
 
     // Parse the dataset files in separate threads - A raw count cut-off of 1 is used to remove all underrepresented genes
     qDebug() << "Parsing datasets.";
-    this->parseFiles(datasetFilePaths, CSVReader::read10xGenomicsClustersFromFile, {15, 0});
+    this->parseFiles(datasetFilePaths, CSVReader::read10xGenomicsClustersFromFile, {1, 0});
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();

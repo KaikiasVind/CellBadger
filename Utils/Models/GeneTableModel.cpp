@@ -4,7 +4,7 @@
 #include <cmath>
 
 #include "BioModels/FeatureCollection.h"
-#include "Utils/Helper.h"
+#include "Utils/Math.h"
 
 
 /**
@@ -64,12 +64,6 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         if (this->columnCount() < this->clusterNames.length())
             qDebug() << "column count < clusternames.length()";
 
-        // Calculate the correct index to retrieve the correct cluster name
-        int correctClusterIndex = 0;
-        if (0 < index.column() < this->clusterNames.length() + 1)
-            correctClusterIndex = index.column() - 1;
-//            correctClusterIndex = Helper::getCorrectClusterIndex(index.column());
-
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
         if (index.column() == 0) {
@@ -77,11 +71,11 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         } else if (index.column() == this->numberOfClusters + 1) {
 
             // Calculate the mean raw count for the table
-            return Helper::calculateMeanRawCountForGene(currentGeneID, this->clustersWithGeneExpressions);
+            return Math::calculateMeanRawCountForGene(currentGeneID, this->clustersWithGeneExpressions);
 
         } else {
             // Search for the current gene with its ID
-            Feature currentGene = this->clustersWithGeneExpressions.at(correctClusterIndex).getFeature(currentGeneID);
+            Feature currentGene = this->clustersWithGeneExpressions.at(index.column() - 1).getFeature(currentGeneID);
 
             bool isCurrentGeneNotFoundInCluster = false;
 
@@ -93,19 +87,6 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
                 return 0;
             else
                 return currentGene.count;
-
-            // Otherwise return the corresponding count or fold change value
-//            if (index.column() % 2 == 1) {
-//                if (isCurrentGeneNotFoundInCluster)
-//                    return 0;
-//                else
-//                    return currentGene.count;
-//            } else {
-//                if (isCurrentGeneNotFoundInCluster)
-//                    return 1;
-//                else
-//                    return currentGene.foldChange;
-//            }
         }
 
     // Decide which cell should be aligned in which way
