@@ -11,8 +11,13 @@
 namespace Helper
 {
 
-
 // ####################################### MISC #######################################
+enum class ShownData {
+    RPM,
+    RAW_COUNTS,
+    FOLD_CHANGES
+};
+
 extern QString chopFileName(QString filePath);
 
 // ####################################### GUI #######################################

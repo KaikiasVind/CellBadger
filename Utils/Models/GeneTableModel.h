@@ -5,6 +5,7 @@
 #include <QAbstractTableModel>
 
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Helper.h"
 
 class GeneTableModel : public QAbstractTableModel
 {
@@ -21,6 +22,8 @@ public:
 
     QStringList getClusterNames() const;
 
+    void setCurrentlyShownDataType(const Helper::ShownData dataTypeToShow);
+
 private:
     QVector<FeatureCollection> clustersWithGeneExpressions;
 
@@ -28,6 +31,8 @@ private:
     QStringList clusterNames;
 
     int numberOfClusters;
+
+    Helper::ShownData currentlyShownDataType;
 };
 
 #endif // GENETABLEMODEL_H

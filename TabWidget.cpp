@@ -175,6 +175,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
+
+    this->on_comboBoxShownGeneExpressionValues_currentIndexChanged(this->ui->comboBoxShownGeneExpressionValues->currentIndex());
 }
 
 
@@ -331,9 +333,8 @@ QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
         QModelIndex geneNameCellIndex = itemModel->index(row, 0);
         QString geneName = itemModel->data(geneNameCellIndex).toString();
 
-        QVector<double> rawCountsForGenes, foldChangesForGenes;
+        QVector<double> rawCountsForGenes;
         rawCountsForGenes.reserve(clusterNames.length());
-        foldChangesForGenes.reserve(clusterNames.length());
 
         // Gather the raw counts and the fold changes for the genes in the current row
         for (int column = 1; column < itemModel->columnCount() - 1; column++) {
@@ -341,16 +342,15 @@ QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
 
             // The raw counts and fold changes are separated by columns -> Split them up
             // And add them to the lists to add them as genes to the corresponding clusters later on
-            if ((column % 2) == 1)
-                rawCountsForGenes.append(itemModel->data(cellIndex).toDouble());
-            else
-                foldChangesForGenes.append(itemModel->data(cellIndex).toDouble());
+            rawCountsForGenes.append(itemModel->data(cellIndex).toDouble());
         }
 
         // Add the gathered information about the gene to the corresponding clusters
         for (int i = 0; i < clusterNames.length(); i++)
-            allSeenClusters[i].addFeature(geneName, "nAn", rawCountsForGenes.at(i), 0, foldChangesForGenes.at(i));
+            allSeenClusters[i].addFeature(geneName, "nAn", rawCountsForGenes.at(i), 0, 0);
     }
+
+    qDebug() << "Retrieved data from tab widget.";
 
     return allSeenClusters;
 }
@@ -411,7 +411,6 @@ void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, cons
 
 
 // ############################################### SLOTS ###############################################
-
 
 /**
  * @brief TabWidget::on_pushButtonPlot_clicked
@@ -582,4 +581,24 @@ void TabWidget::on_pushButtonExportGeneExpressions_clicked() {
 
     textStream << content;
     file.close();
+}
+
+
+void TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index)
+{
+    qDebug() << "Show:" << this->ui->comboBoxShownGeneExpressionValues->currentText();
+
+    Helper::ShownData newDataTypeToShow;
+    switch (index) {
+        case 0: newDataTypeToShow = Helper::ShownData::RPM; break;
+        case 1: newDataTypeToShow = Helper::ShownData::RAW_COUNTS; break;
+        case 2: newDataTypeToShow = Helper::ShownData::FOLD_CHANGES; break;
+    }
+
+    this->geneTableModel->setCurrentlyShownDataType(newDataTypeToShow);
+
+    // And report that the data has changed for the table to be redrawn immidiately
+    QModelIndex topLeftCell = this->proxyModel->index(0, 0),
+                bottomRightCell = this->proxyModel->index(this->geneTableModel->rowCount(), this->geneTableModel->columnCount());
+    emit this->proxyModel->dataChanged(topLeftCell, bottomRightCell, {Qt::DisplayRole});
 }

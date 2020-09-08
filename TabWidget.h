@@ -13,6 +13,7 @@
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/GeneTableModel.h"
 #include "Utils/Models/ProxyModel.h"
+#include "Utils/Helper.h"
 
 namespace Ui {
 class TabWidget;
@@ -65,6 +66,8 @@ private slots:
     void on_pushButtonExportCorrelations_clicked();
 
     void on_pushButtonExportGeneExpressions_clicked();
+
+    void on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index);
 
 private:
     Ui::TabWidget *ui;

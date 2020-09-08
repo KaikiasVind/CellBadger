@@ -14,10 +14,8 @@
  * @param parent - Parent widget
  */
 GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent)
-    : QAbstractTableModel(parent), clustersWithGeneExpressions(geneExpressions), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames)
-{
-    this->numberOfClusters = clusterNames.length();
-}
+    : QAbstractTableModel(parent), clustersWithGeneExpressions(geneExpressions), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames), numberOfClusters(clusterNames.length())
+{}
 
 
 /**
@@ -67,11 +65,21 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         QString currentGeneID = this->completeGeneIDs.at(index.row());
 
         if (index.column() == 0) {
-            return this->completeGeneIDs.at(index.row());
-        } else if (index.column() == this->numberOfClusters + 1) {
+            return currentGeneID;
 
-            // Calculate the mean raw count for the table
-            return Math::calculateMeanRawCountForGene(currentGeneID, this->clustersWithGeneExpressions);
+        } else if (index.column() == this->numberOfClusters + 1) {
+            QVector<double> rowValues;
+            rowValues.reserve(this->columnCount() - 2);
+
+            // Gather all values in the current row
+            for (int i = 1; i < this->columnCount() - 2; i++) {
+                QModelIndex cellIndex = this->index(index.row(), i);
+                double cellData = this->data(cellIndex).toDouble();
+                rowValues.append(cellData);
+            }
+
+            // And calculate the mean for the current row
+            return Math::mean(rowValues);
 
         } else {
             // Search for the current gene with its ID
@@ -83,10 +91,25 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
             if (currentGene.ID.compare("nAn") == 0)
                 isCurrentGeneNotFoundInCluster = true;
 
-            if (isCurrentGeneNotFoundInCluster)
-                return 0;
-            else
-                return currentGene.count;
+            switch (this->currentlyShownDataType) {
+                case Helper::ShownData::RPM:
+                    return 1;
+                break;
+
+                case Helper::ShownData::RAW_COUNTS:
+                    if (isCurrentGeneNotFoundInCluster)
+                        return 0;
+                    else
+                        return currentGene.count;
+                break;
+
+                case Helper::ShownData::FOLD_CHANGES:
+                    if (isCurrentGeneNotFoundInCluster)
+                        return 1;
+                    else
+                        return currentGene.foldChange;
+                break;
+            }
         }
 
     // Decide which cell should be aligned in which way
@@ -137,3 +160,13 @@ QStringList GeneTableModel::getClusterNames() const {
     return clusterNames;
 }
 
+
+/**
+ * @brief GeneTableModel::setCurrentlyShownDataType - Set the data type that should be shown in the table view
+ * @param dataTypeToShow - Enum representing the new data type
+ */
+void GeneTableModel::setCurrentlyShownDataType(const Helper::ShownData dataTypeToShow) {
+    if (this->currentlyShownDataType == dataTypeToShow)
+        return;
+    this->currentlyShownDataType = dataTypeToShow;
+}

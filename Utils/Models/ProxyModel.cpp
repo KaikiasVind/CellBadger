@@ -33,7 +33,6 @@ ProxyModel::ProxyModel(int rowCount, int colCount, double maxRawCount, double ma
  */
 bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 
-
     // ################################ GENE-IDS ################################
     // If there are gene IDs the table should be filtered by check the selected rows for those gene IDs
     if (!this->searchedGeneIDs.isEmpty()) {
@@ -59,7 +58,6 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
     cellIndices.reserve(this->columnCount);
 
     for (int i = 0; i < columnCount; i++) {
-        qDebug() << "index:" << i;
         cellIndices.append(this->sourceModel()->index(source_row, i, source_parent));
     }
 
@@ -70,7 +68,7 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
         QVariant currentCell =  this->sourceModel()->data(cellIndices.at(i));
 
         double currentCellValue = currentCell.toDouble();
-//        bool isCurrentCellContainsRawCount = (i % 2) == 1;
+//        bool isCurrentCellContainsRawCount = true;
 
 
         // ########### RAW COUNT ###########
@@ -94,7 +92,7 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
 //        }
     }
 
-//    // ################################ IN-AT-LEAST-OFFS #############################
+    // ################################ IN-AT-LEAST-CUT-OFFS #############################
 
     // ########### RAW COUNT ###########
     if (this->includeRawCountInAtLeast) {
@@ -129,6 +127,16 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
  */
 QVariant ProxyModel::headerData(int section, Qt::Orientation orientation, int role) const {
     return sourceModel()->headerData(section, orientation, role);
+}
+
+
+/**
+ * @brief ProxyModel::refreshData - Emit a signal for repainting the TableView
+ */
+void ProxyModel::refreshData() {
+    QModelIndex topLeftCell = this->index(0, 0),
+                bottomRightCell = this->index(this->rowCount, this->columnCount);
+    emit this->dataChanged(topLeftCell, bottomRightCell, {Qt::DisplayRole});
 }
 
 

@@ -4,6 +4,7 @@
 #include <QVector>
 
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Helper.h"
 
 namespace Math {
 
@@ -17,7 +18,6 @@ extern double invertLog(int base, double realNumber);
 
 // ####################################### SPECIFICS #######################################
 extern QVector<double> calculateQualityScores(QVector<QVector<QPair<QString, double>>> correlatedDataset);
-extern double calculateMeanRawCountForGene(QString geneID, QVector<FeatureCollection> clusters);
 
 }
 

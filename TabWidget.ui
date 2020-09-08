@@ -136,6 +136,41 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="comboBoxShownGeneExpressionValues">
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>TPM</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Raw counts</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fold changes</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacerGeneExpressions">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButtonScatterPlot">
        <property name="enabled">
         <bool>true</bool>
@@ -164,19 +199,6 @@
         <string>Export</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacerGeneExpressions">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>

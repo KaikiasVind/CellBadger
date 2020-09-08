@@ -16,6 +16,8 @@ public:
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+    void refreshData();
+
     void setMinRawCount(double minRawCount);
     void setMaxRawCount(double maxRawCount);
     void setMinFoldChange(double minFoldChange);

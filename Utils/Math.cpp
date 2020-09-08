@@ -65,26 +65,6 @@ QVector<double> calculateQualityScores(QVector<QVector<QPair<QString, double>>> 
     return qualityScores;
 }
 
-
-/**
- * @brief calculateManRawCountForGene - Calculate the mean of the expression counts of the given gene in all clusters
- * @param geneID - Name of the given gene
- * @param clusters - All clusters maybe expressing the gene
- * @return - Mean of all found expression counts of the given gene in all given clusters
- */
-double calculateMeanRawCountForGene(QString geneID, QVector<FeatureCollection> clusters) {
-    double meanRawCount = 0;
-    for (FeatureCollection cluster : clusters) {
-        double rawCountForCurrentGene = cluster.getFeature(geneID).count;
-
-        if (rawCountForCurrentGene != -1)
-            meanRawCount += rawCountForCurrentGene;
-    }
-
-    return meanRawCount / clusters.length();
-}
-
-
 }
 
 
