@@ -138,11 +138,11 @@
      <item>
       <widget class="QComboBox" name="comboBoxShownGeneExpressionValues">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
-         <string>TPM</string>
+         <string>RPM</string>
         </property>
        </item>
        <item>

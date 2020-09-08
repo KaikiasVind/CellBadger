@@ -584,6 +584,10 @@ void TabWidget::on_pushButtonExportGeneExpressions_clicked() {
 }
 
 
+/**
+ * @brief TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged - Change displayed values
+ * @param index - Index of the combobox standing for the displayed data types
+ */
 void TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index)
 {
     qDebug() << "Show:" << this->ui->comboBoxShownGeneExpressionValues->currentText();
