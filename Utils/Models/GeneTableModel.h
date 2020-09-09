@@ -27,12 +27,18 @@ public:
 private:
     QVector<FeatureCollection> clustersWithGeneExpressions;
 
+    QVector<QVector<double>> RPMValues;
+    QVector<QVector<double>> rawCountValues;
+    QVector<QVector<double>> foldChangeValues;
+
     QStringList completeGeneIDs;
     QStringList clusterNames;
 
     int numberOfClusters;
 
     Helper::ShownData currentlyShownDataType;
+
+    void splitFeaturesIntoValues(const QVector<FeatureCollection> experiment);
 };
 
 #endif // GENETABLEMODEL_H

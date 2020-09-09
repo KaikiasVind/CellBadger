@@ -76,6 +76,7 @@ private:
     QTableView * tableView;
     GeneTableModel * geneTableModel;
     ProxyModel * proxyModel;
+
     QStringList clusterNames;
 
     double minRawCount;
