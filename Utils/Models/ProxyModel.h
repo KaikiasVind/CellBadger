@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
+#include "Utils/Helper.h"
+
 class ProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -18,6 +20,8 @@ public:
 
     void refreshData();
 
+    void setCurrentlyShownDataType(const Helper::ShownData newDataTypeToShow);
+
     void setMinRawCount(double minRawCount);
     void setMaxRawCount(double maxRawCount);
     void setMinFoldChange(double minFoldChange);
@@ -31,6 +35,8 @@ public:
 private:
     int rowCount;
     int columnCount;
+
+    Helper::ShownData currentlyShownDataType;
 
     double minRawCount;
     double maxRawCount;

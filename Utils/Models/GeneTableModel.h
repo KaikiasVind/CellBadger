@@ -25,8 +25,6 @@ public:
     void setCurrentlyShownDataType(const Helper::ShownData dataTypeToShow);
 
 private:
-    QVector<FeatureCollection> clustersWithGeneExpressions;
-
     QVector<QVector<double>> RPMValues;
     QVector<QVector<double>> rawCountValues;
     QVector<QVector<double>> foldChangeValues;

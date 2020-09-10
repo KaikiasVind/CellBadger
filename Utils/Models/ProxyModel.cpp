@@ -61,59 +61,62 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
         cellIndices.append(this->sourceModel()->index(source_row, i, source_parent));
     }
 
-    int numberOfClustersWithValidRawCount = 0;
-//        numberOfClustersWithValidFoldChange = 0;
+    int numberOfClustersWithValidTypeCount = 0;
+    bool includeTypeCountInAtLeast;
+    int typeCountInAtLeast = 0;
 
     for (int i = 1; i < cellIndices.length(); i++) {
-        QVariant currentCell =  this->sourceModel()->data(cellIndices.at(i));
 
-        double currentCellValue = currentCell.toDouble();
-//        bool isCurrentCellContainsRawCount = true;
+        // Check which data type is currently to be compared and add the corresponding values
+        double minTypeCount, maxTypeCount;
 
+        switch (this->currentlyShownDataType) {
+            case Helper::ShownData::RPM:
+                minTypeCount = 0;
+                maxTypeCount = 0;
+                includeTypeCountInAtLeast = false;
+                typeCountInAtLeast = 0;
+                break;
 
-        // ########### RAW COUNT ###########
-//        if (isCurrentCellContainsRawCount) {
-//            qDebug() << "raw count:" << currentCellValue;
-            bool isMinRawCountCutOffMet = (currentCellValue == this->minRawCount || currentCellValue > this->minRawCount);
-            bool isMaxRawCountCutOffMet = (currentCellValue == this->maxRawCount || currentCellValue < this->maxRawCount);
+            case Helper::ShownData::RAW_COUNTS:
+                minTypeCount = this->minRawCount;
+                maxTypeCount = this->maxRawCount;
+                includeTypeCountInAtLeast = this->includeRawCountInAtLeast;
+                typeCountInAtLeast = this->rawCountinAtLeast;
+                break;
 
-            if (isMinRawCountCutOffMet && isMaxRawCountCutOffMet)
-                numberOfClustersWithValidRawCount += 1;
+            case Helper::ShownData::FOLD_CHANGES:
+                minTypeCount = this->minFoldChange;
+                maxTypeCount = this->maxFoldChange;
+                includeTypeCountInAtLeast = this->includeFoldChangeInAtLeast;
+                typeCountInAtLeast = this->foldChangeInAtLeast;
+                break;
+        }
 
-        // ########### FOLD CHANGE ###########
-//        } else {
-////            qDebug() << "fold change:" << currentCellValue;
-//            bool isMinFoldChangeCutOffMet = (currentCellValue == this->minFoldChange || currentCellValue > this->minFoldChange);
-//            bool isMaxFoldChangeCutOffMet = (currentCellValue == this->maxFoldChange || currentCellValue < this->maxFoldChange);
+        // Gather the value of the currently watched cell
+        double currentCellValue = this->sourceModel()->data(cellIndices.at(i)).toDouble();
 
-//            if (isMinFoldChangeCutOffMet && isMaxFoldChangeCutOffMet) {
-//                numberOfClustersWithValidFoldChange += 1;
-//            }
-//        }
+        // Check whether the value lies in the boundaries of the current cut-offs
+        bool isMinTypeCountCutOffMet = (currentCellValue == minTypeCount || currentCellValue > minTypeCount);
+        bool isMaxTypeCountCutOffMet = (currentCellValue == maxTypeCount || currentCellValue < maxTypeCount);
+
+        // Add increase the number of valid clusters if so
+        if (isMinTypeCountCutOffMet  && isMaxTypeCountCutOffMet)
+            numberOfClustersWithValidTypeCount += 1;
     }
 
     // ################################ IN-AT-LEAST-CUT-OFFS #############################
 
-    // ########### RAW COUNT ###########
-    if (this->includeRawCountInAtLeast) {
-        // If enough cluster raw counts have met the required cut-off accept the row
-        if (numberOfClustersWithValidRawCount < this->rawCountinAtLeast)
+    if (includeTypeCountInAtLeast) {
+        // If enough cluster type counts have met the required cut-off accept the row
+        if (numberOfClustersWithValidTypeCount < typeCountInAtLeast)
             return false;
     } else {
-        if (numberOfClustersWithValidRawCount == 0)
+        if (numberOfClustersWithValidTypeCount == 0)
             return false;
     }
 
-    // ########### FOLD CHANGE ###########
-//    if (this->includeFoldChangeInAtLeast) {
-//        // If enough cluster fold changes have met the required cut-off accept the row
-//        if (numberOfClustersWithValidFoldChange < this->foldChangeInAtLeast)
-//            return false;
-//    } else {
-//        if (numberOfClustersWithValidFoldChange == 0)
-//            return false;
-//    }
-
+    // If no filter has disqualified the row, accept it
     return true;
 }
 
@@ -137,6 +140,16 @@ void ProxyModel::refreshData() {
     QModelIndex topLeftCell = this->index(0, 0),
                 bottomRightCell = this->index(this->rowCount, this->columnCount);
     emit this->dataChanged(topLeftCell, bottomRightCell, {Qt::DisplayRole});
+}
+
+
+/**
+ * @brief ProxyModel::setCurrentlyShownDataType - Acknowledge the new data type that is currently shown
+ * @param newDataTypeToShow - The new data type that has been selected to be shown in the Table View
+ */
+void ProxyModel::setCurrentlyShownDataType(const Helper::ShownData newDataTypeToShow) {
+    this->currentlyShownDataType = newDataTypeToShow;
+//    invalidateFilter();
 }
 
 

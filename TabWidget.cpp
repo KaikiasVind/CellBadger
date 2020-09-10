@@ -438,6 +438,7 @@ void TabWidget::on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value)
 void TabWidget::on_horizontalSliderFilterOptionsRawCountCutOffMin_sliderMoved(int position) {
     this->minRawCount = position;
     this->ui->spinBoxFilterOptionsRawCountCutOffMin->setValue(position);
+//    this->ui->comboBoxShownGeneExpressionValues->setCurrentIndex(1);
 }
 
 
@@ -590,8 +591,6 @@ void TabWidget::on_pushButtonExportGeneExpressions_clicked() {
  */
 void TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index)
 {
-    qDebug() << "Show:" << this->ui->comboBoxShownGeneExpressionValues->currentText();
-
     Helper::ShownData newDataTypeToShow;
     switch (index) {
         case 0: newDataTypeToShow = Helper::ShownData::RPM; break;
@@ -600,6 +599,7 @@ void TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged(int ind
     }
 
     this->geneTableModel->setCurrentlyShownDataType(newDataTypeToShow);
+    this->proxyModel->setCurrentlyShownDataType(newDataTypeToShow);
 
     // And report that the data has changed for the table to be redrawn immidiately
     QModelIndex topLeftCell = this->proxyModel->index(0, 0),
