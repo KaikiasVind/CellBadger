@@ -19,8 +19,8 @@ ProxyModel::ProxyModel(QObject * parent) : QSortFilterProxyModel(parent),
  * @param colCount
  * @param parent
  */
-ProxyModel::ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QObject * parent) : QSortFilterProxyModel(parent),
-    rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (maxRawCount), minFoldChange(0.0), maxFoldChange(maxFoldChange),
+ProxyModel::ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters, QObject * parent) : QSortFilterProxyModel(parent),
+    rowCount (rowCount), columnCount (colCount), minRawCount (0.0), maxRawCount (maxRawCount), hashedGeneDataForAllClusters(hashedGeneDataForAllClusters), minFoldChange(0.0), maxFoldChange(maxFoldChange),
   rawCountinAtLeast(0), includeRawCountInAtLeast(false),foldChangeInAtLeast(0), includeFoldChangeInAtLeast(false),
   searchedGeneIDs(QStringList()) {};
 
@@ -32,20 +32,22 @@ ProxyModel::ProxyModel(int rowCount, int colCount, double maxRawCount, double ma
  * @return - Returns whether the selected row meets the given requirements
  */
 bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
+    Q_UNUSED(source_parent);
+
+    // Grab the gene ID for the current row
+    QModelIndex currentRowGeneIDModelIndex = this->sourceModel()->index(source_row, 0);
+    QString currentRowGeneID = this->sourceModel()->data(currentRowGeneIDModelIndex).toString();
 
     // ################################ GENE-IDS ################################
     // If there are gene IDs the table should be filtered by check the selected rows for those gene IDs
     if (!this->searchedGeneIDs.isEmpty()) {
-
-        QModelIndex currentRowGeneIDModelIndex = this->sourceModel()->index(source_row, 0);
-        QString currentRowGeneID = this->sourceModel()->data(currentRowGeneIDModelIndex).toString().toLower();
 
         // Go through the list of given gene IDs and search for the current row's gene ID
         // Accept the row if one has been found
         QStringList unseenGeneIDs = this->searchedGeneIDs;
         bool isIDHasBeenSeen = false;
         for (int i = 0; i < unseenGeneIDs.length(); i++) {
-            if (currentRowGeneID.contains(this->searchedGeneIDs.at(i))) {
+            if (currentRowGeneID.toLower().contains(this->searchedGeneIDs.at(i))) {
                 isIDHasBeenSeen = true;
             }
         }
@@ -54,67 +56,73 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
     }
 
     // ################################ CUT-OFFS ################################
-    QVector<QModelIndex> cellIndices;
-    cellIndices.reserve(this->columnCount);
 
-    for (int i = 0; i < columnCount; i++) {
-        cellIndices.append(this->sourceModel()->index(source_row, i, source_parent));
-    }
+    int numberOfClustersWithValidRPMValue = 0, numberOfClustersWithValidRawCount = 0, numberOfClustersWithValidFoldChange = 0;
 
-    int numberOfClustersWithValidTypeCount = 0;
-    bool includeTypeCountInAtLeast;
-    int typeCountInAtLeast = 0;
+    // Search for the geneID of the current row in the hash map
+    std::tuple<QVector<double>, QVector<double>, QVector<double>> currentlyWatchedGeneData = this->hashedGeneDataForAllClusters[currentRowGeneID];
 
-    for (int i = 1; i < cellIndices.length(); i++) {
-
-        // Check which data type is currently to be compared and add the corresponding values
-        double minTypeCount, maxTypeCount;
-
-        switch (this->currentlyShownDataType) {
-            case Helper::ShownData::RPM:
-                minTypeCount = 0;
-                maxTypeCount = 0;
-                includeTypeCountInAtLeast = false;
-                typeCountInAtLeast = 0;
-                break;
-
-            case Helper::ShownData::RAW_COUNTS:
-                minTypeCount = this->minRawCount;
-                maxTypeCount = this->maxRawCount;
-                includeTypeCountInAtLeast = this->includeRawCountInAtLeast;
-                typeCountInAtLeast = this->rawCountinAtLeast;
-                break;
-
-            case Helper::ShownData::FOLD_CHANGES:
-                minTypeCount = this->minFoldChange;
-                maxTypeCount = this->maxFoldChange;
-                includeTypeCountInAtLeast = this->includeFoldChangeInAtLeast;
-                typeCountInAtLeast = this->foldChangeInAtLeast;
-                break;
-        }
-
-        // Gather the value of the currently watched cell
-        double currentCellValue = this->sourceModel()->data(cellIndices.at(i)).toDouble();
+    // Go through the list of gene expression data of the current gene and compare it against the cut-offs
+    for (int i = 0; i < this->columnCount - 1; i++) {
+        double currentlyWatchedGeneRPMValue = std::get<0>(currentlyWatchedGeneData).at(i),
+                currentlyWatchedGeneRawCount = std::get<1>(currentlyWatchedGeneData).at(i),
+                currentlyWatchedGeneFoldChange = std::get<2>(currentlyWatchedGeneData).at(i);
 
         // Check whether the value lies in the boundaries of the current cut-offs
-        bool isMinTypeCountCutOffMet = (currentCellValue == minTypeCount || currentCellValue > minTypeCount);
-        bool isMaxTypeCountCutOffMet = (currentCellValue == maxTypeCount || currentCellValue < maxTypeCount);
-
         // Add increase the number of valid clusters if so
-        if (isMinTypeCountCutOffMet  && isMaxTypeCountCutOffMet)
-            numberOfClustersWithValidTypeCount += 1;
+        // ########################################## RMP VALUES ##########################################
+        bool isMinRPMValueCutOffMet = (currentlyWatchedGeneRPMValue == 0 || currentlyWatchedGeneRawCount > 0);
+        bool isMaxRPMValueCutOffMet = (currentlyWatchedGeneRPMValue == 0 || currentlyWatchedGeneRawCount < 0);
+
+        if (isMinRPMValueCutOffMet && isMaxRPMValueCutOffMet)
+             numberOfClustersWithValidRPMValue += 1;
+
+        // ########################################## RAW COUNTS ##########################################
+        bool isMinRawCountCutOffMet = (currentlyWatchedGeneRawCount == this->minRawCount || currentlyWatchedGeneRawCount > this->minRawCount);
+        bool isMaxRawCountCutOffMet = (currentlyWatchedGeneRawCount == this->maxRawCount || currentlyWatchedGeneRawCount < this->maxRawCount);
+
+        if (isMinRawCountCutOffMet && isMaxRawCountCutOffMet)
+             numberOfClustersWithValidRawCount += 1;
+
+        // ########################################## FOLD CHANGES ########################################
+        bool isMinFoldChangeCutOffMet = (currentlyWatchedGeneFoldChange == this->minFoldChange || currentlyWatchedGeneFoldChange > this->minFoldChange);
+        bool isMaxFoldChangeCutOffMet = (currentlyWatchedGeneFoldChange == this->maxFoldChange || currentlyWatchedGeneFoldChange < this->maxFoldChange);
+
+        if (isMinFoldChangeCutOffMet && isMaxFoldChangeCutOffMet)
+             numberOfClustersWithValidFoldChange += 1;
     }
 
     // ################################ IN-AT-LEAST-CUT-OFFS #############################
 
-    if (includeTypeCountInAtLeast) {
-        // If enough cluster type counts have met the required cut-off accept the row
-        if (numberOfClustersWithValidTypeCount < typeCountInAtLeast)
+    // Check whether enough clusters have been accepted
+    // Or filter the row out if not
+    // ################################## RMP VALUES ##################################
+//    if (this->includeRawCountInAtLeast) {
+//        if (numberOfClustersWithValidRawCount < this->rawCountinAtLeast)
+//            return false;
+//    } else {
+//        if (numberOfClustersWithValidRawCount == 0)
+//            return false;
+//    }
+
+    // ################################## RAW COUNTS ##################################
+    if (this->includeRawCountInAtLeast) {
+        if (numberOfClustersWithValidRawCount < this->rawCountinAtLeast)
             return false;
     } else {
-        if (numberOfClustersWithValidTypeCount == 0)
+        if (numberOfClustersWithValidRawCount == 0)
             return false;
     }
+
+    // ################################## FOLD CHANGES ################################
+    if (this->includeFoldChangeInAtLeast) {
+        if (numberOfClustersWithValidFoldChange < this->foldChangeInAtLeast)
+            return false;
+    } else {
+        if (numberOfClustersWithValidFoldChange == 0)
+            return false;
+    }
+
 
     // If no filter has disqualified the row, accept it
     return true;
@@ -149,7 +157,7 @@ void ProxyModel::refreshData() {
  */
 void ProxyModel::setCurrentlyShownDataType(const Helper::ShownData newDataTypeToShow) {
     this->currentlyShownDataType = newDataTypeToShow;
-//    invalidateFilter();
+    invalidateFilter();
 }
 
 

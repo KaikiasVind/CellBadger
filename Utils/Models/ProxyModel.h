@@ -12,7 +12,7 @@ class ProxyModel : public QSortFilterProxyModel
 
 public:
     ProxyModel(QObject * parent = nullptr);
-    ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QObject * parent = nullptr);
+    ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters, QObject * parent = nullptr);
 
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
@@ -37,6 +37,7 @@ private:
     int columnCount;
 
     Helper::ShownData currentlyShownDataType;
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters;
 
     double minRawCount;
     double maxRawCount;

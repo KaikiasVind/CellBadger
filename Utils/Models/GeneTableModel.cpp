@@ -13,11 +13,9 @@
  * @param completeGeneIDs - Complete list of all genes that have been seen in any above cluster
  * @param parent - Parent widget
  */
-GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent)
-    : QAbstractTableModel(parent), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames), numberOfClusters(clusterNames.length())
-{
-    this->splitFeaturesIntoValues(geneExpressions);
-}
+GeneTableModel::GeneTableModel(const QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneExpressionData, const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent)
+    : QAbstractTableModel(parent), hashedGeneExpressionDataForAllClusters(hashedGeneExpressionData), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames), numberOfClusters(clusterNames.length())
+{}
 
 
 /**
@@ -59,6 +57,8 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         return QVariant();
     }
 
+    QString currentGeneID = this->completeGeneIDs.at(index.row());
+
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
         if (this->columnCount() < this->clusterNames.length())
@@ -66,7 +66,7 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
         // The first column is filled with the gene IDs
         if (index.column() == 0) {
-            return this->completeGeneIDs.at(index.row());
+            return currentGeneID;
 
         // The last column is filled with the mean of all values in the row
         } else if (index.column() == this->numberOfClusters + 1) {
@@ -88,16 +88,16 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
 
             switch (this->currentlyShownDataType) {
                 case Helper::ShownData::RPM:
-                    return this->RPMValues.at(index.row()).at(index.column() - 1);
-                break;
+                    return std::get<0>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
+                    break;
 
                 case Helper::ShownData::RAW_COUNTS:
-                    return this->rawCountValues.at(index.row()).at(index.column() - 1);
-                break;
+                    return std::get<1>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
+                    break;
 
                 case Helper::ShownData::FOLD_CHANGES:
-                    return this->foldChangeValues.at(index.row()).at(index.column() - 1);
-                break;
+                    return std::get<2>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
+                    break;
             }
         }
 
@@ -138,49 +138,6 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
     }
 
     return section + 1;
-}
-
-
-/**
- * @brief GeneTableModel::splitFeaturesIntoValues - Split the genes in the given experiments into its feature values
- * @param experiment - List of clusters containing the features to split up
- */
-void GeneTableModel::splitFeaturesIntoValues(const QVector<FeatureCollection> experiment) {
-
-    // Go through all gene IDs to catch all necessary data
-    for (QString geneID : this->completeGeneIDs) {
-        // Create lists that will hold the values for the current gene in all clusters of the experiment
-        QVector<double> RPMValuesForGeneInCluster,
-                        rawCountValuesForGeneInCluster,
-                        foldChangeValuesForGeneInCluster;
-        RPMValuesForGeneInCluster.reserve(experiment.length());
-        rawCountValuesForGeneInCluster.reserve(experiment.length());
-        foldChangeValuesForGeneInCluster.reserve(experiment.length());
-
-        // And go through every cluster in the given experiment and look for the current gene's data
-        for (FeatureCollection cluster : experiment) {
-            // Search for the current gene in the cluster
-            Feature feature = cluster.getFeature(geneID);
-
-            if (feature.ID.compare("nAn") != 0) {
-                // If it exists add its values to the above created lists
-                //REMEMBER: Add the rpm field to the gene class
-                RPMValuesForGeneInCluster.append(0);
-                rawCountValuesForGeneInCluster.append(feature.count);
-                foldChangeValuesForGeneInCluster.append(feature.foldChange);
-
-            } else {
-                // Should it not exist the default NULL value for the value type is added
-                RPMValuesForGeneInCluster.append(0);
-                rawCountValuesForGeneInCluster.append(0);
-                foldChangeValuesForGeneInCluster.append(1);
-            }
-        }
-
-        this->RPMValues.append(RPMValuesForGeneInCluster);
-        this->rawCountValues.append(rawCountValuesForGeneInCluster);
-        this->foldChangeValues.append(foldChangeValuesForGeneInCluster);
-    }
 }
 
 

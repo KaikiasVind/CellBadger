@@ -132,8 +132,11 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
  */
 void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs) {
 
+    // Create a hash map hashing all gene IDs to their expression data in their respective clusters in the experiment
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedFeatureDataForAllClusters = this->hashFeatureDataForAllClusters(geneExpressions, completeGeneIDs);
+
     // ############################################ GENE TABLE MODEL ############################################
-    this->geneTableModel = new GeneTableModel(geneExpressions, completeGeneIDs, this->clusterNames);
+    this->geneTableModel = new GeneTableModel(hashedFeatureDataForAllClusters, completeGeneIDs, this->clusterNames);
 
     // Save the highest met values for the raw count and the fold change from the expression values
     // This is neccessary to control the max set cut-off values
@@ -154,7 +157,7 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
 
     // ############################################ PROXY MODEL ############################################
-    this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1, highestMetRawCount, highestMetFoldChange);
+    this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1, highestMetRawCount, highestMetFoldChange, hashedFeatureDataForAllClusters);
     this->proxyModel->setSourceModel(geneTableModel);
 
     // Use the highest met values for raw count and fold change to change tweek the gui values
@@ -410,6 +413,43 @@ void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, cons
 }
 
 
+/**
+ * @brief TabWidget::hashFeatureDataForAllClusters - Use the list of gene IDs and extract the expression data for those genes in all clusters and hash those values to the gene IDs
+ * @param experiment - All gene IDs hashed to their respective expression values in all clusters in the given experiment
+ */
+QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> TabWidget::hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs) {
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedFeatureDataForAllClusters;
+
+    // Now go through every cluster and and add the data for all features to the previously inserted hash
+    for (FeatureCollection cluster : experiment) {
+        for (QString featureID : completeGeneIDs) {
+
+            // Search for the feature in the current cluster
+            Feature feature = cluster.getFeature(featureID);
+
+            // Define the default values should the feature not be found
+            double foundRPMValue = 0,
+                   foundRawCount = 0,
+                   foundFoldChange = 1;
+
+            // If the feature has been found, save the corresponding values
+            if (feature.ID.compare("nAn") != 0) {
+                foundRPMValue = 0;
+                foundRawCount = feature.count;
+                foundFoldChange = feature.foldChange;
+            }
+
+            // Add the saved (or default) values to the hash map
+            std::get<0>(hashedFeatureDataForAllClusters[featureID]).append(foundRPMValue);
+            std::get<1>(hashedFeatureDataForAllClusters[featureID]).append(foundRawCount);
+            std::get<2>(hashedFeatureDataForAllClusters[featureID]).append(foundFoldChange);
+        }
+    }
+
+    return hashedFeatureDataForAllClusters;
+}
+
+
 // ############################################### SLOTS ###############################################
 
 /**
@@ -438,7 +478,6 @@ void TabWidget::on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value)
 void TabWidget::on_horizontalSliderFilterOptionsRawCountCutOffMin_sliderMoved(int position) {
     this->minRawCount = position;
     this->ui->spinBoxFilterOptionsRawCountCutOffMin->setValue(position);
-//    this->ui->comboBoxShownGeneExpressionValues->setCurrentIndex(1);
 }
 
 

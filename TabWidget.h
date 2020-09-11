@@ -90,6 +90,7 @@ private:
     void setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange);
     std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
 
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs);
 };
 
 #endif // TABWIDGET_H

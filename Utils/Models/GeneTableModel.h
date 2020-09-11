@@ -12,7 +12,7 @@ class GeneTableModel : public QAbstractTableModel
 
 public:
     explicit GeneTableModel(QObject * parent = nullptr);
-    GeneTableModel(const QVector<FeatureCollection>, const QStringList completeGeneIDs, const QStringList allClusterNames, QObject * parent = nullptr);
+    GeneTableModel(const QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneExpressionData, const QStringList completeGeneIDs, const QStringList allClusterNames, QObject * parent = nullptr);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
@@ -25,9 +25,7 @@ public:
     void setCurrentlyShownDataType(const Helper::ShownData dataTypeToShow);
 
 private:
-    QVector<QVector<double>> RPMValues;
-    QVector<QVector<double>> rawCountValues;
-    QVector<QVector<double>> foldChangeValues;
+    const QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneExpressionDataForAllClusters;
 
     QStringList completeGeneIDs;
     QStringList clusterNames;
