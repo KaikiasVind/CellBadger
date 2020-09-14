@@ -33,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
 
+    // Hide the filter options widget -> The widget is only shown in case the user wants to edit the filters manually
+    this->ui->filterOptionsWidget->hide();
+
     // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
     this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setDisabled(true);
     this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
@@ -73,6 +76,20 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
     this->isTabWidgetInitialized = true;
 }
 
+
+/**
+ * @brief MainWindow::updateCurrentTabWidget - Grab all values from the MainWindow and send them to the current TabWidget
+ */
+void MainWindow::updateCurrentTabWidget() {
+    this->currentTabWidget->setMinRawCount(this->minRawCount);
+    this->currentTabWidget->setMaxRawCount(this->maxRawCount);
+    this->currentTabWidget->setMinFoldChange(this->minFoldChange);
+    this->currentTabWidget->setMaxFoldChange(this->maxFoldChange);
+    this->currentTabWidget->setIncludeRawCountInAtLeast(this->includeRawCountInAtLeast);
+    this->currentTabWidget->setIncludeFoldChangeInAtLeast(this->includeFoldChangeInAtLeast);
+    this->currentTabWidget->setRawCountInAtLeast(this->rawCountinAtLeast);
+    this->currentTabWidget->setFoldChangeInAtLeast(this->foldChangeInAtLeast);
+}
 
 // ############################################### SLOTS ###############################################
 /**
@@ -151,14 +168,7 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
     // And send all current cut-offs the new widget
     // This causes that the ProxyModel filter is only updated for the TabWidget that is currently seen
     // This lazy evaluation was chosen to reduce the calculation time for the ProxyModel filter in case more than one tab is present
-    this->currentTabWidget->setMinRawCount(this->minRawCount);
-    this->currentTabWidget->setMaxRawCount(this->maxRawCount);
-    this->currentTabWidget->setMinFoldChange(this->minFoldChange);
-    this->currentTabWidget->setMaxFoldChange(this->maxFoldChange);
-    this->currentTabWidget->setIncludeRawCountInAtLeast(this->includeRawCountInAtLeast);
-    this->currentTabWidget->setIncludeFoldChangeInAtLeast(this->includeFoldChangeInAtLeast);
-    this->currentTabWidget->setRawCountInAtLeast(this->rawCountinAtLeast);
-    this->currentTabWidget->setFoldChangeInAtLeast(this->foldChangeInAtLeast);
+    this->updateCurrentTabWidget();
 }
 
 
@@ -288,6 +298,39 @@ void MainWindow::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(i
     this->currentTabWidget->setFoldChangeInAtLeast(number);
 }
 
+void MainWindow::on_radioButtonAnalysisFilterUseTop_clicked() {
+    this->ui->filterOptionsWidget->hide();
+    this->ui->spinBoxFilterAnalysisFilterUseTop->setDisabled(false);
+
+    // Reset all filters for the current tab widget
+    this->minRawCount = 0;
+    this->maxRawCount = this->highestMetRawCount;
+    this->includeRawCountInAtLeast = false;
+    this->minFoldChange = 0;
+    this->maxFoldChange = this->highestMetFoldChange;
+    this->includeFoldChangeInAtLeast = false;
+
+    // And update the current TabWidget with these values
+    this->updateCurrentTabWidget();
+}
+
+void MainWindow::on_radioButtonAnalysisFilterFilterManually_clicked() {
+    this->ui->filterOptionsWidget->show();
+    this->ui->spinBoxFilterAnalysisFilterUseTop->setDisabled(true);
+
+    // Reapply the filter values of the previously hidden GUI elements
+    this->minRawCount = this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->value();
+    this->maxRawCount = this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->value();
+    this->includeRawCountInAtLeast = this->ui->checkBoxFilterOptionsRawCountCutOffInAtLeast->isChecked();
+    this->rawCountinAtLeast = this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->value();
+    this->minFoldChange = this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->value();
+    this->maxFoldChange = this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->value();
+    this->includeFoldChangeInAtLeast = this->ui->checkBoxFilterOptionsFoldChangeCutOfftInAtLeast->isChecked();
+    this->foldChangeInAtLeast = this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->value();
+
+    // And update the current TabWidget
+    this->updateCurrentTabWidget();
+}
 
 // ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
 //void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
@@ -298,3 +341,5 @@ void MainWindow::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(i
 //void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
 //    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
 //}
+
+

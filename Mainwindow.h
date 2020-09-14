@@ -79,6 +79,9 @@ private slots:
     void on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number);
     void on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number);
 
+    void on_radioButtonAnalysisFilterUseTop_clicked();
+    void on_radioButtonAnalysisFilterFilterManually_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -87,6 +90,7 @@ private:
 
     void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames);
     void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);
+    void updateCurrentTabWidget();
 
     double minRawCount;
     double maxRawCount;
@@ -101,6 +105,7 @@ private:
     int highestMetNumberOfClusters;
 
     bool isTabWidgetInitialized = false;
+
 
     // Mouse interaction - Necessary for frameless windows
 //    void mousePressEvent(QMouseEvent * mousePressEvent);
