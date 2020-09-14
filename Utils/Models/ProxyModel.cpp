@@ -142,16 +142,6 @@ QVariant ProxyModel::headerData(int section, Qt::Orientation orientation, int ro
 
 
 /**
- * @brief ProxyModel::refreshData - Emit a signal for repainting the TableView
- */
-void ProxyModel::refreshData() {
-    QModelIndex topLeftCell = this->index(0, 0),
-                bottomRightCell = this->index(this->rowCount, this->columnCount);
-    emit this->dataChanged(topLeftCell, bottomRightCell, {Qt::DisplayRole});
-}
-
-
-/**
  * @brief ProxyModel::setCurrentlyShownDataType - Acknowledge the new data type that is currently shown
  * @param newDataTypeToShow - The new data type that has been selected to be shown in the Table View
  */

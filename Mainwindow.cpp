@@ -32,6 +32,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
+
+    // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setDisabled(true);
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
+
+    this->includeRawCountInAtLeast = this->ui->checkBoxFilterOptionsRawCountCutOffInAtLeast->isChecked();
+    this->includeFoldChangeInAtLeast = this->ui->checkBoxFilterOptionsFoldChangeCutOfftInAtLeast->isChecked();
+    this->includeRawCountInAtLeast = this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->value();
+    this->includeFoldChangeInAtLeast = this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->value();
 }
 
 MainWindow::~MainWindow()
@@ -47,13 +56,21 @@ MainWindow::~MainWindow()
  */
 void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames) {
     TabWidget * tabWidget = new TabWidget(this, datasetName, clusterNames);
+
+    // Connect to the tabwidget to get the max values that are going to be found when populating the gene expression table below
+    QObject::connect(tabWidget, &TabWidget::maxValuesFound, this, &MainWindow::on_newMaxValuesFound);
+
     this->runningTabWidgets.append(tabWidget);
 
     this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
+    this->currentTabWidget = this->runningTabWidgets.at(0);
 
     // Forward the gene expression values to the new tab
     tabWidget->populateTableGeneExpressions(geneExpressions, completeGeneIDs);
+
+    // Report that the TabWidget has been initialized now -> Necessary for updating purposes
+    this->isTabWidgetInitialized = true;
 }
 
 
@@ -119,9 +136,29 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
 
 
 void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
-    if (index == this->ui->tabWidgetDatasets->count() - 1 && !this->isHidden()) {
-        qDebug() << "Trigger upload new dataset";
-    }
+
+
+//    if (index == this->ui->tabWidgetDatasets->count() - 1 && !this->isHidden()) {
+//        qDebug() << "Trigger upload new dataset";
+//    }
+
+    if (this->isHidden() || !this->isTabWidgetInitialized)
+        return;
+
+    // Set the new Tab as the current widget
+    this->currentTabWidget = this->runningTabWidgets.at(index);
+
+    // And send all current cut-offs the new widget
+    // This causes that the ProxyModel filter is only updated for the TabWidget that is currently seen
+    // This lazy evaluation was chosen to reduce the calculation time for the ProxyModel filter in case more than one tab is present
+    this->currentTabWidget->setMinRawCount(this->minRawCount);
+    this->currentTabWidget->setMaxRawCount(this->maxRawCount);
+    this->currentTabWidget->setMinFoldChange(this->minFoldChange);
+    this->currentTabWidget->setMaxFoldChange(this->maxFoldChange);
+    this->currentTabWidget->setIncludeRawCountInAtLeast(this->includeRawCountInAtLeast);
+    this->currentTabWidget->setIncludeFoldChangeInAtLeast(this->includeFoldChangeInAtLeast);
+    this->currentTabWidget->setRawCountInAtLeast(this->rawCountinAtLeast);
+    this->currentTabWidget->setFoldChangeInAtLeast(this->foldChangeInAtLeast);
 }
 
 
@@ -138,6 +175,117 @@ void MainWindow::on_receivedExpressionDataFromTabWidgets(QVector<FeatureCollecti
     QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
     allClustersFromAllDatasetsWithGeneExpressions << clustersWithGeneExpressions;
     emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
+}
+
+
+void MainWindow::on_newMaxValuesFound(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters) {
+
+    // Compare the new max values with the previous max values and update the current values in case any value is higher
+    if (this->highestMetRawCount < highestMetRawCount) {
+        this->highestMetRawCount = highestMetRawCount;
+        this->ui->spinBoxFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
+        this->ui->spinBoxFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
+        this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
+        this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
+        this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(highestMetRawCount);
+        emit this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->sliderMoved(highestMetRawCount);
+    }
+
+    if (this->highestMetFoldChange < highestMetFoldChange) {
+        this->highestMetFoldChange = highestMetFoldChange;
+        this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
+        this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
+        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
+        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
+        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
+        emit this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->sliderMoved(highestMetFoldChange);
+    }
+
+    if (this->highestMetNumberOfClusters < numberOfClusters) {
+        this->highestMetNumberOfClusters = numberOfClusters;
+        this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(numberOfClusters);
+        this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(numberOfClusters);
+    }
+}
+
+
+// GUI
+
+// MIN RAW COUNT
+void MainWindow::on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value) {
+    this->minRawCount = value;
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setValue(value);
+    this->currentTabWidget->setMinRawCount(value);
+}
+
+void MainWindow::on_horizontalSliderFilterOptionsRawCountCutOffMin_sliderMoved(int position) {
+    this->minRawCount = position;
+    this->ui->spinBoxFilterOptionsRawCountCutOffMin->setValue(position);
+}
+
+
+// MAX RAW COUNT
+void MainWindow::on_spinBoxFilterOptionsRawCountCutOffMax_valueChanged(int value) {
+    this->maxRawCount = value;
+    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(value);
+    this->currentTabWidget->setMaxRawCount(value);
+}
+
+void MainWindow::on_horizontalSliderFilterOptionsRawCountCutOffMax_sliderMoved(int position) {
+    this->maxRawCount = position;
+    this->ui->spinBoxFilterOptionsRawCountCutOffMax->setValue(position);
+}
+
+
+// MIN FOLD CHANGE
+void MainWindow::on_spinBoxFilterOptionsFoldChangeCutOffMin_valueChanged(int value) {
+    this->minFoldChange = value;
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setValue(value);
+    this->currentTabWidget->setMinFoldChange(value);
+}
+
+void MainWindow::on_horizontalSliderFilterOptionsFoldChangeCutOffMin_sliderMoved(int position) {
+    this->minFoldChange = position;
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setValue(position);
+}
+
+
+// MAX FOLD CHANGE
+void MainWindow::on_spinBoxFilterOptionsFoldChangeCutOffMax_valueChanged(int value) {
+    this->maxFoldChange = value;
+    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(value);
+    this->currentTabWidget->setMaxFoldChange(value);
+}
+
+void MainWindow::on_horizontalSliderFilterOptionsFoldChangeCutOffMax_sliderMoved(int position) {
+    this->maxFoldChange = position;
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setValue(position);
+}
+
+
+// RAW COUNT IN AT LEAST
+void MainWindow::on_checkBoxFilterOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
+    this->includeRawCountInAtLeast = checked;
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setEnabled(checked);
+    this->currentTabWidget->setIncludeRawCountInAtLeast(checked);
+}
+
+void MainWindow::on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number) {
+    this->rawCountinAtLeast = number;
+    this->currentTabWidget->setRawCountInAtLeast(number);
+}
+
+
+// FOLD CHANGE IN AT LEAST
+void MainWindow::on_checkBoxFilterOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
+    this->includeFoldChangeInAtLeast = checked;
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setEnabled(checked);
+    this->currentTabWidget->setIncludeFoldChangeInAtLeast(checked);
+}
+
+void MainWindow::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
+    this->foldChangeInAtLeast = number;
+    this->currentTabWidget->setFoldChangeInAtLeast(number);
 }
 
 
