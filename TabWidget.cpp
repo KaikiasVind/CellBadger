@@ -152,17 +152,13 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
             highestMetFoldChange = cluster.getHighestFoldChange();
     }
 
-    // Set the maximum that stands for the number of clusters
-    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
-
     // ############################################ PROXY MODEL ############################################
     this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1, highestMetRawCount, highestMetFoldChange, hashedFeatureDataForAllClusters);
     this->proxyModel->setSourceModel(geneTableModel);
 
     // Use the highest met values for raw count and fold change to change tweek the gui values
     // Needs to be done after the proxymodel has been initialized
-    this->setMaxValuesForGUIElements(highestMetRawCount, highestMetFoldChange);
+    this->setMaxValuesForGUIElements(highestMetRawCount, highestMetFoldChange, geneExpressions.length());
 
     // ############################################ TABLE VIEW ############################################
     this->tableView = new QTableView;
@@ -397,7 +393,9 @@ void TabWidget::cleanCorrelationTable() {
  * @param highestMetRawCount - Max possible raw count cut-off
  * @param highestMetFoldChange - Max possible fold change cut-off
  */
-void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange) {
+void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters) {
+    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(numberOfClusters);
+    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(numberOfClusters);
     this->ui->spinBoxFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
     this->ui->spinBoxFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
     this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);

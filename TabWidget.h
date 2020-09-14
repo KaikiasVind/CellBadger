@@ -87,7 +87,7 @@ private:
     template<typename F>
     void openExportWidgetWithPlot(F plottingFunction);
     void cleanCorrelationTable();
-    void setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange);
+    void setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters);
     std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
 
     QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs);
