@@ -13,6 +13,7 @@
 #include "TabWidget.h"
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Models/AnalysisConfigModel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -27,7 +28,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void on_receivedExpressionDataFromTabWidgets(const QVector<FeatureCollection> clustersWithGeneExpressions);
+//    void on_receivedExpressionDataFromTabWidgets(const QVector<FeatureCollection> clustersWithGeneExpressions);
     void on_filesParsed(const InformationCenter & informationCenter);
     void on_correlatingFinished(const InformationCenter & informationCenter);
     void on_newMaxValuesFound(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters);
@@ -35,7 +36,8 @@ public slots:
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
     void requestGeneExpressionData();
-    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
+//    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
+    void runAnalysis(const AnalysisConfigModel analysisConfigModel);
 
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);
@@ -105,7 +107,6 @@ private:
     int highestMetNumberOfClusters;
 
     bool isTabWidgetInitialized = false;
-
 
     // Mouse interaction - Necessary for frameless windows
 //    void mousePressEvent(QMouseEvent * mousePressEvent);

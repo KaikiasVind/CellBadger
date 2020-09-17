@@ -118,7 +118,7 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
         }
     }
 
-    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 
@@ -168,6 +168,11 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
     // The Contigous selection mode prevents the selection of single cells out of line
     this->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    this->tableView->horizontalHeader()->setMinimumSectionSize(100);
+    this->tableView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+//    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    this->tableView->horizontalHeader()->setStretchLastSection(true);
+    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
 

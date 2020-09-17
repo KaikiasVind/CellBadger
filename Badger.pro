@@ -30,6 +30,7 @@ SOURCES += \
     Utils/FileOperators/ConfigFileOperator.cpp \
     Utils/Helper.cpp \
     Utils/Math.cpp \
+    Utils/Models/AnalysisConfigModel.cpp \
     Utils/Models/GeneTableModel.cpp \
     Utils/Models/ProxyModel.cpp \
     Utils/Plots.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     Utils/FileOperators/ConfigFileOperator.h \
     Utils/Helper.h \
     Utils/Math.h \
+    Utils/Models/AnalysisConfigModel.h \
     Utils/Models/GeneTableModel.h \
     Utils/Models/ProxyModel.h \
     Utils/Plots.h \

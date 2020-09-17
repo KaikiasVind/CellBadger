@@ -18,6 +18,7 @@
 #include "Utils/Helper.h"
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Models/AnalysisConfigModel.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -174,18 +175,36 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
 
 void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
     this->ui->labelStatus->setText("Running correlation...");
-    QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
-    for (TabWidget * tabWidget : this->runningTabWidgets)
-        allClustersFromAllDatasetsWithGeneExpressions.append(tabWidget->retrieveAllSeenData());
-    emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
+
+    // Bundle up all configurations into a single model
+    AnalysisConfigModel analysisConfigModel;
+
+    // And fill it with the chosen configuration values based on which mode is selected on the GUI
+    if (this->ui->radioButtonAnalysisFilterUseTop->isChecked()) {
+        analysisConfigModel = AnalysisConfigModel(Helper::AnalysisFilterMode::TOP_N);
+        analysisConfigModel.numberOfGenesToUse = this->ui->spinBoxFilterAnalysisFilterUseTop->value();
+
+    } else if (this->ui->radioButtonAnalysisFilterFilterManually->isChecked()) {
+        analysisConfigModel = AnalysisConfigModel(Helper::AnalysisFilterMode::MANUAL);
+        analysisConfigModel.minRawCount = this->minRawCount;
+        analysisConfigModel.maxRawCount = this->maxRawCount;
+        analysisConfigModel.includeRawCountInAtLeast = this->includeRawCountInAtLeast;
+        analysisConfigModel.rawCountInAtLeast = this->rawCountinAtLeast;
+        analysisConfigModel.minFoldChange = this->minFoldChange;
+        analysisConfigModel.maxFoldChange = this->maxFoldChange;
+        analysisConfigModel.includeFoldChangeInAtLeast = this->includeFoldChangeInAtLeast;
+        analysisConfigModel.foldChangeInAtLeast = this->foldChangeInAtLeast;
+    }
+
+    emit this->runAnalysis(analysisConfigModel);
 }
 
 
-void MainWindow::on_receivedExpressionDataFromTabWidgets(QVector<FeatureCollection> clustersWithGeneExpressions) {
-    QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
-    allClustersFromAllDatasetsWithGeneExpressions << clustersWithGeneExpressions;
-    emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
-}
+//void MainWindow::on_receivedExpressionDataFromTabWidgets(QVector<FeatureCollection> clustersWithGeneExpressions) {
+//    QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions;
+//    allClustersFromAllDatasetsWithGeneExpressions << clustersWithGeneExpressions;
+//    emit this->runAnalysis(allClustersFromAllDatasetsWithGeneExpressions);
+//}
 
 
 void MainWindow::on_newMaxValuesFound(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters) {

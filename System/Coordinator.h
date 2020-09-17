@@ -8,6 +8,7 @@
 #include <QStringList>
 
 #include "System/InformationCenter.h"
+#include "Utils/Models/AnalysisConfigModel.h"
 
 /**
  * @brief The Coordinator class - This class is used to model the basic workflow and to concentrate the program logic in one place
@@ -48,7 +49,8 @@ public slots:
     // ################### INTERACTION WITH START DIALOG ########################
 
     // ################### INTERACTION WITH MAIN WINDOW #########################
-    void on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
+//    void on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
+    void on_runAnalysis(const AnalysisConfigModel analysisConfigModel);
     // ################### INTERACTION WITH MAIN WINDOW #########################
 
     // ######################### FILE PROCESSING ################################
