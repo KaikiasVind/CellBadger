@@ -1,9 +1,9 @@
 #ifndef ANALYSISCONFIGMODEL_H
 #define ANALYSISCONFIGMODEL_H
 
-#include "Utils/Helper.h"
+#include "Utils/Definitions.h"
 
-using Helper::AnalysisFilterMode;
+using Definitions::AnalysisFilterMode;
 
 struct AnalysisConfigModel {
 
@@ -27,7 +27,7 @@ struct AnalysisConfigModel {
     int foldChangeInAtLeast;
 
     AnalysisConfigModel();
-    AnalysisConfigModel(const AnalysisFilterMode usedAnalysisFilterMode);
+    AnalysisConfigModel(const AnalysisFilterMode analysisFilterMode);
 };
 
 #endif // ANALYSISCONFIGMODEL_H

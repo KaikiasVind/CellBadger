@@ -19,8 +19,10 @@
 #include "ExportDialog.h"
 #include "Utils/Plots.h"
 #include "Utils/Models/GeneTableModel.h"
-#include "Utils/Helper.h"
+#include "Utils/Definitions.h"
 #include "Utils/Math.h"
+
+using Definitions::ShownData;
 
 
 TabWidget::TabWidget(QWidget *parent, QString title, QStringList clusterNames) :
@@ -566,11 +568,11 @@ void TabWidget::on_pushButtonExportGeneExpressions_clicked() {
  */
 void TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index)
 {
-    Helper::ShownData newDataTypeToShow;
+    ShownData newDataTypeToShow;
     switch (index) {
-        case 0: newDataTypeToShow = Helper::ShownData::RPM; break;
-        case 1: newDataTypeToShow = Helper::ShownData::RAW_COUNTS; break;
-        case 2: newDataTypeToShow = Helper::ShownData::FOLD_CHANGES; break;
+        case 0: newDataTypeToShow = ShownData::RPM; break;
+        case 1: newDataTypeToShow = ShownData::RAW_COUNTS; break;
+        case 2: newDataTypeToShow = ShownData::FOLD_CHANGES; break;
     }
 
     this->geneTableModel->setCurrentlyShownDataType(newDataTypeToShow);

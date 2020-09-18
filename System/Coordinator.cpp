@@ -13,9 +13,10 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Utils/Math.h"
+#include "Utils/Definitions.h"
 #include "Utils/Helper.h"
 
-using Helper::AnalysisFilterMode;
+using Definitions::AnalysisFilterMode;
 
 /**
  * @brief Coordinator::Coordinator
@@ -202,19 +203,21 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
     QVector<QVector<FeatureCollection>> filteredXClusterCollections;
     filteredXClusterCollections.reserve(this->informationCenter.xClusterCollections.length());
 
-    switch (analysisConfigModel.usedFilterMode) {
-
+    // Go through every experiment and filter the genes according to the currently chosen filter model
+    for (int i = 0; i < this->informationCenter.xClusterCollections.length(); i++) {
         // In case of TOP_N, filter every existant experiment for the top n most expressed genes
+        switch (analysisConfigModel.usedFilterMode) {
         case AnalysisFilterMode::TOP_N:
-            for (QVector<FeatureCollection> experiment : this->informationCenter.xClusterCollections)
-                filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(experiment, analysisConfigModel.numberOfGenesToUse));
+            filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(this->informationCenter.xClusterCollections.at(i), analysisConfigModel.numberOfGenesToUse));
             break;
 
         case AnalysisFilterMode::MANUAL:
+            filteredXClusterCollections.append(Helper::filterExpressedGenesAccordingToFilters(this->informationCenter.xClusterCollections.at(i), this->informationCenter.completeSetsOfGeneIDsPerDataset.at(i), analysisConfigModel));
             break;
 
         case AnalysisFilterMode::AUTOMATIC:
             break;
+        }
     }
 
     // Correlate the datasets with the given cell type markers in separate threads

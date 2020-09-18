@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-#include "Utils/Helper.h"
+#include "Utils/Definitions.h"
+
+using Definitions::ShownData;
 
 class ProxyModel : public QSortFilterProxyModel
 {
@@ -18,7 +20,7 @@ public:
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-    void setCurrentlyShownDataType(const Helper::ShownData newDataTypeToShow);
+    void setCurrentlyShownDataType(const ShownData newDataTypeToShow);
 
     void setMinRawCount(double minRawCount);
     void setMaxRawCount(double maxRawCount);
@@ -34,7 +36,7 @@ private:
     int rowCount;
     int columnCount;
 
-    Helper::ShownData currentlyShownDataType;
+    ShownData currentlyShownDataType;
     QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters;
 
     double minRawCount;

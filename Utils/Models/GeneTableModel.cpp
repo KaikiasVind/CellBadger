@@ -5,7 +5,9 @@
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Math.h"
+#include "Utils/Definitions.h"
 
+using Definitions::ShownData;
 
 /**
  * @brief GeneTableModel::GeneTableModel - A model that inherits QAbstractTableModel and is used to display gene expression in all clusters
@@ -87,15 +89,15 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         } else {
 
             switch (this->currentlyShownDataType) {
-                case Helper::ShownData::RPM:
+                case ShownData::RPM:
                     return std::get<0>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
                     break;
 
-                case Helper::ShownData::RAW_COUNTS:
+                case ShownData::RAW_COUNTS:
                     return std::get<1>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
                     break;
 
-                case Helper::ShownData::FOLD_CHANGES:
+                case ShownData::FOLD_CHANGES:
                     return std::get<2>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
                     break;
             }
@@ -154,7 +156,7 @@ QStringList GeneTableModel::getClusterNames() const {
  * @brief GeneTableModel::setCurrentlyShownDataType - Set the data type that should be shown in the table view
  * @param dataTypeToShow - Enum representing the new data type
  */
-void GeneTableModel::setCurrentlyShownDataType(const Helper::ShownData dataTypeToShow) {
+void GeneTableModel::setCurrentlyShownDataType(const ShownData dataTypeToShow) {
     if (this->currentlyShownDataType == dataTypeToShow)
         return;
     this->currentlyShownDataType = dataTypeToShow;

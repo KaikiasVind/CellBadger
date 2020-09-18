@@ -3,6 +3,9 @@
 #include <QSortFilterProxyModel>
 #include <QDebug>
 
+#include "Utils/Definitions.h"
+
+using Definitions::ShownData;
 
 /**
  * @brief ProxyModel::ProxyModel
@@ -145,7 +148,7 @@ QVariant ProxyModel::headerData(int section, Qt::Orientation orientation, int ro
  * @brief ProxyModel::setCurrentlyShownDataType - Acknowledge the new data type that is currently shown
  * @param newDataTypeToShow - The new data type that has been selected to be shown in the Table View
  */
-void ProxyModel::setCurrentlyShownDataType(const Helper::ShownData newDataTypeToShow) {
+void ProxyModel::setCurrentlyShownDataType(const ShownData newDataTypeToShow) {
     this->currentlyShownDataType = newDataTypeToShow;
     invalidateFilter();
 }

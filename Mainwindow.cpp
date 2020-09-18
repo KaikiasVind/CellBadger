@@ -19,6 +19,10 @@
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/AnalysisConfigModel.h"
+#include "Utils/Definitions.h"
+
+using Definitions::AnalysisFilterMode;
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -181,11 +185,11 @@ void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
 
     // And fill it with the chosen configuration values based on which mode is selected on the GUI
     if (this->ui->radioButtonAnalysisFilterUseTop->isChecked()) {
-        analysisConfigModel = AnalysisConfigModel(Helper::AnalysisFilterMode::TOP_N);
+        analysisConfigModel = AnalysisConfigModel(AnalysisFilterMode::TOP_N);
         analysisConfigModel.numberOfGenesToUse = this->ui->spinBoxFilterAnalysisFilterUseTop->value();
 
     } else if (this->ui->radioButtonAnalysisFilterFilterManually->isChecked()) {
-        analysisConfigModel = AnalysisConfigModel(Helper::AnalysisFilterMode::MANUAL);
+        analysisConfigModel = AnalysisConfigModel(AnalysisFilterMode::MANUAL);
         analysisConfigModel.minRawCount = this->minRawCount;
         analysisConfigModel.maxRawCount = this->maxRawCount;
         analysisConfigModel.includeRawCountInAtLeast = this->includeRawCountInAtLeast;

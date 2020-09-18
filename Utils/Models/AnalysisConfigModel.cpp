@@ -1,8 +1,8 @@
 #include "AnalysisConfigModel.h"
 
-#include "Utils/Helper.h"
+#include "Utils/Definitions.h"
 
-using Helper::AnalysisFilterMode;
+using Definitions::AnalysisFilterMode;
 
 /**
  * @brief AnalysisConfigModel::AnalysisConfigModel - Default constructor

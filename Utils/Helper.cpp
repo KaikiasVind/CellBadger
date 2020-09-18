@@ -80,11 +80,11 @@ QString openSaveFileDialog(QWidget * parent, QString description, QString validM
  * @param numberOfGenesToPop - Number of genes the resulting FeatureCollections are going to have
  * @return - List of FeatureCollections with only the top n genes with the highest fold changes
  */
-QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, int numberOfGenesToPop) {
+QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, const int numberOfGenesToPop) {
     QVector<FeatureCollection> filteredExperiment;
     filteredExperiment.reserve(experiment.length());
 
-    // Go through all collections of the experiment and p
+    // Go through all collections of the experiment and pop the top n genes
     for (FeatureCollection collection : experiment) {
         FeatureCollection filteredCollection(collection.ID);
 
@@ -109,6 +109,87 @@ QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureColle
 
         // add the completed collection to the list and continue with the next collection
         filteredExperiment.append(filteredCollection);
+    }
+
+    return filteredExperiment;
+}
+
+
+/**
+ * @brief filterExpressedGenesAccordingToFilters - Filter out the cluster's genes in the given experiment according to the cut-offs in the given AnalysisConfigModel
+ * @param experiment - List of FeatureCollections containing the to sort genes
+ * @param analysisConfigModel - Comined configuration and cut-offs to be used for the filtering process
+ * @return - List of FeatureCollections with genes filtered out that do not apply to the cut-offs in the given AnalysisConfigModel
+ */
+QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs, const AnalysisConfigModel analysisConfigModel) {
+    QVector<FeatureCollection> filteredExperiment;
+    filteredExperiment.reserve(experiment.length());
+
+    // Create as many new collections as there were old ones
+    for (FeatureCollection collection : experiment)
+        filteredExperiment.append(FeatureCollection(collection.ID));
+
+    // Then go through every of the given feature-IDs and check whether the current cluster's expression of that gene matches the cut-offs
+    for (QString featureID : completeGeneIDs) {
+        QVector<Feature> currentFeatureInClusters;
+
+        int numberOfClustersWithGenesWithValidRPMValues = 0;
+        int numberOfClustersWithGenesWithValidRawCounts = 0;
+        int numberOfClustersWithGenesWithValidFoldChanges = 0;
+
+        // Go through all collections of the experiment and filter out not wanted genes
+        for (FeatureCollection collection : experiment) {
+            Feature feature = collection.getFeature(featureID);
+
+            // If the current feature is not expressed in the cluster, try the next cluster
+            if (feature.ID.compare("nAn") == 0)
+                continue;;
+
+            // Check whether the current feature matches all cut-offs
+            bool featureMatchesRPMCutOff = true;
+            bool featureMatchesRawCountCutOff = feature.count >= analysisConfigModel.minRawCount && feature.count <= analysisConfigModel.maxRawCount;
+            bool featureMatchesFoldChangeCutOff = feature.foldChange >= analysisConfigModel.minFoldChange && feature.foldChange <= analysisConfigModel.maxFoldChange;
+
+            if (featureMatchesRPMCutOff)
+                numberOfClustersWithGenesWithValidRPMValues++;
+
+            if (featureMatchesRawCountCutOff)
+                numberOfClustersWithGenesWithValidRawCounts++;
+
+            if (featureMatchesFoldChangeCutOff)
+                numberOfClustersWithGenesWithValidFoldChanges++;
+
+            // If the current feature matches all cut-offs append it to the list
+            if (featureMatchesRPMCutOff && featureMatchesRawCountCutOff && featureMatchesFoldChangeCutOff) {
+                currentFeatureInClusters.append(feature);
+
+            // otherwise just append an 'empty' Feature that is deleted later
+            } else {
+                currentFeatureInClusters.append(Feature());
+            }
+        }
+
+        bool isNumberOfValidRPMValuesClustersMet = true;
+        bool isNumberOfValidRawCountClustersMet =
+                (numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast) ||
+                (!analysisConfigModel.includeRawCountInAtLeast && numberOfClustersWithGenesWithValidRawCounts > 0);
+        bool isNumberOfValidFoldChangeClustersMet =
+                (numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast) ||
+                (!analysisConfigModel.includeFoldChangeInAtLeast && numberOfClustersWithGenesWithValidFoldChanges > 0);
+
+        // If all 'in-at-least' cut-offs have been met add the genes to the correct clusters, otherwise the genes are dropped
+        if (isNumberOfValidRPMValuesClustersMet && isNumberOfValidRawCountClustersMet && isNumberOfValidFoldChangeClustersMet) {
+
+            for (int i = 0; i < currentFeatureInClusters.length(); i++) {
+
+                // If the current feature is an 'empty' feature, do not append it to the current cluster
+                if (currentFeatureInClusters.at(i).ID.compare("nAn") == 0)
+                continue;
+
+                // else add the corresponding feature to the current cluster
+                filteredExperiment[i].addFeature(currentFeatureInClusters.at(i));
+            }
+        }
     }
 
     return filteredExperiment;

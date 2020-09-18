@@ -5,7 +5,9 @@
 #include <QAbstractTableModel>
 
 #include "BioModels/FeatureCollection.h"
-#include "Utils/Helper.h"
+#include "Utils/Definitions.h"
+
+using Definitions::ShownData;
 
 class GeneTableModel : public QAbstractTableModel
 {
@@ -22,7 +24,7 @@ public:
 
     QStringList getClusterNames() const;
 
-    void setCurrentlyShownDataType(const Helper::ShownData dataTypeToShow);
+    void setCurrentlyShownDataType(const ShownData dataTypeToShow);
 
 private:
     const QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneExpressionDataForAllClusters;
@@ -32,7 +34,7 @@ private:
 
     int numberOfClusters;
 
-    Helper::ShownData currentlyShownDataType;
+    ShownData currentlyShownDataType;
 
     void splitFeaturesIntoValues(const QVector<FeatureCollection> experiment);
 };

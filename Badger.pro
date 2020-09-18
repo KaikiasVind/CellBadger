@@ -50,6 +50,7 @@ HEADERS += \
     System/Coordinator.h \
     System/InformationCenter.h \
     TabWidget.h \
+    Utils/Definitions.h \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
     Utils/Helper.h \
