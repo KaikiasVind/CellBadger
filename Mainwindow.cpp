@@ -97,33 +97,6 @@ void MainWindow::updateCurrentTabWidget() {
 }
 
 // ############################################### SLOTS ###############################################
-/**
- * @brief MainWindow::on_buttonExit_clicked - Shutdown the program
- */
-__attribute__((noreturn)) void MainWindow::on_buttonExit_clicked() {
-    qDebug() << "Exiting";
-    exit(0);
-}
-
-/**
- * @brief MainWindow::on_buttonMaximize_clicked - Minimises the main window
- */
-void MainWindow::on_buttonMaximize_clicked() {
-    // Allow maximize and unmaximize
-    if (this->windowState() == Qt::WindowMaximized) {
-        this->setWindowState(Qt::WindowNoState);
-    } else {
-        this->setWindowState(Qt::WindowMaximized);
-    }
-}
-
-/**
- * @brief MainWindow::on_buttonMinimize_clicked - Maximises the main window
- */
-void MainWindow::on_buttonMinimize_clicked() {
-    this->setWindowState(Qt::WindowMinimized);
-}
-
 
 // REACTING TO CONTROLLER
 void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
@@ -354,15 +327,3 @@ void MainWindow::on_radioButtonAnalysisFilterFilterManually_clicked() {
     // And update the current TabWidget
     this->updateCurrentTabWidget();
 }
-
-// ++++++++++++++++++++++++++++++++ MOUSE ++++++++++++++++++++++++++++++++
-//void MainWindow::mousePressEvent(QMouseEvent * mousePressEvent) {
-//    this->mouseClickXCoordinate = mousePressEvent->x();
-//    this->mouseClickYCoordinate = mousePressEvent->y();
-//}
-
-//void MainWindow::mouseMoveEvent(QMouseEvent * mouseMoveEvent) {
-//    this->move(mouseMoveEvent->globalX() - this->mouseClickXCoordinate, mouseMoveEvent->globalY() - this->mouseClickYCoordinate);
-//}
-
-

@@ -49,12 +49,6 @@ signals:
     void foldChangeInAtLeastToggled(bool state);
 
 private slots:
-    __attribute__((noreturn)) void on_buttonExit_clicked();
-
-    void on_buttonMaximize_clicked();
-
-    void on_buttonMinimize_clicked();
-
     void on_tabWidgetDatasets_currentChanged(int index);
 
     void on_pushButtonCorrelationOptionsRun_clicked();
@@ -108,10 +102,5 @@ private:
 
     bool isTabWidgetInitialized = false;
 
-    // Mouse interaction - Necessary for frameless windows
-//    void mousePressEvent(QMouseEvent * mousePressEvent);
-//    void mouseMoveEvent(QMouseEvent * mouseMoveEvent);
-//    int mouseClickXCoordinate;
-//    int mouseClickYCoordinate;
 };
 #endif // MAINWINDOW_H
