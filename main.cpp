@@ -17,8 +17,10 @@
 #include "Utils/Helper.h"
 #include "Utils/Math.h"
 
+#include "Utils/Models/AnalysisConfigModel.h"
+#include "Utils/Definitions.h"
 
-#define run 1
+#define run 0
 
 int main(int argc, char * argv[])
 {
@@ -26,11 +28,11 @@ int main(int argc, char * argv[])
 
 #if !run
 
-//    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/Pbmc_expression.csv";
-//    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/PanglaoDB_markers.csv";
+    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/Pbmc_expression.csv";
+    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/PanglaoDB_markers.csv";
 
-    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\Pbmc_expression.csv";
-    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\PanglaoDB_markers.csv";
+//    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\Pbmc_expression.csv";
+//    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\PanglaoDB_markers.csv";
 
     qDebug() << "Parsing.";
     QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {15, 0});
@@ -39,24 +41,103 @@ int main(int argc, char * argv[])
 
     samples.removeFirst();
 
-//    for (FeatureCollection collection : samples) {
-//        qDebug() << "\n" << collection.ID;
-//        for (int i = 0; i < 16; i++) {
-//            Feature feature = collection.getFeature(i);
-//            qDebug() << feature.ID << "-" << feature.count;
-//        }
-//    }
+    QStringList completeGeneIDs;
 
-    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
-
-    QVector<double> qualityScores = Math::calculateQualityScores(correlations);
-
-    for (int i = 0; i < correlations.length(); i++) {
-        qDebug() << "\ncluster" << i << "- qs:" << qualityScores.at(i);
-        for (int j = 0; j < 5; j++) {
-            qDebug() << correlations.at(i).at(j).first << "-" << correlations.at(i).at(j).second;
+    for (FeatureCollection collection : samples) {
+        for (Feature feature : collection.getFeatures()) {
+            completeGeneIDs.append(feature.ID);
         }
     }
+
+    completeGeneIDs.removeDuplicates();
+
+    AnalysisConfigModel analysisConfigModel(Definitions::AnalysisFilterMode::MANUAL);
+
+    analysisConfigModel.minRawCount = 0;
+    analysisConfigModel.maxRawCount = INT_MAX;
+    analysisConfigModel.minFoldChange = 0;
+    analysisConfigModel.maxFoldChange = INT_MAX;
+
+    QVector<FeatureCollection> filteredSamples = Helper::filterExpressedGenesAccordingToFilters(samples, completeGeneIDs, analysisConfigModel);
+//    QVector<FeatureCollection> filteredSamples = Helper::findTopNMostExpressedGenes(samples, INT_MAX);
+
+    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
+    QVector<QVector<QPair<QString, double>>> filteredCorrelations = ExpressionComparator::findClusterCellFoldChangeCorrelations(filteredSamples, cellTypes);
+
+    QVector<double> qualityScores = Math::calculateQualityScores(filteredCorrelations);
+
+    auto printCorrelations = [qualityScores](QVector<QVector<QPair<QString, double>>> correlationOneValues, QVector<QVector<QPair<QString, double>>> correlationTwoValues) {
+        for (int i = 0; i < correlationOneValues.length(); i++) {
+            qDebug() << "\ncluster" << i << "- qs:" << qualityScores.at(i);
+            for (int j = 0; j < 5; j++) {
+                qDebug() << correlationOneValues.at(i).at(j).first << "-" << correlationOneValues.at(i).at(j).second;
+                qDebug() << correlationTwoValues.at(i).at(j).first << "-" << correlationTwoValues.at(i).at(j).second;
+            }
+        }
+    };
+
+    for (int i = 0; i < correlations.length(); i++) {
+        for (int j = 0; j < correlations.at(i).length(); j++) {
+            bool equalGeneIDs = correlations.at(i).at(j).first.compare(filteredCorrelations.at(i).at(j).first) == 0,
+                 equalValues  = correlations.at(i).at(j).second == filteredCorrelations.at(i).at(j).second;
+
+            if (!equalGeneIDs || !equalValues) {
+                qDebug() << "Not identical!";
+                printCorrelations(correlations, filteredCorrelations);
+                exit(0);
+            }
+        }
+    }
+
+    qDebug() << "Identical!";
+    printCorrelations(correlations, filteredCorrelations);
+    exit(0);
+
+
+
+//    Feature a("a", "nAn", 15, -1, 15);
+//    Feature b("b", "nAn", 12, -1, 13);
+//    Feature c("c", "nAn", 20, -1, 10);
+
+//    Feature d("d", "nAn", 300, -1, 400);
+//    Feature e("e", "nAn", 9, -1, 21);
+//    Feature f("f", "nAn", -40, -1, -30);
+
+//    FeatureCollection testCollection("test");
+//    testCollection.addFeature(a);
+//    testCollection.addFeature(b);
+//    testCollection.addFeature(c);
+//    testCollection.addFeature(d);
+//    testCollection.addFeature(e);
+//    testCollection.addFeature(f);
+
+//    QVector<FeatureCollection> experimentOne, experimentTwo;
+//    experimentOne << testCollection;
+//    experimentTwo << testCollection;
+//    QVector<QVector<FeatureCollection>> experiments;
+//    experiments << experimentOne << experimentTwo;
+
+//    AnalysisConfigModel configModel(Definitions::AnalysisFilterMode::MANUAL);
+//    configModel.minRawCount = 10;
+//    configModel.maxRawCount = 20;
+//    configModel.minFoldChange = 10;
+//    configModel.maxFoldChange = 20;
+
+//    QVector<QVector<FeatureCollection>> filteredExperiments;
+
+//    for (QVector<FeatureCollection> experiment : experiments)
+//        filteredExperiments.append(Helper::filterExpressedGenesAccordingToFilters(experiment, {"a", "b", "c", "d", "e", "f"}, configModel));
+
+//    for (QVector<FeatureCollection> experiment : filteredExperiments) {
+//        for (FeatureCollection collection : experiment) {
+//            qDebug() << collection.ID << ":";
+//            for (Feature feature : collection.getFeatures()) {
+//                qDebug() << feature.ID;
+//            }
+//        }
+//        qDebug() << "\n";
+//    }
+
 
 
 

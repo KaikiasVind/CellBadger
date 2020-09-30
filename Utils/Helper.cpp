@@ -129,27 +129,35 @@ QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<
     for (FeatureCollection collection : experiment)
         filteredExperiment.append(FeatureCollection(collection.ID));
 
-    // Then go through every of the given feature-IDs and check whether the current cluster's expression of that gene matches the cut-offs
     for (QString featureID : completeGeneIDs) {
-        QVector<Feature> currentFeatureInClusters;
+        QVector<Feature> featuresToBeAdded;
 
-        int numberOfClustersWithGenesWithValidRPMValues = 0;
-        int numberOfClustersWithGenesWithValidRawCounts = 0;
-        int numberOfClustersWithGenesWithValidFoldChanges = 0;
+        int numberOfClustersWithGenesWithValidRPMValues = 0,
+            numberOfClustersWithGenesWithValidRawCounts = 0,
+            numberOfClustersWithGenesWithValidFoldChanges = 0;
 
-        // Go through all collections of the experiment and filter out not wanted genes
-        for (FeatureCollection collection : experiment) {
-            Feature feature = collection.getFeature(featureID);
+        for (int i = 0; i < experiment.length(); i++) {
+            Feature feature = experiment.at(i).getFeature(featureID);
 
-            // If the current feature is not expressed in the cluster, try the next cluster
-            if (feature.ID.compare("nAn") == 0)
-                continue;;
+            // Bools corresponding to whether the current feature matches given cut-offs
+            bool featureMatchesRPMCutOff = false;
+            bool featureMatchesRawCountCutOff = false;
+            bool featureMatchesFoldChangeCutOff = false;
 
             // Check whether the current feature matches all cut-offs
-            bool featureMatchesRPMCutOff = true;
-            bool featureMatchesRawCountCutOff = feature.count >= analysisConfigModel.minRawCount && feature.count <= analysisConfigModel.maxRawCount;
-            bool featureMatchesFoldChangeCutOff = feature.foldChange >= analysisConfigModel.minFoldChange && feature.foldChange <= analysisConfigModel.maxFoldChange;
+            // Should the current feature not be expressed in the current cluster, every value is left as false
+            if (feature.ID.compare("nAn") != 0) {
+                featureMatchesRPMCutOff = true;
+                featureMatchesRawCountCutOff = (feature.count >= analysisConfigModel.minRawCount) && (feature.count <= analysisConfigModel.maxRawCount);
+                featureMatchesFoldChangeCutOff = (feature.foldChange >= analysisConfigModel.minFoldChange) && (feature.foldChange <= analysisConfigModel.maxFoldChange);
+            }
 
+            // Add the current feature to the cluster
+            // Should the current fature not be expressed in the current cluster, the empty feature is added (which is later deleted)
+            // This is done to ensure the correct order of the features to the correct clusters
+            featuresToBeAdded.append(feature);
+
+            // Note the matched cut-offs
             if (featureMatchesRPMCutOff)
                 numberOfClustersWithGenesWithValidRPMValues++;
 
@@ -158,37 +166,36 @@ QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<
 
             if (featureMatchesFoldChangeCutOff)
                 numberOfClustersWithGenesWithValidFoldChanges++;
-
-            // If the current feature matches all cut-offs append it to the list
-            if (featureMatchesRPMCutOff && featureMatchesRawCountCutOff && featureMatchesFoldChangeCutOff) {
-                currentFeatureInClusters.append(feature);
-
-            // otherwise just append an 'empty' Feature that is deleted later
-            } else {
-                currentFeatureInClusters.append(Feature());
-            }
         }
 
+        // Check if the minimum number of clusters with valid feature cut-offs is met for the current gene
         bool isNumberOfValidRPMValuesClustersMet = true;
-        bool isNumberOfValidRawCountClustersMet =
-                (numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast) ||
-                (!analysisConfigModel.includeRawCountInAtLeast && numberOfClustersWithGenesWithValidRawCounts > 0);
-        bool isNumberOfValidFoldChangeClustersMet =
-                (numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast) ||
-                (!analysisConfigModel.includeFoldChangeInAtLeast && numberOfClustersWithGenesWithValidFoldChanges > 0);
 
-        // If all 'in-at-least' cut-offs have been met add the genes to the correct clusters, otherwise the genes are dropped
+        bool isNumberOfValidRawCountClustersMet =
+                (numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast)
+                || (!analysisConfigModel.includeRawCountInAtLeast && numberOfClustersWithGenesWithValidRawCounts > 0);
+
+        bool isNumberOfValidFoldChangeClustersMet =
+                (numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast)
+                || (!analysisConfigModel.includeFoldChangeInAtLeast && numberOfClustersWithGenesWithValidFoldChanges > 0);
+
         if (isNumberOfValidRPMValuesClustersMet && isNumberOfValidRawCountClustersMet && isNumberOfValidFoldChangeClustersMet) {
 
-            for (int i = 0; i < currentFeatureInClusters.length(); i++) {
+            // If so, go through all to-be-added features
+            for (int i = 0; i < featuresToBeAdded.length(); i++) {
 
-                // If the current feature is an 'empty' feature, do not append it to the current cluster
-                if (currentFeatureInClusters.at(i).ID.compare("nAn") == 0)
-                continue;
+                // If the feature is only a placeholder, continue with the next one
+                bool isFeatureEmpty = featuresToBeAdded.at(i).ID.compare("nAn") == 0;
+                if (isFeatureEmpty)
+                    continue;
 
-                // else add the corresponding feature to the current cluster
-                filteredExperiment[i].addFeature(currentFeatureInClusters.at(i));
+                // If it is a real feature add it to the correct cluster
+                filteredExperiment[i].addFeature(featuresToBeAdded.at(i));
             }
+
+        } else {
+            // If the current "row" / feature does not have enough valid clusters, drop the entire "row" / feature
+            continue;
         }
     }
 

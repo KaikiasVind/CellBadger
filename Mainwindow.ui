@@ -128,7 +128,7 @@
          <string>Use the top n genes with the highest mean for analysis.</string>
         </property>
         <property name="maximum">
-         <number>500</number>
+         <number>5000000</number>
         </property>
         <property name="singleStep">
          <number>10</number>
