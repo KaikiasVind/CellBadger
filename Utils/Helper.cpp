@@ -172,12 +172,12 @@ QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<
         bool isNumberOfValidRPMValuesClustersMet = true;
 
         bool isNumberOfValidRawCountClustersMet =
-                (numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast)
-                || (!analysisConfigModel.includeRawCountInAtLeast && numberOfClustersWithGenesWithValidRawCounts > 0);
+                (analysisConfigModel.includeRawCountInAtLeast && numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast)
+                || numberOfClustersWithGenesWithValidRawCounts > 0;
 
         bool isNumberOfValidFoldChangeClustersMet =
-                (numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast)
-                || (!analysisConfigModel.includeFoldChangeInAtLeast && numberOfClustersWithGenesWithValidFoldChanges > 0);
+                (analysisConfigModel.includeFoldChangeInAtLeast && numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast)
+                || (numberOfClustersWithGenesWithValidFoldChanges > 0);
 
         if (isNumberOfValidRPMValuesClustersMet && isNumberOfValidRawCountClustersMet && isNumberOfValidFoldChangeClustersMet) {
 

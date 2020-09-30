@@ -148,7 +148,7 @@ void Coordinator::on_newProjectStarted(const QString cellMarkerFilePath, const Q
 
     // Parse the dataset files in separate threads - A raw count cut-off of 1 is used to remove all underrepresented genes
     qDebug() << "Parsing datasets.";
-    this->parseFiles(datasetFilePaths, CSVReader::read10xGenomicsClustersFromFile, {1, 0});
+    this->parseFiles(datasetFilePaths, CSVReader::read10xGenomicsClustersFromFile, {15, 0});
 
     // Wait for finished to avoid loosing scope before parsing has finished
     this->parsingThreadsWatcher.waitForFinished();
@@ -207,21 +207,21 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
     for (int i = 0; i < this->informationCenter.xClusterCollections.length(); i++) {
         // In case of TOP_N, filter every existant experiment for the top n most expressed genes
         switch (analysisConfigModel.usedFilterMode) {
-        case AnalysisFilterMode::TOP_N:
-            filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(this->informationCenter.xClusterCollections.at(i), analysisConfigModel.numberOfGenesToUse));
-            break;
+            case AnalysisFilterMode::TOP_N:
+                filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(this->informationCenter.xClusterCollections.at(i), analysisConfigModel.numberOfGenesToUse));
+                break;
 
-        case AnalysisFilterMode::MANUAL:
-            filteredXClusterCollections.append(Helper::filterExpressedGenesAccordingToFilters(this->informationCenter.xClusterCollections.at(i), this->informationCenter.completeSetsOfGeneIDsPerDataset.at(i), analysisConfigModel));
-            break;
+            case AnalysisFilterMode::MANUAL:
+                filteredXClusterCollections.append(Helper::filterExpressedGenesAccordingToFilters(this->informationCenter.xClusterCollections.at(i), this->informationCenter.completeSetsOfGeneIDsPerDataset.at(i), analysisConfigModel));
+                break;
 
-        case AnalysisFilterMode::AUTOMATIC:
-            break;
+            case AnalysisFilterMode::AUTOMATIC:
+                break;
         }
     }
 
     // Correlate the datasets with the given cell type markers in separate threads
-    this->correlateDatasets(filteredXClusterCollections, informationCenter.cellMarkersForTypes);
+    this->correlateDatasets(filteredXClusterCollections, this->informationCenter.cellMarkersForTypes);
     qDebug() << "Finished correlating. Gathering information";
 
     // Gather and save the information from the correlation from the different threads

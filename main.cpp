@@ -20,13 +20,13 @@
 #include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
-#define run 0
+#define gui 1
 
 int main(int argc, char * argv[])
 {
     QApplication application(argc, argv);
 
-#if !run
+#if !gui
 
     QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/Pbmc_expression.csv";
     QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/PanglaoDB_markers.csv";
@@ -53,13 +53,15 @@ int main(int argc, char * argv[])
 
     AnalysisConfigModel analysisConfigModel(Definitions::AnalysisFilterMode::MANUAL);
 
-    analysisConfigModel.minRawCount = 0;
-    analysisConfigModel.maxRawCount = INT_MAX;
+    analysisConfigModel.minRawCount = INT_MAX;
+    analysisConfigModel.maxRawCount = 0;
+    analysisConfigModel.includeRawCountInAtLeast = true;
+    analysisConfigModel.rawCountInAtLeast = 0;
     analysisConfigModel.minFoldChange = 0;
     analysisConfigModel.maxFoldChange = INT_MAX;
 
     QVector<FeatureCollection> filteredSamples = Helper::filterExpressedGenesAccordingToFilters(samples, completeGeneIDs, analysisConfigModel);
-//    QVector<FeatureCollection> filteredSamples = Helper::findTopNMostExpressedGenes(samples, INT_MAX);
+//    QVector<FeatureCollection> filteredSamples = Helper::findTopNMostExpressedGenes(samples, 50);
 
     QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
     QVector<QVector<QPair<QString, double>>> filteredCorrelations = ExpressionComparator::findClusterCellFoldChangeCorrelations(filteredSamples, cellTypes);
@@ -70,7 +72,7 @@ int main(int argc, char * argv[])
         for (int i = 0; i < correlationOneValues.length(); i++) {
             qDebug() << "\ncluster" << i << "- qs:" << qualityScores.at(i);
             for (int j = 0; j < 5; j++) {
-                qDebug() << correlationOneValues.at(i).at(j).first << "-" << correlationOneValues.at(i).at(j).second;
+//                qDebug() << correlationOneValues.at(i).at(j).first << "-" << correlationOneValues.at(i).at(j).second;
                 qDebug() << correlationTwoValues.at(i).at(j).first << "-" << correlationTwoValues.at(i).at(j).second;
             }
         }
@@ -150,8 +152,7 @@ int main(int argc, char * argv[])
 //        qDebug() << "mean:" << std::get<2>(genesWithRawCountsInClusters.at(i));
 //    }
 
-#endif
-#if run
+# else
     // Declaration of the used widgets
     MainWindow mainWindow;
     StartDialog startDialog;
