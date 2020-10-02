@@ -20,7 +20,7 @@
 #include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
-#define gui 1
+#define gui 0
 
 int main(int argc, char * argv[])
 {
@@ -28,11 +28,11 @@ int main(int argc, char * argv[])
 
 #if !gui
 
-    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/Pbmc_expression.csv";
-    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/PanglaoDB_markers.csv";
+//    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/Pbmc_expression.csv";
+//    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/PanglaoDB_markers.csv";
 
-//    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\Pbmc_expression.csv";
-//    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\PanglaoDB_markers.csv";
+    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\10xGenomics\\Pbmc_expression.csv";
+    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\10xGenomics\\PanglaoDB_markers.csv";
 
     qDebug() << "Parsing.";
     QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {15, 0});
@@ -53,10 +53,10 @@ int main(int argc, char * argv[])
 
     AnalysisConfigModel analysisConfigModel(Definitions::AnalysisFilterMode::MANUAL);
 
-    analysisConfigModel.minRawCount = INT_MAX;
-    analysisConfigModel.maxRawCount = 0;
+    analysisConfigModel.minRawCount = 20;
+    analysisConfigModel.maxRawCount = INT_MAX;
     analysisConfigModel.includeRawCountInAtLeast = true;
-    analysisConfigModel.rawCountInAtLeast = 0;
+    analysisConfigModel.rawCountInAtLeast = 3;
     analysisConfigModel.minFoldChange = 0;
     analysisConfigModel.maxFoldChange = INT_MAX;
 

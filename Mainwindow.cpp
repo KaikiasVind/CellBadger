@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->includeFoldChangeInAtLeast = this->ui->checkBoxFilterOptionsFoldChangeCutOfftInAtLeast->isChecked();
     this->includeRawCountInAtLeast = this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->value();
     this->includeFoldChangeInAtLeast = this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->value();
+    this->highestMetNumberOfClusters = 0;
 }
 
 MainWindow::~MainWindow()
