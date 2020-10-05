@@ -169,15 +169,23 @@ QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<
         }
 
         // Check if the minimum number of clusters with valid feature cut-offs is met for the current gene
-        bool isNumberOfValidRPMValuesClustersMet = true;
+        bool isNumberOfValidRPMValuesClustersMet = true,
+             isNumberOfValidRawCountClustersMet = false,
+             isNumberOfValidFoldChangeClustersMet = false;
 
-        bool isNumberOfValidRawCountClustersMet =
-                (analysisConfigModel.includeRawCountInAtLeast && numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast)
-                || numberOfClustersWithGenesWithValidRawCounts > 0;
+        // #################################################### RAW COUNTS ####################################################
+        if (analysisConfigModel.includeRawCountInAtLeast) {
+            isNumberOfValidRawCountClustersMet = numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast;
+        } else {
+            isNumberOfValidRawCountClustersMet = numberOfClustersWithGenesWithValidRawCounts > 0;
+        }
 
-        bool isNumberOfValidFoldChangeClustersMet =
-                (analysisConfigModel.includeFoldChangeInAtLeast && numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast)
-                || (numberOfClustersWithGenesWithValidFoldChanges > 0);
+        // #################################################### FOLD CHANGES ##################################################
+        if (analysisConfigModel.includeFoldChangeInAtLeast) {
+            isNumberOfValidFoldChangeClustersMet = numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast;
+        } else {
+            isNumberOfValidFoldChangeClustersMet = numberOfClustersWithGenesWithValidFoldChanges > 0;
+        }
 
         if (isNumberOfValidRPMValuesClustersMet && isNumberOfValidRawCountClustersMet && isNumberOfValidFoldChangeClustersMet) {
 
