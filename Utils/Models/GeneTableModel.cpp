@@ -4,8 +4,10 @@
 #include <cmath>
 
 #include "BioModels/FeatureCollection.h"
-#include "Utils/Helper.h"
+#include "Utils/Math.h"
+#include "Utils/Definitions.h"
 
+using Definitions::ShownData;
 
 /**
  * @brief GeneTableModel::GeneTableModel - A model that inherits QAbstractTableModel and is used to display gene expression in all clusters
@@ -13,11 +15,9 @@
  * @param completeGeneIDs - Complete list of all genes that have been seen in any above cluster
  * @param parent - Parent widget
  */
-GeneTableModel::GeneTableModel(const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent)
-    : QAbstractTableModel(parent), clustersWithGeneExpressions(geneExpressions), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames)
-{
-    this->numberOfClusters = clusterNames.length();
-}
+GeneTableModel::GeneTableModel(const QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneExpressionData, const QStringList completeGeneIDs, const QStringList clusterNames, QObject * parent)
+    : QAbstractTableModel(parent), hashedGeneExpressionDataForAllClusters(hashedGeneExpressionData), completeGeneIDs(completeGeneIDs), clusterNames(clusterNames), numberOfClusters(clusterNames.length())
+{}
 
 
 /**
@@ -38,7 +38,7 @@ int GeneTableModel::rowCount(const QModelIndex & parent) const {
  */
 int GeneTableModel::columnCount(const QModelIndex & parent) const {
     Q_UNUSED(parent);
-    return (this->numberOfClusters * 2) + 2;
+    return this->numberOfClusters + 2;
 }
 
 
@@ -59,52 +59,53 @@ QVariant GeneTableModel::data(const QModelIndex & index, int role) const {
         return QVariant();
     }
 
+    QString currentGeneID = this->completeGeneIDs.at(index.row());
+
     // Fetch the data from the underlying data models and report it to the table
     if (role == Qt::DisplayRole) {
         if (this->columnCount() < this->clusterNames.length())
-            qDebug() << "column couhnt < clusternames.length()";
+            qDebug() << "column count < clusternames.length()";
 
-        // Calculate the correct index to retrieve the correct cluster name
-        int correctClusterIndex = 0;
-        if (0 < index.column() < (this->clusterNames.length() * 2) + 1)
-            correctClusterIndex = Helper::getCorrectClusterIndex(index.column());
-
-        QString currentGeneID = this->completeGeneIDs.at(index.row());
-
+        // The first column is filled with the gene IDs
         if (index.column() == 0) {
-            return this->completeGeneIDs.at(index.row());
-        } else if (index.column() == (this->numberOfClusters * 2) + 1) {
+            return currentGeneID;
 
-            // Calculate the mean raw count for the table
-            return Helper::calculateMeanRawCountForGene(currentGeneID, this->clustersWithGeneExpressions);
+        // The last column is filled with the mean of all values in the row
+        } else if (index.column() == this->numberOfClusters + 1) {
+            QVector<double> rowValues;
+            rowValues.reserve(this->columnCount() - 2);
 
+            // Gather all values in the current row
+            for (int i = 1; i < this->columnCount() - 2; i++) {
+                QModelIndex cellIndex = this->index(index.row(), i);
+                double cellData = this->data(cellIndex).toDouble();
+                rowValues.append(cellData);
+            }
+
+            // And calculate the mean for the current row
+            return Math::mean(rowValues);
+
+        // Every other column is filled with gene expression values
         } else {
-            // Search for the current gene with its ID
-            Feature currentGene = this->clustersWithGeneExpressions.at(correctClusterIndex).getFeature(currentGeneID);
 
-            bool isCurrentGeneNotFoundInCluster = false;
+            switch (this->currentlyShownDataType) {
+                case ShownData::RPM:
+                    return std::get<0>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
+                    break;
 
-            // If the gene has not been found return 0 for the count and fold change
-            if (currentGene.ID.compare("nAn") == 0)
-                isCurrentGeneNotFoundInCluster = true;
+                case ShownData::RAW_COUNTS:
+                    return std::get<1>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
+                    break;
 
-            // Otherwise return the corresponding count or fold change value
-            if (index.column() % 2 == 1) {
-                if (isCurrentGeneNotFoundInCluster)
-                    return 0;
-                else
-                    return currentGene.count;
-            } else {
-                if (isCurrentGeneNotFoundInCluster)
-                    return 1;
-                else
-                    return currentGene.foldChange;
+                case ShownData::FOLD_CHANGES:
+                    return std::get<2>(this->hashedGeneExpressionDataForAllClusters[currentGeneID]).at(index.column() - 1);
+                    break;
             }
         }
 
     // Decide which cell should be aligned in which way
     } else if (role == Qt::TextAlignmentRole) {
-        if (index.column() == 0) // || index.column() == this->columnCount() - 1)
+        if (index.column() == 0)
             return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
         else
             return Qt::AlignCenter;
@@ -130,14 +131,11 @@ QVariant GeneTableModel::headerData(int section, Qt::Orientation orientation, in
     if (orientation == Qt::Horizontal) {
         if (section == 0) {
             return tr("Gene");
-        } else if (section == (this->numberOfClusters * 2) + 1) {
+        } else if (section == (this->numberOfClusters + 1)) {
             return tr("mean");
-        } else if ((section % 2) == 1) {
-            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
-            return tr(qPrintable(currentClusterName + " raw count"));
         } else {
-            QString currentClusterName = this->clusterNames.at(Helper::getCorrectClusterIndex(section));
-            return tr(qPrintable(currentClusterName + " fold change"));
+            QString currentClusterName = this->clusterNames.at(section - 1);
+            return tr(qPrintable(currentClusterName));
         }
     }
 
@@ -153,3 +151,13 @@ QStringList GeneTableModel::getClusterNames() const {
     return clusterNames;
 }
 
+
+/**
+ * @brief GeneTableModel::setCurrentlyShownDataType - Set the data type that should be shown in the table view
+ * @param dataTypeToShow - Enum representing the new data type
+ */
+void GeneTableModel::setCurrentlyShownDataType(const ShownData dataTypeToShow) {
+    if (this->currentlyShownDataType == dataTypeToShow)
+        return;
+    this->currentlyShownDataType = dataTypeToShow;
+}

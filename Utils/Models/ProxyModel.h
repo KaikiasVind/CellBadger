@@ -4,17 +4,23 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
+#include "Utils/Definitions.h"
+
+using Definitions::ShownData;
+
 class ProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
     ProxyModel(QObject * parent = nullptr);
-    ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QObject * parent = nullptr);
+    ProxyModel(int rowCount, int colCount, double maxRawCount, double maxFoldChange, QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters, QObject * parent = nullptr);
 
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
+    void setCurrentlyShownDataType(const ShownData newDataTypeToShow);
 
     void setMinRawCount(double minRawCount);
     void setMaxRawCount(double maxRawCount);
@@ -29,6 +35,9 @@ public:
 private:
     int rowCount;
     int columnCount;
+
+    ShownData currentlyShownDataType;
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters;
 
     double minRawCount;
     double maxRawCount;

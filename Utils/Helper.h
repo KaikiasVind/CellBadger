@@ -7,21 +7,24 @@
 #include <QFile>
 
 #include "BioModels/FeatureCollection.h"
+#include "Utils/Models/AnalysisConfigModel.h"
 
 namespace Helper
 {
 
-
 // ####################################### MISC #######################################
 
 extern QString chopFileName(QString filePath);
-extern int getCorrectClusterIndex(int column);
-extern double calculateMeanRawCountForGene(QString geneID, QVector<FeatureCollection> clusters);
 
 // ####################################### GUI #######################################
 
 extern QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles);
-extern QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions);
+extern QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions);
+
+// #################################### FILTERING #####################################
+
+extern QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, const int numberOfGenesToPop);
+extern QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs, const AnalysisConfigModel analysisConfigModel);
 
 }
 

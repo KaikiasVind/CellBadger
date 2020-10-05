@@ -13,6 +13,10 @@
 #include "Utils/FileOperators/CSVReader.h"
 #include "Statistics/Expressioncomparator.h"
 #include "Utils/Math.h"
+#include "Utils/Definitions.h"
+#include "Utils/Helper.h"
+
+using Definitions::AnalysisFilterMode;
 
 /**
  * @brief Coordinator::Coordinator
@@ -189,16 +193,35 @@ void Coordinator::on_filesUploaded(const QStringList filePaths) {
 }
 
 
-void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions) {
+void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) {
     qDebug() << "Coordinator: Received signal for run analyis.";
 
     if (this->needsCleaning)
         this->cleanData();
 
-    qDebug() << "Correlating datasets";
+    // Create a list that will serve as filtered copy of the existant experiments
+    QVector<QVector<FeatureCollection>> filteredXClusterCollections;
+    filteredXClusterCollections.reserve(this->informationCenter.xClusterCollections.length());
+
+    // Go through every experiment and filter the genes according to the currently chosen filter model
+    for (int i = 0; i < this->informationCenter.xClusterCollections.length(); i++) {
+        // In case of TOP_N, filter every existant experiment for the top n most expressed genes
+        switch (analysisConfigModel.usedFilterMode) {
+            case AnalysisFilterMode::TOP_N:
+                filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(this->informationCenter.xClusterCollections.at(i), analysisConfigModel.numberOfGenesToUse));
+                break;
+
+            case AnalysisFilterMode::MANUAL:
+                filteredXClusterCollections.append(Helper::filterExpressedGenesAccordingToFilters(this->informationCenter.xClusterCollections.at(i), this->informationCenter.completeSetsOfGeneIDsPerDataset.at(i), analysisConfigModel));
+                break;
+
+            case AnalysisFilterMode::AUTOMATIC:
+                break;
+        }
+    }
 
     // Correlate the datasets with the given cell type markers in separate threads
-    this->correlateDatasets(allClustersFromAllDatasetsWithGeneExpressions, informationCenter.cellMarkersForTypes);
+    this->correlateDatasets(filteredXClusterCollections, this->informationCenter.cellMarkersForTypes);
     qDebug() << "Finished correlating. Gathering information";
 
     // Gather and save the information from the correlation from the different threads
@@ -211,6 +234,29 @@ void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClusters
     // Before a new analysis can be made, the resulting data of the old analysis has to be deleted
     this->needsCleaning = true;
 }
+
+//void Coordinator::on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions) {
+//    qDebug() << "Coordinator: Received signal for run analyis.";
+
+//    if (this->needsCleaning)
+//        this->cleanData();
+
+//    qDebug() << "Correlating datasets";
+
+//    // Correlate the datasets with the given cell type markers in separate threads
+//    this->correlateDatasets(allClustersFromAllDatasetsWithGeneExpressions, informationCenter.cellMarkersForTypes);
+//    qDebug() << "Finished correlating. Gathering information";
+
+//    // Gather and save the information from the correlation from the different threads
+//    this->saveInformationAfterCorrelatingFinished();
+//    qDebug() << "Saving correlation data successfull.";
+
+//    // Report that the last correlation thread has finished to the main window
+//    emit finishedCorrelating(this->informationCenter);
+
+//    // Before a new analysis can be made, the resulting data of the old analysis has to be deleted
+//    this->needsCleaning = true;
+//}
 
 // ###################################### INTERACTION WITH MAIN WINDOW ###########################################
 
