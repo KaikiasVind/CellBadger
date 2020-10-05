@@ -103,6 +103,5 @@ private:
     int highestMetNumberOfClusters;
 
     bool isTabWidgetInitialized = false;
-
 };
 #endif // MAINWINDOW_H

@@ -39,10 +39,10 @@ MainWindow::MainWindow(QWidget *parent)
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
 
-    // Create the Analysis Tab
+    // Create the Analysis Tab, insert it and disable it until after the analysis
     this->analysisTab = new AnalysisTab(this);
-    // and add it to the TabWidget
     this->ui->tabWidgetDatasets->insertTab(0, this->analysisTab, "Analysis");
+    this->ui->tabWidgetDatasets->setTabEnabled(0, false);
 
     // Hide the filter options widget -> The widget is only shown in case the user wants to edit the filters manually
     this->ui->filterOptionsWidget->hide();
@@ -108,17 +108,20 @@ void MainWindow::updateCurrentTabWidget() {
 
 // REACTING TO CONTROLLER
 void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
-    this->show();
     qDebug() << "Received signal after parsing finished.";
-
     ui->labelStatus->setText("Finished parsing.");
 
+    // Show the window on first show
+    if (this->isHidden())
+        this->show();
+
+    // Get file names for tab titletab titles
     QStringList datasetNames;
     datasetNames.reserve(informationCenter.datasetFilePaths.length());
 
-    // Get file names for tab titletab titles
     std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
 
+    // Go through every parsed dataset and add a new tab and analysis-tab entry for it
     for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
         this->createDatasetItem(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i), informationCenter.clusterNamesForDatasets.at(i));
         this->analysisTab->addExperiment(datasetNames.at(i), informationCenter.xClusterCollections.at(i));
@@ -133,6 +136,12 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
 void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
     this->ui->labelStatus->setText("Finished correlation.");
 
+    // Check whether the analysis tab is still disabled. If so, enable it
+    int analysisTabIndex = this->runningTabWidgets.length();
+    if (!this->ui->tabWidgetDatasets->isTabEnabled(analysisTabIndex)) {
+        this->ui->tabWidgetDatasets->setTabEnabled(analysisTabIndex, true);
+    }
+
     for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
         this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), informationCenter.qualityScores.at(i), 5);
     }
@@ -146,7 +155,7 @@ void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
 //        qDebug() << "Trigger upload new dataset";
 //    }
 
-    if (this->isHidden() || !this->isTabWidgetInitialized)
+    if (this->isHidden() || !this->isTabWidgetInitialized || index > this->runningTabWidgets.length() - 1)
         return;
 
     // Set the new Tab as the current widget
