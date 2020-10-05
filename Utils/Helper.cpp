@@ -4,10 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFile>
-#include <math.h>
-#include <QDebug>
 
-#include "Utils/Math.h"
 
 namespace Helper {
 
@@ -35,34 +32,6 @@ QString chopFileName(QString filepath) {
     return fileNameWithExtension.split(".").first();
 }
 
-
-/**
- * @brief getCorrectClusterIndex
- * @param column
- * @return
- */
-int getCorrectClusterIndex(int column) {
-    return ceil((double) column / 2) - 1;
-}
-
-
-/**
- * @brief calculateManRawCountForGene - Calculate the mean of the expression counts of the given gene in all clusters
- * @param geneID - Name of the given gene
- * @param clusters - All clusters maybe expressing the gene
- * @return - Mean of all found expression counts of the given gene in all given clusters
- */
-double calculateMeanRawCountForGene(QString geneID, QVector<FeatureCollection> clusters) {
-    double meanRawCount = 0;
-    for (FeatureCollection cluster : clusters) {
-        double rawCountForCurrentGene = cluster.getFeature(geneID).count;
-
-        if (rawCountForCurrentGene != -1)
-            meanRawCount += rawCountForCurrentGene;
-    }
-
-    return meanRawCount / clusters.length();
-}
 
 // ########################################### GUI ############################################
 
@@ -97,8 +66,149 @@ QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtens
  * @param validMimeTypeExtensions - StringList that contains the valid file types that the dialog shows
  * @return - List of Strings representing the file paths for the selected files
  */
-QString openSaveFileDialog(QWidget * parent, QString validMimeTypeExtensions) {
-    return QFileDialog::getSaveFileName(parent, "Save plot as png file", QDir::home().path(), validMimeTypeExtensions);
+QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions) {
+    return QFileDialog::getSaveFileName(parent, description, QDir::home().path(), validMimeTypeExtensions);
+}
+
+
+// #################################### FILTERING #####################################
+
+
+/**
+ * @brief popTopNMostExpressedGenes - Finds the top n genes with the highest fold changes
+ * @param experiment - List of FeatureCollections containing the to sort genes
+ * @param numberOfGenesToPop - Number of genes the resulting FeatureCollections are going to have
+ * @return - List of FeatureCollections with only the top n genes with the highest fold changes
+ */
+QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, const int numberOfGenesToPop) {
+    QVector<FeatureCollection> filteredExperiment;
+    filteredExperiment.reserve(experiment.length());
+
+    // Go through all collections of the experiment and pop the top n genes
+    for (FeatureCollection collection : experiment) {
+        FeatureCollection filteredCollection(collection.ID);
+
+        // Get all features from the current collection
+        QVector<Feature> features = collection.getFeatures();
+
+        // Make sure the number of genes to pop doesn't excell the number of genes in the collection
+        if (numberOfGenesToPop < features.length()) {
+
+            // Sort the genes according to their fold changes
+            std::sort(features.begin(), features.end(),
+                  [](Feature featureA, Feature featureB) { return featureA.foldChange > featureB.foldChange; });
+
+            // then pop the first n genes and resize the list
+            features.resize(numberOfGenesToPop);
+            features.squeeze();
+        }
+
+        // and add the filtered features to the new collection
+        for (int i = 0; i < features.length(); i++)
+            filteredCollection.addFeature(features.at(i));
+
+        // add the completed collection to the list and continue with the next collection
+        filteredExperiment.append(filteredCollection);
+    }
+
+    return filteredExperiment;
+}
+
+
+/**
+ * @brief filterExpressedGenesAccordingToFilters - Filter out the cluster's genes in the given experiment according to the cut-offs in the given AnalysisConfigModel
+ * @param experiment - List of FeatureCollections containing the to sort genes
+ * @param analysisConfigModel - Comined configuration and cut-offs to be used for the filtering process
+ * @return - List of FeatureCollections with genes filtered out that do not apply to the cut-offs in the given AnalysisConfigModel
+ */
+QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs, const AnalysisConfigModel analysisConfigModel) {
+    QVector<FeatureCollection> filteredExperiment;
+    filteredExperiment.reserve(experiment.length());
+
+    // Create as many new collections as there were old ones
+    for (FeatureCollection collection : experiment)
+        filteredExperiment.append(FeatureCollection(collection.ID));
+
+    for (QString featureID : completeGeneIDs) {
+        QVector<Feature> featuresToBeAdded;
+
+        int numberOfClustersWithGenesWithValidRPMValues = 0,
+            numberOfClustersWithGenesWithValidRawCounts = 0,
+            numberOfClustersWithGenesWithValidFoldChanges = 0;
+
+        for (int i = 0; i < experiment.length(); i++) {
+            Feature feature = experiment.at(i).getFeature(featureID);
+
+            // Bools corresponding to whether the current feature matches given cut-offs
+            bool featureMatchesRPMCutOff = false;
+            bool featureMatchesRawCountCutOff = false;
+            bool featureMatchesFoldChangeCutOff = false;
+
+            // Check whether the current feature matches all cut-offs
+            // Should the current feature not be expressed in the current cluster, every value is left as false
+            if (feature.ID.compare("nAn") != 0) {
+                featureMatchesRPMCutOff = true;
+                featureMatchesRawCountCutOff = (feature.count >= analysisConfigModel.minRawCount) && (feature.count <= analysisConfigModel.maxRawCount);
+                featureMatchesFoldChangeCutOff = (feature.foldChange >= analysisConfigModel.minFoldChange) && (feature.foldChange <= analysisConfigModel.maxFoldChange);
+            }
+
+            // Add the current feature to the cluster
+            // Should the current fature not be expressed in the current cluster, the empty feature is added (which is later deleted)
+            // This is done to ensure the correct order of the features to the correct clusters
+            featuresToBeAdded.append(feature);
+
+            // Note the matched cut-offs
+            if (featureMatchesRPMCutOff)
+                numberOfClustersWithGenesWithValidRPMValues++;
+
+            if (featureMatchesRawCountCutOff)
+                numberOfClustersWithGenesWithValidRawCounts++;
+
+            if (featureMatchesFoldChangeCutOff)
+                numberOfClustersWithGenesWithValidFoldChanges++;
+        }
+
+        // Check if the minimum number of clusters with valid feature cut-offs is met for the current gene
+        bool isNumberOfValidRPMValuesClustersMet = true,
+             isNumberOfValidRawCountClustersMet = false,
+             isNumberOfValidFoldChangeClustersMet = false;
+
+        // #################################################### RAW COUNTS ####################################################
+        if (analysisConfigModel.includeRawCountInAtLeast) {
+            isNumberOfValidRawCountClustersMet = numberOfClustersWithGenesWithValidRawCounts >= analysisConfigModel.rawCountInAtLeast;
+        } else {
+            isNumberOfValidRawCountClustersMet = numberOfClustersWithGenesWithValidRawCounts > 0;
+        }
+
+        // #################################################### FOLD CHANGES ##################################################
+        if (analysisConfigModel.includeFoldChangeInAtLeast) {
+            isNumberOfValidFoldChangeClustersMet = numberOfClustersWithGenesWithValidFoldChanges >= analysisConfigModel.foldChangeInAtLeast;
+        } else {
+            isNumberOfValidFoldChangeClustersMet = numberOfClustersWithGenesWithValidFoldChanges > 0;
+        }
+
+        if (isNumberOfValidRPMValuesClustersMet && isNumberOfValidRawCountClustersMet && isNumberOfValidFoldChangeClustersMet) {
+
+            // If so, go through all to-be-added features
+            for (int i = 0; i < featuresToBeAdded.length(); i++) {
+
+                // If the feature is only a placeholder, continue with the next one
+                bool isFeatureEmpty = featuresToBeAdded.at(i).ID.compare("nAn") == 0;
+                if (isFeatureEmpty)
+                    continue;
+
+                // If it is a real feature add it to the correct cluster
+                filteredExperiment[i].addFeature(featuresToBeAdded.at(i));
+            }
+
+        } else {
+            // If the current "row" / feature does not have enough valid clusters, drop the entire "row" / feature
+            continue;
+        }
+    }
+
+    return filteredExperiment;
 }
 
 }
+

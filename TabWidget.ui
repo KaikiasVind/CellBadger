@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
+    <width>452</width>
     <height>400</height>
    </rect>
   </property>
@@ -67,6 +67,12 @@
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
+       <property name="verticalScrollMode">
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
+       </property>
+       <property name="horizontalScrollMode">
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
+       </property>
        <property name="showGrid">
         <bool>true</bool>
        </property>
@@ -88,8 +94,11 @@
        <attribute name="horizontalHeaderDefaultSectionSize">
         <number>100</number>
        </attribute>
+       <attribute name="horizontalHeaderStretchLastSection">
+        <bool>false</bool>
+       </attribute>
        <attribute name="verticalHeaderVisible">
-        <bool>true</bool>
+        <bool>false</bool>
        </attribute>
       </widget>
      </item>
@@ -111,7 +120,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButtonExportCorrelations">
        <property name="text">
         <string>Export</string>
        </property>
@@ -134,6 +143,41 @@
         <string>Gene ID</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxShownGeneExpressionValues">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>RPM</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Raw counts</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fold changes</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacerGeneExpressions">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonScatterPlot">
@@ -159,216 +203,16 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacerGeneExpressions">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QPushButton" name="pushButtonExportGeneExpressions">
+       <property name="text">
+        <string>Export</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayoutGeneExpressionTable"/>
-   </item>
-   <item>
-    <layout class="QGridLayout" name="gridLayoutFilterOptions">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <item row="2" column="7">
-      <widget class="QSlider" name="horizontalSliderFilterOptionsRawCountCutOffMax">
-       <property name="pageStep">
-        <number>0</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="7">
-      <widget class="QSlider" name="horizontalSliderFilterOptionsFoldChangeCutOffMax">
-       <property name="pageStep">
-        <number>0</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="6">
-      <widget class="QSpinBox" name="spinBoxFilterOptionsRawCountCutOffMax"/>
-     </item>
-     <item row="3" column="8">
-      <widget class="QCheckBox" name="checkBoxFilterOptionsFoldChangeCutOfftInAtLeast">
-       <property name="contextMenuPolicy">
-        <enum>Qt::NoContextMenu</enum>
-       </property>
-       <property name="toolTip">
-        <string>The cut-off must be me in at least n clusters</string>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>in at least</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelFilteOptionsrFoldChangeCutOff">
-       <property name="text">
-        <string>Fold Change</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="9">
-      <widget class="QSpinBox" name="spinBoxFilterOptionsFoldChangeCutOffInAtLeast">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <widget class="QSlider" name="horizontalSliderFilterOptionsRawCountCutOffMin">
-       <property name="cursor">
-        <cursorShape>ArrowCursor</cursorShape>
-       </property>
-       <property name="maximum">
-        <number>5000</number>
-       </property>
-       <property name="pageStep">
-        <number>0</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="invertedAppearance">
-        <bool>false</bool>
-       </property>
-       <property name="invertedControls">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="8">
-      <widget class="QCheckBox" name="checkBoxFilterOptionsRawCountCutOffInAtLeast">
-       <property name="contextMenuPolicy">
-        <enum>Qt::NoContextMenu</enum>
-       </property>
-       <property name="toolTip">
-        <string>The cut-off must be me in at least n clusters</string>
-       </property>
-       <property name="text">
-        <string>in at least</string>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QSpinBox" name="spinBoxFilterOptionsRawCountCutOffMin">
-       <property name="maximum">
-        <number>5000</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="4">
-      <widget class="QSlider" name="horizontalSliderFilterOptionsFoldChangeCutOffMin">
-       <property name="maximum">
-        <number>50</number>
-       </property>
-       <property name="pageStep">
-        <number>0</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="5">
-      <widget class="QLabel" name="labelFilterOptionsFoldChangeCutOffMax">
-       <property name="toolTip">
-        <string>The maximum raw count value.</string>
-       </property>
-       <property name="text">
-        <string>max</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelFilterOptionsRawCountCutOff">
-       <property name="text">
-        <string>Raw Count</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="9">
-      <widget class="QSpinBox" name="spinBoxFilterOptionsRawCountCutOffInAtLeast">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
-      <widget class="QSpinBox" name="spinBoxFilterOptionsFoldChangeCutOffMin">
-       <property name="maximum">
-        <number>50</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="labelFilterOptionsRawCountCutOffMin">
-       <property name="toolTip">
-        <string>The minimum raw count value.</string>
-       </property>
-       <property name="text">
-        <string>min</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="5">
-      <widget class="QLabel" name="labelFilterOptionsRawCountCutOffMax">
-       <property name="toolTip">
-        <string>The maximum raw count value.</string>
-       </property>
-       <property name="text">
-        <string>max</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="labelFilterOptionsFoldChangeCutOffMin">
-       <property name="toolTip">
-        <string>The minimum raw count value.</string>
-       </property>
-       <property name="text">
-        <string>min</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="6">
-      <widget class="QSpinBox" name="spinBoxFilterOptionsFoldChangeCutOffMax"/>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

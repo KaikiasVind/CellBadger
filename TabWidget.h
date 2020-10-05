@@ -13,6 +13,7 @@
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/GeneTableModel.h"
 #include "Utils/Models/ProxyModel.h"
+#include "Utils/Helper.h"
 
 namespace Ui {
 class TabWidget;
@@ -32,6 +33,18 @@ public:
 
     QVector<FeatureCollection> retrieveAllSeenData();
 
+    void setMinRawCount(const double minRawCount);
+    void setMaxRawCount(const double maxRawCount);
+    void setMinFoldChange(const double minFoldChange);
+    void setMaxFoldChange(const double maxFoldChange);
+    void setIncludeRawCountInAtLeast(const bool includeRawCountInAtLeast);
+    void setIncludeFoldChangeInAtLeast(const bool includeFoldChangeInAtLeast);
+    void setRawCountInAtLeast(const int rawCountInAtLeast);
+    void setFoldChangeInAtLeast(const int foldChangeInAtLeast);
+
+signals:
+    void maxValuesFound(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters);
+
 private slots:
     void on_lineEditGeneID_textChanged(const QString &arg1);
 
@@ -39,30 +52,11 @@ private slots:
 
     void on_pushButtonScatterPlot_clicked();
     void on_pushButtonBarChart_clicked();
+    void on_pushButtonExportCorrelations_clicked();
 
-    // MIN RAW COUNT
-    void on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsRawCountCutOffMin_sliderMoved(int position);
+    void on_pushButtonExportGeneExpressions_clicked();
 
-    // MAX RAW COUNT
-    void on_spinBoxFilterOptionsRawCountCutOffMax_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsRawCountCutOffMax_sliderMoved(int position);
-
-    // MIN FOLD CHANGE
-    void on_spinBoxFilterOptionsFoldChangeCutOffMin_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsFoldChangeCutOffMin_sliderMoved(int position);
-
-    // MAX FOLD CHANGE
-    void on_spinBoxFilterOptionsFoldChangeCutOffMax_valueChanged(int value);
-    void on_horizontalSliderFilterOptionsFoldChangeCutOffMax_sliderMoved(int position);
-
-    // IN AT LEAST
-    void on_checkBoxFilterOptionsRawCountCutOffInAtLeast_toggled(bool checked);
-    void on_checkBoxFilterOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked);
-    void on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number);
-    void on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number);
-
-    void on_pushButton_clicked();
+    void on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index);
 
 private:
     Ui::TabWidget *ui;
@@ -71,19 +65,15 @@ private:
     QTableView * tableView;
     GeneTableModel * geneTableModel;
     ProxyModel * proxyModel;
-    QStringList clusterNames;
 
-    double minRawCount;
-    double maxRawCount;
-    double minFoldChange;
-    double maxFoldChange;
+    QStringList clusterNames;
 
     template<typename F>
     void openExportWidgetWithPlot(F plottingFunction);
     void cleanCorrelationTable();
-    void setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange);
     std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
 
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs);
 };
 
 #endif // TABWIDGET_H

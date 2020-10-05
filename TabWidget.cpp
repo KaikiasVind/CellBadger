@@ -19,18 +19,16 @@
 #include "ExportDialog.h"
 #include "Utils/Plots.h"
 #include "Utils/Models/GeneTableModel.h"
-#include "Utils/Helper.h"
+#include "Utils/Definitions.h"
 #include "Utils/Math.h"
+
+using Definitions::ShownData;
 
 
 TabWidget::TabWidget(QWidget *parent, QString title, QStringList clusterNames) :
     QWidget(parent), ui(new Ui::TabWidget), title(title), clusterNames(clusterNames)
 {
     ui->setupUi(this);
-
-    // Disable the "in at least n clusters" spinboxes -> Changed by the radio button in front
-    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setDisabled(true);
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setDisabled(true);
 
     // Add a frame to the horizontal header to better distinguish between the header and the table
     this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setFrameStyle(QFrame::Panel | QFrame::Plain);
@@ -122,7 +120,7 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
         }
     }
 
-    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    this->ui->tableWidgetTypeCorrelations->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 
@@ -132,8 +130,11 @@ void TabWidget::populateTableTypeCorrelations(QVector<QVector<QPair<QString, dou
  */
 void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpressions, QStringList completeGeneIDs) {
 
+    // Create a hash map hashing all gene IDs to their expression data in their respective clusters in the experiment
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedFeatureDataForAllClusters = this->hashFeatureDataForAllClusters(geneExpressions, completeGeneIDs);
+
     // ############################################ GENE TABLE MODEL ############################################
-    this->geneTableModel = new GeneTableModel(geneExpressions, completeGeneIDs, this->clusterNames);
+    this->geneTableModel = new GeneTableModel(hashedFeatureDataForAllClusters, completeGeneIDs, this->clusterNames);
 
     // Save the highest met values for the raw count and the fold change from the expression values
     // This is neccessary to control the max set cut-off values
@@ -149,17 +150,13 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
             highestMetFoldChange = cluster.getHighestFoldChange();
     }
 
-    // Set the maximum that stands for the number of clusters
-    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setMaximum(geneExpressions.length());
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setMaximum(geneExpressions.length());
-
     // ############################################ PROXY MODEL ############################################
-    this->proxyModel = new ProxyModel(completeGeneIDs.length(), (geneExpressions.length() * 2) + 1, highestMetRawCount, highestMetFoldChange);
+    this->proxyModel = new ProxyModel(completeGeneIDs.length(), geneExpressions.length() + 1, highestMetRawCount, highestMetFoldChange, hashedFeatureDataForAllClusters);
     this->proxyModel->setSourceModel(geneTableModel);
 
-    // Use the highest met values for raw count and fold change to change tweek the gui values
+    // Set the highest met values for raw count and fold change. These values are used by the Main Window to tweek the gui sliders etc.
     // Needs to be done after the proxymodel has been initialized
-    this->setMaxValuesForGUIElements(highestMetRawCount, highestMetFoldChange);
+    emit this->maxValuesFound(highestMetRawCount, highestMetFoldChange, geneExpressions.length());
 
     // ############################################ TABLE VIEW ############################################
     this->tableView = new QTableView;
@@ -173,8 +170,15 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
     // The Contigous selection mode prevents the selection of single cells out of line
     this->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    this->tableView->horizontalHeader()->setMinimumSectionSize(100);
+    this->tableView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+//    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    this->tableView->horizontalHeader()->setStretchLastSection(true);
+    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     this->ui->horizontalLayoutGeneExpressionTable->insertWidget(0, this->tableView);
+
+    this->on_comboBoxShownGeneExpressionValues_currentIndexChanged(this->ui->comboBoxShownGeneExpressionValues->currentIndex());
 }
 
 
@@ -331,9 +335,8 @@ QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
         QModelIndex geneNameCellIndex = itemModel->index(row, 0);
         QString geneName = itemModel->data(geneNameCellIndex).toString();
 
-        QVector<double> rawCountsForGenes, foldChangesForGenes;
+        QVector<double> rawCountsForGenes;
         rawCountsForGenes.reserve(clusterNames.length());
-        foldChangesForGenes.reserve(clusterNames.length());
 
         // Gather the raw counts and the fold changes for the genes in the current row
         for (int column = 1; column < itemModel->columnCount() - 1; column++) {
@@ -341,16 +344,15 @@ QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
 
             // The raw counts and fold changes are separated by columns -> Split them up
             // And add them to the lists to add them as genes to the corresponding clusters later on
-            if ((column % 2) == 1)
-                rawCountsForGenes.append(itemModel->data(cellIndex).toDouble());
-            else
-                foldChangesForGenes.append(itemModel->data(cellIndex).toDouble());
+            rawCountsForGenes.append(itemModel->data(cellIndex).toDouble());
         }
 
         // Add the gathered information about the gene to the corresponding clusters
         for (int i = 0; i < clusterNames.length(); i++)
-            allSeenClusters[i].addFeature(geneName, "nAn", rawCountsForGenes.at(i), 0, foldChangesForGenes.at(i));
+            allSeenClusters[i].addFeature(geneName, "nAn", rawCountsForGenes.at(i), 0, 0);
     }
+
+    qDebug() << "Retrieved data from tab widget.";
 
     return allSeenClusters;
 }
@@ -390,28 +392,77 @@ void TabWidget::cleanCorrelationTable() {
 
 
 /**
- * @brief TabWidget::setHighestRawCountAndFoldChangeValuesInGUI - Set the given max values for all gui elements
- * @param highestMetRawCount - Max possible raw count cut-off
- * @param highestMetFoldChange - Max possible fold change cut-off
+ * @brief TabWidget::hashFeatureDataForAllClusters - Use the list of gene IDs and extract the expression data for those genes in all clusters and hash those values to the gene IDs
+ * @param experiment - All gene IDs hashed to their respective expression values in all clusters in the given experiment
  */
-void TabWidget::setMaxValuesForGUIElements(const double highestMetRawCount, const double highestMetFoldChange) {
-    this->ui->spinBoxFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
-    this->ui->spinBoxFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
-    this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
-    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
-    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
-    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
-    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(highestMetRawCount);
-    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
-    emit this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->sliderMoved(highestMetRawCount);
-    emit this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->sliderMoved(highestMetFoldChange);
+QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> TabWidget::hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs) {
+    QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedFeatureDataForAllClusters;
+
+    // Now go through every cluster and and add the data for all features to the previously inserted hash
+    for (FeatureCollection cluster : experiment) {
+        for (QString featureID : completeGeneIDs) {
+
+            // Search for the feature in the current cluster
+            Feature feature = cluster.getFeature(featureID);
+
+            // Define the default values should the feature not be found
+            double foundRPMValue = 0,
+                   foundRawCount = 0,
+                   foundFoldChange = 1;
+
+            // If the feature has been found, save the corresponding values
+            if (feature.ID.compare("nAn") != 0) {
+                foundRPMValue = 0;
+                foundRawCount = feature.count;
+                foundFoldChange = feature.foldChange;
+            }
+
+            // Add the saved (or default) values to the hash map
+            std::get<0>(hashedFeatureDataForAllClusters[featureID]).append(foundRPMValue);
+            std::get<1>(hashedFeatureDataForAllClusters[featureID]).append(foundRawCount);
+            std::get<2>(hashedFeatureDataForAllClusters[featureID]).append(foundFoldChange);
+        }
+    }
+
+    return hashedFeatureDataForAllClusters;
 }
 
 
-// ############################################### SLOTS ###############################################
+// ############################################### SETTER ##############################################
 
+void TabWidget::setMinRawCount(const double minRawCount) {
+    this->proxyModel->setMinRawCount(minRawCount);
+}
+
+void TabWidget::setMaxRawCount(const double maxRawCount) {
+    this->proxyModel->setMaxRawCount(maxRawCount);
+}
+
+void TabWidget::setMinFoldChange(const double minFoldChange) {
+    this->proxyModel->setMinFoldChange(minFoldChange);
+}
+
+void TabWidget::setMaxFoldChange(const double maxFoldChange) {
+    this->proxyModel->setMaxFoldChange(maxFoldChange);
+}
+
+void TabWidget::setIncludeRawCountInAtLeast(const bool includeRawCountInAtLeast) {
+    this->proxyModel->setIncludeRawCountInAtLeast(includeRawCountInAtLeast);
+}
+
+void TabWidget::setIncludeFoldChangeInAtLeast(const bool includeFoldChangeInAtLeast) {
+    this->proxyModel->setIncludeFoldChangeInAtLeast(includeFoldChangeInAtLeast);
+}
+
+void TabWidget::setRawCountInAtLeast(const int rawCountInAtLeast) {
+    this->proxyModel->setRawCountInAtLeast(rawCountInAtLeast);
+}
+
+void TabWidget::setFoldChangeInAtLeast(const int foldChangeInAtLeast) {
+    this->proxyModel->setIncludeFoldChangeInAtLeast(foldChangeInAtLeast);
+}
+
+// ############################################### SLOTS ###############################################
 
 /**
  * @brief TabWidget::on_pushButtonPlot_clicked
@@ -429,87 +480,16 @@ void TabWidget::on_pushButtonBarChart_clicked() {
 }
 
 
-// MIN RAW COUNT
-void TabWidget::on_spinBoxFilterOptionsRawCountCutOffMin_valueChanged(int value) {
-    this->minRawCount = value;
-    this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setValue(value);
-    this->proxyModel->setMinRawCount(value);
-}
-
-void TabWidget::on_horizontalSliderFilterOptionsRawCountCutOffMin_sliderMoved(int position) {
-    this->minRawCount = position;
-    this->ui->spinBoxFilterOptionsRawCountCutOffMin->setValue(position);
-}
-
-
-// MAX RAW COUNT
-void TabWidget::on_spinBoxFilterOptionsRawCountCutOffMax_valueChanged(int value) {
-    this->maxRawCount = value;
-    this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(value);
-    this->proxyModel->setMaxRawCount(value);
-}
-
-void TabWidget::on_horizontalSliderFilterOptionsRawCountCutOffMax_sliderMoved(int position) {
-    this->maxRawCount = position;
-    this->ui->spinBoxFilterOptionsRawCountCutOffMax->setValue(position);
-}
-
-
-// MIN FOLD CHANGE
-void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffMin_valueChanged(int value) {
-    this->minFoldChange = value;
-    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setValue(value);
-    this->proxyModel->setMinFoldChange(value);
-}
-
-void TabWidget::on_horizontalSliderFilterOptionsFoldChangeCutOffMin_sliderMoved(int position) {
-    this->minFoldChange = position;
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setValue(position);
-}
-
-
-// MAX FOLD CHANGE
-void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffMax_valueChanged(int value) {
-    this->maxFoldChange = value;
-    this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(value);
-    this->proxyModel->setMaxFoldChange(value);
-}
-
-void TabWidget::on_horizontalSliderFilterOptionsFoldChangeCutOffMax_sliderMoved(int position) {
-    this->maxFoldChange = position;
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setValue(position);
-}
-
-
-// RAW COUNT IN AT LEAST
-void TabWidget::on_checkBoxFilterOptionsRawCountCutOffInAtLeast_toggled(bool checked) {
-    this->ui->spinBoxFilterOptionsRawCountCutOffInAtLeast->setEnabled(checked);
-    this->proxyModel->setIncludeRawCountInAtLeast(checked);
-}
-
-void TabWidget::on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number) {
-    this->proxyModel->setRawCountInAtLeast(number);
-}
-
-
-// FOLD CHANGE IN AT LEAST
-void TabWidget::on_checkBoxFilterOptionsFoldChangeCutOfftInAtLeast_toggled(bool checked) {
-    this->ui->spinBoxFilterOptionsFoldChangeCutOffInAtLeast->setEnabled(checked);
-    this->proxyModel->setIncludeFoldChangeInAtLeast(checked);
-}
-
-void TabWidget::on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number) {
-    this->proxyModel->setFoldChangeInAtLeast(number);
-}
-
-// EXPORTING CORRELATION VALUES
-void TabWidget::on_pushButton_clicked() {
+/**
+ * @brief TabWidget::on_pushButtonExportCorrelations_clicked - Export correlation values
+ */
+void TabWidget::on_pushButtonExportCorrelations_clicked() {
 
     // If no correlation values are now to be seen, return
     if (this->ui->tableWidgetTypeCorrelations->rowCount() == 0)
         return;
 
-    QString selectedFilePath = Helper::openSaveFileDialog(this, "csv");
+    QString selectedFilePath = Helper::openSaveFileDialog(this, "Export correlation values as csv.", "csv");
 
     // If the chose file dialog has been canceled, return
     if (selectedFilePath.isEmpty())
@@ -539,5 +519,67 @@ void TabWidget::on_pushButton_clicked() {
     }
 
     textStream << content;
-    file.close() ;
+    file.close();
+}
+
+
+/**
+ * @brief TabWidget::on_pushButtonExportGeneExpressions_clicked - Export gene expression values
+ */
+void TabWidget::on_pushButtonExportGeneExpressions_clicked() {
+    QString selectedFilePath = Helper::openSaveFileDialog(this, "Export expression values as csv.", "csv");
+
+    // If the chose file dialog has been canceled, return
+    if (selectedFilePath.isEmpty())
+        return;
+
+    if (!selectedFilePath.split(".").endsWith("csv"))
+        selectedFilePath += ".csv";
+
+    QFile file(selectedFilePath);
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream textStream(& file);
+    QString content, cellDelimiter = ",", newLineCharacter = "\n";
+
+    // Add the header items
+    for (int i = 0; i < this->tableView->horizontalHeader()->count(); i++) {
+        content += this->tableView->model()->headerData(i, Qt::Horizontal).toString() + cellDelimiter;
+    }
+    content += newLineCharacter;
+
+    // Add the table items
+    for (int i = 0; i < this->tableView->model()->rowCount(); i++) {
+        for (int j = 0; j < this->tableView->model()->columnCount(); j++) {
+            QModelIndex cellModelIndex = this->tableView->model()->index(i, j);
+            content += this->tableView->model()->data(cellModelIndex).toString() + cellDelimiter;
+        }
+        content += newLineCharacter;
+    }
+
+    textStream << content;
+    file.close();
+}
+
+
+/**
+ * @brief TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged - Change displayed values
+ * @param index - Index of the combobox standing for the displayed data types
+ */
+void TabWidget::on_comboBoxShownGeneExpressionValues_currentIndexChanged(int index)
+{
+    ShownData newDataTypeToShow;
+    switch (index) {
+        case 0: newDataTypeToShow = ShownData::RPM; break;
+        case 1: newDataTypeToShow = ShownData::RAW_COUNTS; break;
+        case 2: newDataTypeToShow = ShownData::FOLD_CHANGES; break;
+    }
+
+    this->geneTableModel->setCurrentlyShownDataType(newDataTypeToShow);
+    this->proxyModel->setCurrentlyShownDataType(newDataTypeToShow);
+
+    // And report that the data has changed for the table to be redrawn immidiately
+    QModelIndex topLeftCell = this->proxyModel->index(0, 0),
+                bottomRightCell = this->proxyModel->index(this->geneTableModel->rowCount(), this->geneTableModel->columnCount());
+    emit this->proxyModel->dataChanged(topLeftCell, bottomRightCell, {Qt::DisplayRole});
 }
