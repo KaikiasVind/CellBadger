@@ -12,6 +12,7 @@
 #include <QListView>
 #include <QTableWidget>
 #include <QMouseEvent>
+#include <math.h>
 
 #include "StartDialog.h"
 #include "TabWidget.h"
@@ -187,25 +188,28 @@ void MainWindow::on_pushButtonCorrelationOptionsRun_clicked() {
 
 void MainWindow::on_newMaxValuesFound(const double highestMetRawCount, const double highestMetFoldChange, const int numberOfClusters) {
 
+    double ceiledHighestMetRawCount = ceil(highestMetRawCount),
+           ceiledHighestMetFoldChange = ceil(highestMetFoldChange);
+
     // Compare the new max values with the previous max values and update the current values in case any value is higher
-    if (this->highestMetRawCount < highestMetRawCount) {
-        this->highestMetRawCount = highestMetRawCount;
-        this->ui->spinBoxFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
-        this->ui->spinBoxFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
-        this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setMaximum(highestMetRawCount);
-        this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setMaximum(highestMetRawCount);
-        this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(highestMetRawCount);
-        emit this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->sliderMoved(highestMetRawCount);
+    if (this->highestMetRawCount < ceiledHighestMetRawCount) {
+        this->highestMetRawCount = ceiledHighestMetRawCount;
+        this->ui->spinBoxFilterOptionsRawCountCutOffMin->setMaximum(ceiledHighestMetRawCount);
+        this->ui->spinBoxFilterOptionsRawCountCutOffMax->setMaximum(ceiledHighestMetRawCount);
+        this->ui->horizontalSliderFilterOptionsRawCountCutOffMin->setMaximum(ceiledHighestMetRawCount);
+        this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setMaximum(ceiledHighestMetRawCount);
+        this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->setValue(ceiledHighestMetRawCount);
+        emit this->ui->horizontalSliderFilterOptionsRawCountCutOffMax->sliderMoved(ceiledHighestMetRawCount);
     }
 
-    if (this->highestMetFoldChange < highestMetFoldChange) {
-        this->highestMetFoldChange = highestMetFoldChange;
-        this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
-        this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
-        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setMaximum(highestMetFoldChange);
-        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setMaximum(highestMetFoldChange);
-        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(highestMetFoldChange);
-        emit this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->sliderMoved(highestMetFoldChange);
+    if (this->highestMetFoldChange < ceiledHighestMetFoldChange) {
+        this->highestMetFoldChange = ceiledHighestMetFoldChange;
+        this->ui->spinBoxFilterOptionsFoldChangeCutOffMin->setMaximum(ceiledHighestMetFoldChange);
+        this->ui->spinBoxFilterOptionsFoldChangeCutOffMax->setMaximum(ceiledHighestMetFoldChange);
+        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMin->setMaximum(ceiledHighestMetFoldChange);
+        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setMaximum(ceiledHighestMetFoldChange);
+        this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->setValue(ceiledHighestMetFoldChange);
+        emit this->ui->horizontalSliderFilterOptionsFoldChangeCutOffMax->sliderMoved(ceiledHighestMetFoldChange);
     }
 
     if (this->highestMetNumberOfClusters < numberOfClusters) {

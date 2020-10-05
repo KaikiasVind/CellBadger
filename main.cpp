@@ -20,7 +20,7 @@
 #include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
-#define gui 0
+#define gui 1
 
 int main(int argc, char * argv[])
 {
@@ -54,14 +54,14 @@ int main(int argc, char * argv[])
     AnalysisConfigModel analysisConfigModel(Definitions::AnalysisFilterMode::MANUAL);
 
     analysisConfigModel.minRawCount = 20;
-    analysisConfigModel.maxRawCount = INT_MAX;
-    analysisConfigModel.includeRawCountInAtLeast = true;
-    analysisConfigModel.rawCountInAtLeast = 3;
+    analysisConfigModel.maxRawCount = 972;
+//    analysisConfigModel.includeRawCountInAtLeast = true;
+//    analysisConfigModel.rawCountInAtLeast = 3;
     analysisConfigModel.minFoldChange = 0;
-    analysisConfigModel.maxFoldChange = INT_MAX;
+    analysisConfigModel.maxFoldChange = 906;
 
     QVector<FeatureCollection> filteredSamples = Helper::filterExpressedGenesAccordingToFilters(samples, completeGeneIDs, analysisConfigModel);
-//    QVector<FeatureCollection> filteredSamples = Helper::findTopNMostExpressedGenes(samples, 50);
+////    QVector<FeatureCollection> filteredSamples = Helper::findTopNMostExpressedGenes(samples, 50);
 
     QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
     QVector<QVector<QPair<QString, double>>> filteredCorrelations = ExpressionComparator::findClusterCellFoldChangeCorrelations(filteredSamples, cellTypes);

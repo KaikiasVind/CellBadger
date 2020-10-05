@@ -97,17 +97,6 @@ bool ProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_par
 
     // ################################ IN-AT-LEAST-CUT-OFFS #############################
 
-    // Check whether enough clusters have been accepted
-    // Or filter the row out if not
-    // ################################## RMP VALUES ##################################
-//    if (this->includeRawCountInAtLeast) {
-//        if (numberOfClustersWithValidRawCount < this->rawCountinAtLeast)
-//            return false;
-//    } else {
-//        if (numberOfClustersWithValidRawCount == 0)
-//            return false;
-//    }
-
     // ################################## RAW COUNTS ##################################
     if (this->includeRawCountInAtLeast) {
         if (numberOfClustersWithValidRawCount < this->rawCountinAtLeast)
