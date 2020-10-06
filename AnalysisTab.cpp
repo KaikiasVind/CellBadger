@@ -55,3 +55,19 @@ void AnalysisTab::addExperiment(const QString experimentName, const QVector<Feat
         this->ui->tableWidgetExperimentsSelection->setItem(i, 0, newTableItem);
     }
 }
+
+
+/**
+ * @brief AnalysisTab::cleanTable - Delete every QTableWidgetItem in the table to make room for more
+ */
+void AnalysisTab::cleanTable() {
+    // Delete all QTableWidgets that have been initialised with the new operator
+    for (int i = 0; i < this->ui->tableWidgetExperimentsSelection->rowCount(); i++) {
+        for (int j = 0; j < this->ui->tableWidgetExperimentsSelection->columnCount(); j++) {
+            delete this->ui->tableWidgetExperimentsSelection->item(i, j);
+        }
+    }
+
+    // Set the column count to zero, this removes all visible columns
+    this->ui->tableWidgetExperimentsSelection->setColumnCount(0);
+}

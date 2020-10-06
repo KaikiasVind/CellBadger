@@ -132,6 +132,9 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
 void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
     this->ui->labelStatus->setText("Finished correlation.");
 
+    // Remove all previously added experiment-data of the analysis tab
+    this->analysisTab->cleanTable();
+
     // Get file names for tab titletab titles
     QStringList datasetNames = Helper::getFileNames(informationCenter.datasetFilePaths);
 

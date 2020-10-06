@@ -18,6 +18,7 @@ public:
     ~AnalysisTab();
 
     void addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment, const QVector<QVector<QPair<QString, double>>> correlations);
+    void cleanTable();
 
 private:
     Ui::AnalysisTab *ui;
