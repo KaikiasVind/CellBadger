@@ -33,6 +33,21 @@ QString chopFileName(QString filepath) {
 }
 
 
+/**
+ * @brief getFileNames - Chop the paths from the file paths and only return the file names
+ * @param filePaths - List of paths to files
+ * @return - List of names to files
+ */
+QStringList getFileNames(const QStringList filePaths) {
+    QStringList fileNames;
+    fileNames.reserve(filePaths.length());
+
+    std::transform(filePaths.begin(), filePaths.end(), std::back_inserter(fileNames), chopFileName);
+
+    return fileNames;
+}
+
+
 // ########################################### GUI ############################################
 
 /**

@@ -17,7 +17,7 @@ public:
     explicit AnalysisTab(QWidget *parent = nullptr);
     ~AnalysisTab();
 
-    void addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment);
+    void addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment, const QVector<QVector<QPair<QString, double>>> correlations);
 
 private:
     Ui::AnalysisTab *ui;

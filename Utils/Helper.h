@@ -15,6 +15,7 @@ namespace Helper
 // ####################################### MISC #######################################
 
 extern QString chopFileName(QString filePath);
+extern QStringList getFileNames(const QStringList filePaths);
 
 // ####################################### GUI #######################################
 

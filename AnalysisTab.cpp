@@ -16,7 +16,13 @@ AnalysisTab::~AnalysisTab() {
 }
 
 
-void AnalysisTab::addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment) {
+/**
+ * @brief AnalysisTab::addExperiment - Add cluster-names and highest correlated cell type to a comparison list of all experiments
+ * @param experimentName - Name of the experiment
+ * @param experiment - Gene expression data of the experiment
+ * @param correlations - List of cell types sorted by highest correlation to the clusters of the given experiment
+ */
+void AnalysisTab::addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment, const QVector<QVector<QPair<QString, double>>> correlations) {
 
     // Insert an empty column for the new values
     this->ui->tableWidgetExperimentsSelection->insertColumn(0);
@@ -35,8 +41,17 @@ void AnalysisTab::addExperiment(const QString experimentName, const QVector<Feat
     // Add every cluster to the table
     for (int i = 0; i < experiment.length(); i++) {
         QTableWidgetItem * newTableItem = new QTableWidgetItem(0);
-        newTableItem->setData(Qt::DisplayRole, experiment.at(i).ID);
-        newTableItem->setTextAlignment(Qt::AlignCenter);
+        QString tableItemName = experiment.at(i).ID + ": ";
+
+        // Add the cell type to the cluster name that is most closely correlated to it
+        // If no correlation was found for the current cluster, just append NA to the name
+        if (correlations.at(i).at(0).second == 0)
+            tableItemName.append("NA");
+        else
+            tableItemName.append(correlations.at(i).at(0).first);
+
+        newTableItem->setData(Qt::DisplayRole, tableItemName);
+        newTableItem->setTextAlignment(Qt::AlignLeft);
         this->ui->tableWidgetExperimentsSelection->setItem(i, 0, newTableItem);
     }
 }

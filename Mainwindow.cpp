@@ -116,15 +116,11 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
         this->show();
 
     // Get file names for tab titletab titles
-    QStringList datasetNames;
-    datasetNames.reserve(informationCenter.datasetFilePaths.length());
-
-    std::transform(informationCenter.datasetFilePaths.begin(), informationCenter.datasetFilePaths.end(), std::back_inserter(datasetNames), Helper::chopFileName);
+    QStringList datasetNames = Helper::getFileNames(informationCenter.datasetFilePaths);
 
     // Go through every parsed dataset and add a new tab and analysis-tab entry for it
     for (int i = 0; i < informationCenter.xClusterCollections.length(); i++) {
         this->createDatasetItem(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.completeSetsOfGeneIDsPerDataset.at(i), informationCenter.clusterNamesForDatasets.at(i));
-        this->analysisTab->addExperiment(datasetNames.at(i), informationCenter.xClusterCollections.at(i));
     }
 }
 
@@ -136,15 +132,20 @@ void MainWindow::on_filesParsed(const InformationCenter & informationCenter) {
 void MainWindow::on_correlatingFinished(const InformationCenter & informationCenter) {
     this->ui->labelStatus->setText("Finished correlation.");
 
+    // Get file names for tab titletab titles
+    QStringList datasetNames = Helper::getFileNames(informationCenter.datasetFilePaths);
+
+    for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
+        this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), informationCenter.qualityScores.at(i), 5);
+        this->analysisTab->addExperiment(datasetNames.at(i), informationCenter.xClusterCollections.at(i), informationCenter.correlatedDatasets.at(i));
+    }
+
     // Check whether the analysis tab is still disabled. If so, enable it
     int analysisTabIndex = this->runningTabWidgets.length();
     if (!this->ui->tabWidgetDatasets->isTabEnabled(analysisTabIndex)) {
         this->ui->tabWidgetDatasets->setTabEnabled(analysisTabIndex, true);
     }
 
-    for (int i = 0; i < informationCenter.correlatedDatasets.length(); i++) {
-        this->runningTabWidgets[i]->populateTableTypeCorrelations(informationCenter.correlatedDatasets.at(i), informationCenter.qualityScores.at(i), 5);
-    }
 }
 
 
