@@ -39,8 +39,14 @@ MainWindow::MainWindow(QWidget *parent)
     // Remove the additional tab that is shown by default on tabwidgets
     this->ui->tabWidgetDatasets->removeTab(0);
 
-    // Create the Analysis Tab, insert it and disable it until after the analysis
+    // Create the Analysis Tab
     this->analysisTab = new AnalysisTab(this);
+
+    // Add the signal-signal connections of the MainWindow and the AnalysisTab. The MainWindow just serves as a middle-man between AnalysisTab and Coordinator
+    QObject::connect(this->analysisTab, &AnalysisTab::requestGeneExpressionData, this, &MainWindow::requestGeneExpressionDataForAnalysisTab);
+    QObject::connect(this, &MainWindow::transmitGeneExpressionDataForAnalysisTab, this->analysisTab, &AnalysisTab::on_receivedGeneExpressionData);
+
+    // Insert the AnalysisTab and disable it until after the analysis
     this->ui->tabWidgetDatasets->insertTab(0, this->analysisTab, "Analysis");
     this->ui->tabWidgetDatasets->setTabEnabled(0, false);
 

@@ -2,6 +2,7 @@
 #define ANALYSISTAB_H
 
 #include <QWidget>
+#include <QStringList>
 
 #include "BioModels/FeatureCollection.h"
 
@@ -19,6 +20,17 @@ public:
 
     void addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment, const QVector<QVector<QPair<QString, double>>> correlations);
     void cleanTable();
+
+signals:
+    void requestGeneExpressionData();
+
+public slots:
+    void on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments);
+
+private slots:
+    void on_pushButtonScatterPlot_clicked();
+
+    void on_pushButtonBarChart_clicked();
 
 private:
     Ui::AnalysisTab *ui;

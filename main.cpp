@@ -193,12 +193,12 @@ int main(int argc, char * argv[])
 
     // Coordinator -> Main Window
     QObject::connect(&coordinator, &Coordinator::finishedFileParsing, &mainWindow, &MainWindow::on_filesParsed);
-
-    // Coordinator -> Main Window
     QObject::connect(&coordinator, &Coordinator::finishedCorrelating, &mainWindow, &MainWindow::on_correlatingFinished);
+    QObject::connect(&coordinator, &Coordinator::sendGeneExpressionData, &mainWindow, &MainWindow::transmitGeneExpressionDataForAnalysisTab);
 
     // Main Window -> Coordinator
     QObject::connect(&mainWindow, &MainWindow::runAnalysis, &coordinator, &Coordinator::on_runAnalysis);
+    QObject::connect(&mainWindow, &MainWindow::requestGeneExpressionDataForAnalysisTab, &coordinator, &Coordinator::on_geneExpressionDataRequested);
 
     // At this point, the complete control over the system workflow is handed over to the Coordinator
 

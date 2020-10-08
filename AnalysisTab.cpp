@@ -71,3 +71,39 @@ void AnalysisTab::cleanTable() {
     // Set the column count to zero, this removes all visible columns
     this->ui->tableWidgetExperimentsSelection->setColumnCount(0);
 }
+
+
+/**
+ * @brief AnalysisTab::on_receivedGeneExpressionData
+ * @param experiments
+ *
+void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments) {
+    return;
+//    // Gather all gene-IDs the user put into the text edit and filter out empty IDs
+//    QStringList foundGeneIDs = this->ui->textEditGeneSelection->toPlainText().split(",");
+//    foundGeneIDs.removeAll(QString(""));
+
+//    for (QVector<FeatureCollection> experiment : experiments) {
+
+//        for (FeatureCollection collection : experiment) {
+
+//            for (Feature feature : collection.getFeatures()) {
+
+//                // If the gene ID is not one of the searched ones, continue
+//                if (!foundGeneIDs.contains(feature.ID))
+//                    continue;
+
+
+//            }
+//        }
+//    }
+}
+
+// ########################## UI-SLOTS ##########################
+void AnalysisTab::on_pushButtonScatterPlot_clicked() {
+    emit this->requestGeneExpressionData();
+}
+
+void AnalysisTab::on_pushButtonBarChart_clicked() {
+    emit this->requestGeneExpressionData();
+}

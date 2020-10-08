@@ -36,9 +36,10 @@ public slots:
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
-    void requestGeneExpressionData();
 //    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     void runAnalysis(const AnalysisConfigModel analysisConfigModel);
+    void requestGeneExpressionDataForAnalysisTab();
+    void transmitGeneExpressionDataForAnalysisTab(const QVector<QVector<FeatureCollection>> experiments);
 
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);

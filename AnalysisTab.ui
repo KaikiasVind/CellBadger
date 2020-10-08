@@ -86,14 +86,14 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButtonScatterPlot">
        <property name="text">
         <string>Scatter Plot</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="pushButtonBarChart">
        <property name="text">
         <string>Bar Chart</string>
        </property>
