@@ -3,24 +3,16 @@
 #include <QString>
 #include <QStringList>
 #include <QMessageBox>
-#include <QtCharts/QScatterSeries>
-#include <QtCharts/QChart>
-#include <QtCharts/QChartView>
-#include <QValueAxis>
-#include <QBarCategoryAxis>
-#include <QCategoryAxis>
-#include <QLineSeries>
-#include <set>
 #include <math.h>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
 #include "BioModels/FeatureCollection.h"
-#include "ExportDialog.h"
 #include "Utils/Plots.h"
 #include "Utils/Models/GeneTableModel.h"
 #include "Utils/Definitions.h"
 #include "Utils/Math.h"
+#include "Utils/Helper.h"
 
 using Definitions::ShownData;
 
@@ -358,27 +350,6 @@ QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
 }
 
 
-template<typename F>
-/**
- * @brief TabWidget::openExportWidgetWithPlot - Ceates a plot with the given plotting function and opens it in an ExportDialog
- * @param plottingFunction - Function that creates a QChartView * that is used to create a plot which is then transfered onto an ExportDialog
- */
-void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
-
-    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
-
-    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
-    if (std::get<0>(expressionDataForSelectedGenes).isEmpty())
-        return;
-
-    QChartView * chartView = plottingFunction(expressionDataForSelectedGenes, this->title);
-
-    ExportDialog * exportDialog = new ExportDialog(this);
-    exportDialog->addPlot(chartView);
-    exportDialog->show();
-}
-
-
 /**
  * @brief TabWidget::cleanCorrelationTable - Deletes all instances of QTableWidget items from the correlation TabWidget
  */
@@ -468,7 +439,7 @@ void TabWidget::setFoldChangeInAtLeast(const int foldChangeInAtLeast) {
  * @brief TabWidget::on_pushButtonPlot_clicked
  */
 void TabWidget::on_pushButtonScatterPlot_clicked() {
-    this->openExportWidgetWithPlot(Plots::createScatterPlot);
+    Helper::openExportWidgetWithPlot(Plots::createScatterPlot, this->title, this->retrieveExpressionDataForSelectedGenes());
 }
 
 
@@ -476,7 +447,7 @@ void TabWidget::on_pushButtonScatterPlot_clicked() {
  * @brief TabWidget::on_pushButtonBarChart_clicked
  */
 void TabWidget::on_pushButtonBarChart_clicked() {
-    this->openExportWidgetWithPlot(Plots::createBarChart);
+    Helper::openExportWidgetWithPlot(Plots::createBarChart, this->title, this->retrieveExpressionDataForSelectedGenes());
 }
 
 

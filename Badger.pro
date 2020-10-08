@@ -56,6 +56,7 @@ HEADERS += \
     Utils/FileOperators/CSVReader.h \
     Utils/FileOperators/ConfigFileOperator.h \
     Utils/Helper.h \
+    Utils/Helper_impl.h \
     Utils/Math.h \
     Utils/Models/AnalysisConfigModel.h \
     Utils/Models/GeneTableModel.h \
