@@ -76,7 +76,7 @@ void AnalysisTab::cleanTable() {
 /**
  * @brief AnalysisTab::on_receivedGeneExpressionData
  * @param experiments
- *
+ */
 void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments) {
     return;
 //    // Gather all gene-IDs the user put into the text edit and filter out empty IDs
