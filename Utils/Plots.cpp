@@ -12,6 +12,11 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QLegend>
+#include <QMap>
+
+#include <QDebug>
+
+#include "BioModels/FeatureCollection.h"
 
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
@@ -26,58 +31,57 @@ using QtCharts::QLegend;
 
 namespace Plots {
 
+
 /**
  * @brief createScatterPlot - Creates a scatter plot for the given gene expression data - The resulting plot contains one plotting series per given gene
- * @param geneExpressionValuesForClusters - List of genes with corresponding expression data for n clusters
- * @param plotTitle - The title the resulting plot should show
+ * @param title - The title the resulting plot should show
+ * @param geneExpressionValuesForClusters - Map of genes with corresponding expression data for n clusters
+ * @param clusterNames - List of names of the clusters the genes are expressed in
+ * @param meanValues - List of means of the gene expressions in the given clusters
  * @return - A plot that combines one plotting series per given gene in one scatter plot
  */
-QtCharts::QChartView * createScatterPlot(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle) {
+QChartView * createScatterPlot(const QString title, const QMap<QString, QVector<double>> expressionDataForGenesInClusters, const QStringList clusterNames, const QVector<double> meanValues) {
     QChart * chart = new QChart();
 
     // Collect the highest expression value for the correct y axis range
-    double maxExpressionValue = .0;
+    double maxExpressionValue = 0.;
 
-    int numberOfClusters = std::get<1>(std::get<0>(geneExpressionValuesForClusters).first()).length();
-
-    for (std::tuple<QString, QVector<double>, double> selectedGene : std::get<0>(geneExpressionValuesForClusters)) {
-        QScatterSeries * scatterSeries  = new QScatterSeries();
+    for (int i = 0; i < clusterNames.length(); i++) {
+        QScatterSeries * scatterSeries = new QScatterSeries();
+        scatterSeries->setName(clusterNames.at(i));
         scatterSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         scatterSeries->setMarkerSize(10);
 
-        for (int i = 0; i < std::get<1>(selectedGene).length(); i++) {
-            double expressionValue = std::get<1>(selectedGene).at(i);
-
-            scatterSeries->append(i, expressionValue);
+        for (int j = 0; j < expressionDataForGenesInClusters.keys().length(); j++) {
+            QString geneID = expressionDataForGenesInClusters.keys().at(j);
+            double expressionValue = expressionDataForGenesInClusters[geneID].at(i);
 
             // If the current expression value is higher than the previously max value, store it as new max
             if (expressionValue >= maxExpressionValue)
                 maxExpressionValue = expressionValue;
+
+            // Add the value to the scatter series
+            scatterSeries->append(j, expressionValue);
         }
 
-        // Set the scatter series name with mean expression value
-        scatterSeries->setName(std::get<0>(selectedGene).toUpper() + " - ⌀: " + QString::number(std::get<2>(selectedGene)));
-
-        // And add the scatter series for the current gene to the chart
         chart->addSeries(scatterSeries);
-  }
-
+    }
 
     // Add basic configuration
-    QString title = "Gene expression in " + plotTitle + " clusters";
-    chart->setTitle(title);
+    QString plotTitle = "Gene expression in " + title + " clusters";
+    chart->setTitle(plotTitle);
 
     // Add the x axis with the cluster numbers
     QBarCategoryAxis * xAxis = new QBarCategoryAxis();
-    xAxis->setTitleText(plotTitle + " clusters");
-    xAxis->append(std::get<1>(geneExpressionValuesForClusters));
+    xAxis->setTitleText(title + " genes");
+    xAxis->append(expressionDataForGenesInClusters.keys());
 
     // Add the y axis with the relative UMI counts.
     // +1 for the range to make the marker for the max value more visible
     QValueAxis * yAxis = new QValueAxis();
     yAxis->setRange(0, maxExpressionValue + 5);
 
-    yAxis->setTickCount(numberOfClusters);
+    yAxis->setTickCount(clusterNames.length());
     yAxis->setTitleText("relative UMI counts per cell");
 
     QChartView * chartView = new QChartView(chart);
@@ -92,6 +96,72 @@ QtCharts::QChartView * createScatterPlot(std::tuple<QVector<std::tuple<QString, 
     return chartView;
 }
 
+///**
+// * @brief createScatterPlot - Creates a scatter plot for the given gene expression data - The resulting plot contains one plotting series per given gene
+// * @param geneExpressionValuesForClusters - List of genes with corresponding expression data for n clusters
+// * @param plotTitle - The title the resulting plot should show
+// * @return - A plot that combines one plotting series per given gene in one scatter plot
+// */
+//QChartView * createScatterPlot(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle) {
+//    QChart * chart = new QChart();
+
+//    // Collect the highest expression value for the correct y axis range
+//    double maxExpressionValue = .0;
+
+//    int numberOfClusters = std::get<1>(std::get<0>(geneExpressionValuesForClusters).first()).length();
+
+//    for (std::tuple<QString, QVector<double>, double> selectedGene : std::get<0>(geneExpressionValuesForClusters)) {
+//        QScatterSeries * scatterSeries  = new QScatterSeries();
+//        scatterSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+//        scatterSeries->setMarkerSize(10);
+
+//        for (int i = 0; i < std::get<1>(selectedGene).length(); i++) {
+//            double expressionValue = std::get<1>(selectedGene).at(i);
+
+//            scatterSeries->append(i, expressionValue);
+
+//            // If the current expression value is higher than the previously max value, store it as new max
+//            if (expressionValue >= maxExpressionValue)
+//                maxExpressionValue = expressionValue;
+//        }
+
+//        // Set the scatter series name with mean expression value
+//        scatterSeries->setName(std::get<0>(selectedGene).toUpper() + " - ⌀: " + QString::number(std::get<2>(selectedGene)));
+
+//        // And add the scatter series for the current gene to the chart
+//        chart->addSeries(scatterSeries);
+//  }
+
+
+//    // Add basic configuration
+//    QString title = "Gene expression in " + plotTitle + " clusters";
+//    chart->setTitle(title);
+
+//    // Add the x axis with the cluster numbers
+//    QBarCategoryAxis * xAxis = new QBarCategoryAxis();
+//    xAxis->setTitleText(plotTitle + " clusters");
+//    xAxis->append(std::get<1>(geneExpressionValuesForClusters));
+
+//    // Add the y axis with the relative UMI counts.
+//    // +1 for the range to make the marker for the max value more visible
+//    QValueAxis * yAxis = new QValueAxis();
+//    yAxis->setRange(0, maxExpressionValue + 5);
+
+//    yAxis->setTickCount(numberOfClusters);
+//    yAxis->setTitleText("relative UMI counts per cell");
+
+//    QChartView * chartView = new QChartView(chart);
+//    chartView->setRenderHint(QPainter::Antialiasing);
+
+//    // Add the manually created axes to the chart view
+//    for (int i = 0; i < chart->series().length(); i++) {
+//        chartView->chart()->setAxisX(xAxis, chart->series().at(i));
+//        chartView->chart()->setAxisY(yAxis, chart->series().at(i));
+//    }
+
+//    return chartView;
+//}
+
 
 /**
  * @brief createBarChart - Creates a bar chart for the given gene expression data - The resulting chart contains one barset per given gene
@@ -99,7 +169,7 @@ QtCharts::QChartView * createScatterPlot(std::tuple<QVector<std::tuple<QString, 
  * @param plotTitle - The title the resulting plot should show
  * @return - A bar chart that combines all given genes
  */
-QtCharts::QChartView * createBarChart(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle) {
+QChartView * createBarChart(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle) {
 
     // Store the highest expression value for the range of the yAxis
     double maxExpressionValue = .0;

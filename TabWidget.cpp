@@ -168,8 +168,8 @@ void TabWidget::populateTableGeneExpressions(QVector<FeatureCollection> geneExpr
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->tableView->setSortingEnabled(true);
     this->tableView->sortByColumn(0, Qt::AscendingOrder);
-    // The Contigous selection mode prevents the selection of single cells out of line
-    this->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    this->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->tableView->horizontalHeader()->setMinimumSectionSize(100);
     this->tableView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 //    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -267,27 +267,15 @@ void TabWidget::on_lineEditGeneID_textChanged(const QString & lineEditContent) {
 //}
 
 
-/**
- * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Go through the TableView and gather all data that has been selected
- * @return - IDs and gene expression data for selected genes
- */
-std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> TabWidget::retrieveExpressionDataForSelectedGenes() {
-
-    QVector<std::tuple<QString, QVector<double>, double>> dataForSelectedGenes;
+QMap<QString, QVector<double>> TabWidget::retrieveExpressionDataForSelectedGenes() {
+    QMap<QString, QVector<double>> expressionDataForSelectedGenes;
 
     QModelIndexList selectedIndices = this->tableView->selectionModel()->selectedIndexes();
-    QStringList clusterNames;
-
-    QMap<QString, QVector<double>> expressionDataForSelectedGenes;
     for (QModelIndex modelIndex : selectedIndices) {
 
         // Skip the first column with gene IDs and the last column with the mean counts
         if (modelIndex.column() == 0 || modelIndex.column() == this->tableView->model()->columnCount() - 1)
             continue;
-
-        // Grab the cluster name from the horizontal header items and append it to the list of cluster names
-        QString clusterName = this->tableView->model()->headerData(modelIndex.column(), Qt::Horizontal).toString();
-        clusterNames.append(clusterName);
 
         // Grab the gene ID corresponding to the currently selected cell's row
         QModelIndex geneIDCellIndex = this->tableView->model()->index(modelIndex.row(), 0);
@@ -300,20 +288,57 @@ std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> T
         expressionDataForSelectedGenes[geneID].append(currentCellData);
     }
 
-    for (QString geneID : expressionDataForSelectedGenes.keys()) {
-        std::tuple<QString, QVector<double>, double> expressionDataForSelectedGene(geneID, {}, 0);
-
-        QVector<double> * geneExpressiondata = & expressionDataForSelectedGenes[geneID];
-
-        // Add the expression values to the list
-        std::get<1>(expressionDataForSelectedGene) = expressionDataForSelectedGenes[geneID];
-        std::get<2>(expressionDataForSelectedGene) = Math::mean(* geneExpressiondata);
-
-        dataForSelectedGenes.append(expressionDataForSelectedGene);
-    }
-
-    return std::make_tuple(dataForSelectedGenes, clusterNames);
+    return expressionDataForSelectedGenes;
 }
+
+
+///**
+// * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Go through the TableView and gather all data that has been selected
+// * @return - IDs and gene expression data for selected genes
+// */
+//std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> TabWidget::retrieveExpressionDataForSelectedGenes() {
+
+//    QVector<std::tuple<QString, QVector<double>, double>> dataForSelectedGenes;
+
+//    QModelIndexList selectedIndices = this->tableView->selectionModel()->selectedIndexes();
+//    QStringList clusterNames;
+
+//    QMap<QString, QVector<double>> expressionDataForSelectedGenes;
+//    for (QModelIndex modelIndex : selectedIndices) {
+
+//        // Skip the first column with gene IDs and the last column with the mean counts
+//        if (modelIndex.column() == 0 || modelIndex.column() == this->tableView->model()->columnCount() - 1)
+//            continue;
+
+//        // Grab the cluster name from the horizontal header items and append it to the list of cluster names
+//        QString clusterName = this->tableView->model()->headerData(modelIndex.column(), Qt::Horizontal).toString();
+//        clusterNames.append(clusterName);
+
+//        // Grab the gene ID corresponding to the currently selected cell's row
+//        QModelIndex geneIDCellIndex = this->tableView->model()->index(modelIndex.row(), 0);
+//        QString geneID = this->tableView->model()->data(geneIDCellIndex).toString();
+
+//        // Grab the underlying value of the current selected cell
+//        double currentCellData = this->tableView->model()->data(modelIndex).toDouble();
+
+//        // And add it to a map to prevent multiple mentions of the same gene
+//        expressionDataForSelectedGenes[geneID].append(currentCellData);
+//    }
+
+//    for (QString geneID : expressionDataForSelectedGenes.keys()) {
+//        std::tuple<QString, QVector<double>, double> expressionDataForSelectedGene(geneID, {}, 0);
+
+//        QVector<double> * geneExpressiondata = & expressionDataForSelectedGenes[geneID];
+
+//        // Add the expression values to the list
+//        std::get<1>(expressionDataForSelectedGene) = expressionDataForSelectedGenes[geneID];
+//        std::get<2>(expressionDataForSelectedGene) = Math::mean(* geneExpressiondata);
+
+//        dataForSelectedGenes.append(expressionDataForSelectedGene);
+//    }
+
+//    return std::make_tuple(dataForSelectedGenes, clusterNames);
+//}
 
 
 /**
@@ -365,13 +390,14 @@ template<typename F>
  */
 void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
 
-    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+//    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+    QMap<QString, QVector<double>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
-    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
-    if (std::get<0>(expressionDataForSelectedGenes).isEmpty())
-        return;
+//    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
+//    if (std::get<0>(expressionDataForSelectedGenes).isEmpty())
+//        return;
 
-    QChartView * chartView = plottingFunction(expressionDataForSelectedGenes, this->title);
+    QChartView * chartView = plottingFunction(this->title, expressionDataForSelectedGenes, this->clusterNames, {});
 
     ExportDialog * exportDialog = new ExportDialog(this);
     exportDialog->addPlot(chartView);
@@ -476,7 +502,7 @@ void TabWidget::on_pushButtonScatterPlot_clicked() {
  * @brief TabWidget::on_pushButtonBarChart_clicked
  */
 void TabWidget::on_pushButtonBarChart_clicked() {
-    this->openExportWidgetWithPlot(Plots::createBarChart);
+//    this->openExportWidgetWithPlot(Plots::createBarChart);
 }
 
 
