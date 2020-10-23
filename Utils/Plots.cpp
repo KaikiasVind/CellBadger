@@ -67,16 +67,19 @@ QChartView * createScatterPlot(const QString title, const QString yAxisTitle, co
         chart->addSeries(scatterSeries);
     }
 
-    // Create a series for mean values
-    QScatterSeries * meanScatterSeries = new QScatterSeries();
-    meanScatterSeries->setName("mean");
-    meanScatterSeries->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
-    meanScatterSeries->setMarkerSize(8);
+    // If mean values have been given, add them as additional series
+    if (!meanValues.isEmpty()) {
+        // Create a series for mean values
+        QScatterSeries * meanScatterSeries = new QScatterSeries();
+        meanScatterSeries->setName("mean");
+        meanScatterSeries->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+        meanScatterSeries->setMarkerSize(8);
 
-    for (int i = 0; i < meanValues.length(); i++)
+        for (int i = 0; i < meanValues.length(); i++)
         meanScatterSeries->append(i, meanValues.at(i));
 
-    chart->addSeries(meanScatterSeries);
+        chart->addSeries(meanScatterSeries);
+    }
 
     // Add basic configuration
     QString plotTitle = "Gene expression in " + title + " clusters";

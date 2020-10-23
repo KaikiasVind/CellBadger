@@ -133,7 +133,7 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
     QChartView * chart;
     switch (this->requestedPlotType) {
         case PlotType::SCATTER_PLOT:
-        chart = Plots::createScatterPlot(plotTitle, yAxisTitle, geneExpressionValuesForSelectedClusters, clusterNames, {});
+        chart = Plots::createScatterPlot(plotTitle, yAxisTitle, geneExpressionValuesForSelectedClusters, clusterNames);
             break;
     }
 
