@@ -119,8 +119,11 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
         if (selectedIndex.row() > selectedExperiment.size() - 1)
             continue;
 
-        // Append the text of the selected cell to the list of names of the selected clusters
-        clusterNames.append(selectedIndex.data(Qt::DisplayRole).toString());
+        // Append either the type of the selected cell or the cluster name if there is no type
+        QString clusterName = "experiment " + QString::number(selectedIndex.row() + 1) + " : ";
+        QStringList type = selectedIndex.data(Qt::DisplayRole).toString().split(": ");
+        clusterName.append(type[1].compare("NA") == 0 ? type[0] : type[1]);
+        clusterNames.append(clusterName);
 
         // The selected cluster corresponds to the row that was selected in the table
         FeatureCollection selectedCluster = selectedExperiment.at(selectedIndex.row());
