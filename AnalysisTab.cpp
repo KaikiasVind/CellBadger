@@ -83,7 +83,7 @@ void AnalysisTab::cleanTable() {
  * @brief AnalysisTab::on_receivedGeneExpressionData
  * @param experiments
  */
-void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments) {
+void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset) {
     // Gather all gene-IDs the user put into the text edit and filter out empty IDs
     QStringList foundGeneIDs = this->ui->textEditGeneSelection->toPlainText().split(",");
     foundGeneIDs.removeAll(QString(""));
@@ -91,6 +91,13 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
     // If no gene IDs have been selected, return
     if (foundGeneIDs.isEmpty())
         return;
+
+    // Flatten the list of complete gene IDs into a set for easier handling
+    QSet<QString> completeGeneIDs;
+    for (QStringList list : completeSetsOfGeneIDsPerDataset) {
+        for (QString geneID : list)
+            completeGeneIDs.insert(geneID);
+    }
 
     QModelIndexList selectedIndices = this->ui->tableWidgetExperimentsSelection->selectionModel()->selectedIndexes();
 
@@ -116,6 +123,12 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
         // Look for every gene that was written in the text input and in every selected cluster
         for (QString geneID : foundGeneIDs) {
             geneID = geneID.toUpper();
+
+            // If the entered geneID doesn't exist in any experiment, skip it
+            if (!completeGeneIDs.contains(geneID))
+                continue;
+
+            // Else search for the gene in the selected cluster
             Feature foundFeature = selectedCluster.getFeature(geneID);
 
             // If the gene is not expressed in the cluster, add 0 as expression value to the list

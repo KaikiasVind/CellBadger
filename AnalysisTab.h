@@ -25,7 +25,7 @@ signals:
     void requestGeneExpressionData();
 
 public slots:
-    void on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments);
+    void on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
 private slots:
     void on_pushButtonScatterPlot_clicked();

@@ -263,7 +263,7 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
  * @brief Coordinator::on_geneExpressionDataRequested - The AnalysisTab has requested the gene expression data - Send it
  */
 void Coordinator::on_geneExpressionDataRequested() {
-    emit this->sendGeneExpressionData(this->informationCenter.xClusterCollections);
+    emit this->sendGeneExpressionData(this->informationCenter.xClusterCollections, this->informationCenter.completeSetsOfGeneIDsPerDataset);
 }
 
 // ###################################### INTERACTION WITH MAIN WINDOW ###########################################

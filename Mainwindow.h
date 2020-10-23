@@ -39,7 +39,7 @@ signals:
 //    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     void runAnalysis(const AnalysisConfigModel analysisConfigModel);
     void requestGeneExpressionDataForAnalysisTab();
-    void transmitGeneExpressionDataForAnalysisTab(const QVector<QVector<FeatureCollection>> experiments);
+    void transmitGeneExpressionDataForAnalysisTab(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);

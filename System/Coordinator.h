@@ -40,7 +40,7 @@ signals:
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
     void finishedCorrelating(const InformationCenter & informationCenter);
-    void sendGeneExpressionData(const QVector<QVector<FeatureCollection>> xClusterCollections);
+    void sendGeneExpressionData(const QVector<QVector<FeatureCollection>> xClusterCollections, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
