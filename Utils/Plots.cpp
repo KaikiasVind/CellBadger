@@ -40,7 +40,7 @@ namespace Plots {
  * @param meanValues - List of means of the gene expressions in the given clusters
  * @return - A plot that combines one plotting series per given gene in one scatter plot
  */
-QChartView * createScatterPlot(const QString title, const QMap<QString, QVector<double>> expressionDataForGenesInClusters, const QStringList clusterNames, const QVector<double> meanValues) {
+QChartView * createScatterPlot(const QString title, const QString yAxisTitle, const QMap<QString, QVector<double>> expressionDataForGenesInClusters, const QStringList clusterNames, const QVector<double> meanValues) {
     QChart * chart = new QChart();
 
     // Collect the highest expression value for the correct y axis range
@@ -93,7 +93,7 @@ QChartView * createScatterPlot(const QString title, const QMap<QString, QVector<
     yAxis->setRange(0, maxExpressionValue + 5);
 
     yAxis->setTickCount(clusterNames.length());
-    yAxis->setTitleText("relative UMI counts per cell");
+    yAxis->setTitleText(yAxisTitle);
 
     QChartView * chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);

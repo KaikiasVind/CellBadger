@@ -441,17 +441,29 @@ template<typename F>
  */
 void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
 
+    // Gather the currently shown expression data for all selected cells
     QMap<QString, QVector<double>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
     // If no valid cells have been selected, return
     if (expressionDataForSelectedGenes.isEmpty())
         return;
 
+    // Also gather the names of the selected clusters (columns) and the mean values for the selected genes (rows)
     QStringList namesForSelectedClusters = this->retrieveNamesForSelectedClusters();
     QVector<double> meanValues = this->retrieveMeanValuesForSelectedGenes();
 
-    QChartView * chartView = plottingFunction(this->title, expressionDataForSelectedGenes, namesForSelectedClusters, meanValues);
+    // Get the title for the y-axis based on which option is chosen
+    QString yAxisTitle;
+    switch (this->ui->comboBoxShownGeneExpressionValues->currentIndex()) {
+        case 0: yAxisTitle = "RPM per cluster"; break;
+        case 1: yAxisTitle = "Raw counts per cluster / relative UMI counts per cell"; break;
+        case 2: yAxisTitle = "Fold change per cluster"; break;
+    }
 
+    // Create the chart with the gathered data
+    QChartView * chartView = plottingFunction(this->title, yAxisTitle, expressionDataForSelectedGenes, namesForSelectedClusters, meanValues);
+
+    // Create the export dialog and hand the chart over to the dialog
     ExportDialog * exportDialog = new ExportDialog(this);
     exportDialog->addPlot(chartView);
     exportDialog->show();
