@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QFile>
 
+#include "ExportDialog.h"
+
 
 namespace Helper {
 
@@ -83,6 +85,17 @@ QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtens
  */
 QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions) {
     return QFileDialog::getSaveFileName(parent, description, QDir::home().path(), validMimeTypeExtensions);
+}
+
+
+/**
+ * @brief openExportWidgetWithPlot - Takes the given plot and opens it in an ExportDialog
+ * @param chart - A QChartView * that is transfered onto an ExportDialog
+ */
+void openExportWidgetWithPlot(QtCharts::QChartView * chart) {
+    ExportDialog * exportDialog = new ExportDialog();
+    exportDialog->addPlot(chart);
+    exportDialog->show();
 }
 
 

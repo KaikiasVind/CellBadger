@@ -66,7 +66,12 @@ private:
     QStringList clusterNames;
 
     void cleanCorrelationTable();
-    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
+//    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
+    QMap<QString, QVector<double>> retrieveExpressionDataForSelectedGenes();
+    QStringList retrieveNamesForSelectedClusters();
+    QVector<double> retrieveMeanValuesForSelectedGenes();
+    template<typename F>
+    void createPlot(F plottingFunction);
 
     QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs);
 };
