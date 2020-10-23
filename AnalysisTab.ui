@@ -94,6 +94,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonBarChart">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Bar Chart</string>
        </property>

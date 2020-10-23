@@ -120,7 +120,7 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
             continue;
 
         // Append either the type of the selected cell or the cluster name if there is no type
-        QString clusterName = "experiment " + QString::number(selectedIndex.row() + 1) + " : ";
+        QString clusterName = "Experiment " + QString::number(selectedIndex.column() + 1) + " : ";
         QStringList type = selectedIndex.data(Qt::DisplayRole).toString().split(": ");
         clusterName.append(type[1].compare("NA") == 0 ? type[0] : type[1]);
         clusterNames.append(clusterName);
