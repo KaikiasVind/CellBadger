@@ -50,7 +50,7 @@ QChartView * createScatterPlot(const QString title, const QMap<QString, QVector<
         QScatterSeries * scatterSeries = new QScatterSeries();
         scatterSeries->setName(clusterNames.at(i));
         scatterSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-        scatterSeries->setMarkerSize(10);
+        scatterSeries->setMarkerSize(8);
 
         for (int j = 0; j < expressionDataForGenesInClusters.keys().length(); j++) {
             QString geneID = expressionDataForGenesInClusters.keys().at(j);
@@ -66,6 +66,17 @@ QChartView * createScatterPlot(const QString title, const QMap<QString, QVector<
 
         chart->addSeries(scatterSeries);
     }
+
+    // Create a series for mean values
+    QScatterSeries * meanScatterSeries = new QScatterSeries();
+    meanScatterSeries->setName("mean");
+    meanScatterSeries->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+    meanScatterSeries->setMarkerSize(8);
+
+    for (int i = 0; i < meanValues.length(); i++)
+        meanScatterSeries->append(i, meanValues.at(i));
+
+    chart->addSeries(meanScatterSeries);
 
     // Add basic configuration
     QString plotTitle = "Gene expression in " + title + " clusters";

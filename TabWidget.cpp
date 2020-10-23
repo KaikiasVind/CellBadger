@@ -321,6 +321,28 @@ QStringList TabWidget::retrieveNamesForSelectedClusters() {
 }
 
 
+/**
+ * @brief TabWidget::retrieveMeanValuesForSelectedGenes
+ * @return
+ */
+QVector<double> TabWidget::retrieveMeanValuesForSelectedGenes() {
+    QVector<double> meanValues;
+    QVector<int> seenRows;
+    QModelIndexList selectedIndices = this->tableView->selectionModel()->selectedIndexes();
+
+    // Gather the numbers of all selected rows
+    for (QModelIndex selectedIndice : selectedIndices) {
+        if (!seenRows.contains(selectedIndice.row())) {
+            seenRows.append(selectedIndice.row());
+            QModelIndex meanValueCellIndex = this->tableView->model()->index(selectedIndice.row(), this->tableView->model()->columnCount() - 1);
+            double meanValue = this->tableView->model()->data(meanValueCellIndex).toDouble();
+            meanValues.append(meanValue);
+        }
+    }
+
+    return meanValues;
+}
+
 ///**
 // * @brief TabWidget::retrieveExpressionDataForSelectedGenes - Go through the TableView and gather all data that has been selected
 // * @return - IDs and gene expression data for selected genes
@@ -419,15 +441,16 @@ template<typename F>
  */
 void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
 
-//    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
     QMap<QString, QVector<double>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
+
+    // If no valid cells have been selected, return
+    if (expressionDataForSelectedGenes.isEmpty())
+        return;
+
     QStringList namesForSelectedClusters = this->retrieveNamesForSelectedClusters();
+    QVector<double> meanValues = this->retrieveMeanValuesForSelectedGenes();
 
-//    // This case appears if at least one of the gene IDs is not found in the table and therefore is invalid
-//    if (std::get<0>(expressionDataForSelectedGenes).isEmpty())
-//        return;
-
-    QChartView * chartView = plottingFunction(this->title, expressionDataForSelectedGenes, namesForSelectedClusters, {});
+    QChartView * chartView = plottingFunction(this->title, expressionDataForSelectedGenes, namesForSelectedClusters, meanValues);
 
     ExportDialog * exportDialog = new ExportDialog(this);
     exportDialog->addPlot(chartView);
