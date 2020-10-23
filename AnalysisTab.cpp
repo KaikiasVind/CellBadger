@@ -1,7 +1,13 @@
 #include "AnalysisTab.h"
 #include "ui_AnalysisTab.h"
 
-#include <QDebug>
+#include <QtCharts/QChartView>
+
+#include "Utils/Plots.h"
+#include "Utils/Helper.h"
+
+using QtCharts::QChartView;
+
 
 AnalysisTab::AnalysisTab(QWidget *parent) :
     QWidget(parent), ui(new Ui::AnalysisTab)
@@ -78,32 +84,69 @@ void AnalysisTab::cleanTable() {
  * @param experiments
  */
 void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments) {
-    return;
-//    // Gather all gene-IDs the user put into the text edit and filter out empty IDs
-//    QStringList foundGeneIDs = this->ui->textEditGeneSelection->toPlainText().split(",");
-//    foundGeneIDs.removeAll(QString(""));
+    // Gather all gene-IDs the user put into the text edit and filter out empty IDs
+    QStringList foundGeneIDs = this->ui->textEditGeneSelection->toPlainText().split(",");
+    foundGeneIDs.removeAll(QString(""));
 
-//    for (QVector<FeatureCollection> experiment : experiments) {
+    // If no gene IDs have been selected, return
+    if (foundGeneIDs.isEmpty())
+        return;
 
-//        for (FeatureCollection collection : experiment) {
+    QModelIndexList selectedIndices = this->ui->tableWidgetExperimentsSelection->selectionModel()->selectedIndexes();
 
-//            for (Feature feature : collection.getFeatures()) {
+    QMap<QString, QVector<double>> geneExpressionValuesForSelectedClusters;
+    QStringList clusterNames;
 
-//                // If the gene ID is not one of the searched ones, continue
-//                if (!foundGeneIDs.contains(feature.ID))
-//                    continue;
+    for (QModelIndex selectedIndex : selectedIndices) {
 
+        // Append the text of the selected cell to the list of names of the selected clusters
+        clusterNames.append(selectedIndex.data(Qt::DisplayRole).toString());
 
-//            }
-//        }
-//    }
+        // REMEMBER: FIXME!!
+        // The experiments are displayed in the reversed order compared to how they are stored
+        // To cope with this, the columns have to be converted to the correct cluster
+        int column = abs(selectedIndex.column() - (experiments.size() - 1));
+
+        // The selected experiment corresponds to the column that was selected in the table
+        QVector<FeatureCollection> selectedExperiment = experiments.at(column);
+
+        // The selected cluster corresponds to the row that was selected in the table
+        FeatureCollection selectedCluster = selectedExperiment.at(selectedIndex.row());
+
+        // Look for every gene that was written in the text input and in every selected cluster
+        for (QString geneID : foundGeneIDs) {
+            geneID = geneID.toUpper();
+            Feature foundFeature = selectedCluster.getFeature(geneID);
+
+            // If the gene is not expressed in the cluster, add 0 as expression value to the list
+            if (foundFeature.ID.compare("nAn") == 0)
+                geneExpressionValuesForSelectedClusters[geneID].append(0);
+            // Else add the gene expression value of the gene found in the cluster
+            else
+                geneExpressionValuesForSelectedClusters[geneID].append(foundFeature.count);
+        }
+    }
+
+    QString plotTitle = "selected";
+    QString yAxisTitle = "Raw counts per cluster / relative UMI counts per cell";
+
+    QChartView * chart;
+    switch (this->requestedPlotType) {
+        case PlotType::SCATTER_PLOT:
+        chart = Plots::createScatterPlot(plotTitle, yAxisTitle, geneExpressionValuesForSelectedClusters, clusterNames, {});
+            break;
+    }
+
+    Helper::openExportWidgetWithPlot(chart);
 }
 
 // ########################## UI-SLOTS ##########################
 void AnalysisTab::on_pushButtonScatterPlot_clicked() {
+    this->requestedPlotType = PlotType::SCATTER_PLOT;
     emit this->requestGeneExpressionData();
 }
 
 void AnalysisTab::on_pushButtonBarChart_clicked() {
+    return;
     emit this->requestGeneExpressionData();
 }

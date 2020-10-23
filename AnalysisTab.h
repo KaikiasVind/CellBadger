@@ -34,6 +34,12 @@ private slots:
 
 private:
     Ui::AnalysisTab *ui;
+
+    enum class PlotType {
+        SCATTER_PLOT
+    };
+
+    PlotType requestedPlotType;
 };
 
 #endif // ANALYSISTAB_H
