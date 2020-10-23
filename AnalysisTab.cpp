@@ -106,9 +106,6 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
 
     for (QModelIndex selectedIndex : selectedIndices) {
 
-        // Append the text of the selected cell to the list of names of the selected clusters
-        clusterNames.append(selectedIndex.data(Qt::DisplayRole).toString());
-
         // REMEMBER: FIXME!!
         // The experiments are displayed in the reversed order compared to how they are stored
         // To cope with this, the columns have to be converted to the correct cluster
@@ -116,6 +113,14 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
 
         // The selected experiment corresponds to the column that was selected in the table
         QVector<FeatureCollection> selectedExperiment = experiments.at(column);
+
+        // If a cluster is selected that doesn't exist for the selected experiment. skip it.
+        // This happens if the experiments have a different amount of clusters
+        if (selectedIndex.row() > selectedExperiment.size() - 1)
+            continue;
+
+        // Append the text of the selected cell to the list of names of the selected clusters
+        clusterNames.append(selectedIndex.data(Qt::DisplayRole).toString());
 
         // The selected cluster corresponds to the row that was selected in the table
         FeatureCollection selectedCluster = selectedExperiment.at(selectedIndex.row());
@@ -139,6 +144,11 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
                 geneExpressionValuesForSelectedClusters[geneID].append(foundFeature.count);
         }
     }
+
+    // If no cluster has been selected, return
+    // This happens if ONLY a cluster has been selected that doesn't exist in the experiment
+    if (clusterNames.isEmpty())
+        return;
 
     QString plotTitle = "selected";
     QString yAxisTitle = "Raw counts per cluster / relative UMI counts per cell";
