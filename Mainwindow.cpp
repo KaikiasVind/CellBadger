@@ -83,8 +83,8 @@ void MainWindow::createDatasetItem(QString datasetName, QVector<FeatureCollectio
 
     this->runningTabWidgets.append(tabWidget);
 
-//    this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length(), tabWidget, datasetName);
-    this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
+    this->ui->tabWidgetDatasets->insertTab(this->runningTabWidgets.length() - 1, tabWidget, datasetName);
+//    this->ui->tabWidgetDatasets->insertTab(0, tabWidget, datasetName);
     this->ui->tabWidgetDatasets->setCurrentIndex(0);
     this->currentTabWidget = this->runningTabWidgets.at(0);
 
@@ -159,7 +159,6 @@ void MainWindow::on_correlatingFinished(const InformationCenter & informationCen
 
 
 void MainWindow::on_tabWidgetDatasets_currentChanged(int index) {
-
 
 //    if (index == this->ui->tabWidgetDatasets->count() - 1 && !this->isHidden()) {
 //        qDebug() << "Trigger upload new dataset";

@@ -30,19 +30,20 @@ AnalysisTab::~AnalysisTab() {
  */
 void AnalysisTab::addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment, const QVector<QVector<QPair<QString, double>>> correlations) {
 
+    int index = this->ui->tableWidgetExperimentsSelection->columnCount();
+
     // Insert an empty column for the new values
-    this->ui->tableWidgetExperimentsSelection->insertColumn(0);
+    this->ui->tableWidgetExperimentsSelection->insertColumn(index);
 
     // And add additional rows in case the experiment has more clusters than previously added experiments
     if (this->ui->tableWidgetExperimentsSelection->rowCount() < experiment.length())
         this->ui->tableWidgetExperimentsSelection->setRowCount(experiment.length());
 
-
     // Create a new header item for the new experiment and add it to the horizontal header
     QTableWidgetItem * newHeaderItem = new QTableWidgetItem(0);
     newHeaderItem->setData(Qt::DisplayRole, experimentName);
     newHeaderItem->setTextAlignment(Qt::AlignCenter);
-    this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(0, newHeaderItem);
+    this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(index, newHeaderItem);
 
     // Add every cluster to the table
     for (int i = 0; i < experiment.length(); i++) {
@@ -58,7 +59,7 @@ void AnalysisTab::addExperiment(const QString experimentName, const QVector<Feat
 
         newTableItem->setData(Qt::DisplayRole, tableItemName);
         newTableItem->setTextAlignment(Qt::AlignLeft);
-        this->ui->tableWidgetExperimentsSelection->setItem(i, 0, newTableItem);
+        this->ui->tableWidgetExperimentsSelection->setItem(i, index, newTableItem);
     }
 }
 
@@ -106,10 +107,7 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
 
     for (QModelIndex selectedIndex : selectedIndices) {
 
-        // REMEMBER: FIXME!!
-        // The experiments are displayed in the reversed order compared to how they are stored
-        // To cope with this, the columns have to be converted to the correct cluster
-        int column = abs(selectedIndex.column() - (experiments.size() - 1));
+        int column = selectedIndex.column();
 
         // The selected experiment corresponds to the column that was selected in the table
         QVector<FeatureCollection> selectedExperiment = experiments.at(column);
