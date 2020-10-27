@@ -67,16 +67,19 @@ QChartView * createScatterPlot(const QString title, const QString yAxisTitle, co
         chart->addSeries(scatterSeries);
     }
 
-    // Create a series for mean values
-    QScatterSeries * meanScatterSeries = new QScatterSeries();
-    meanScatterSeries->setName("mean");
-    meanScatterSeries->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
-    meanScatterSeries->setMarkerSize(8);
+    // If mean values have been given, add them as additional series
+    if (!meanValues.isEmpty()) {
+        // Create a series for mean values
+        QScatterSeries * meanScatterSeries = new QScatterSeries();
+        meanScatterSeries->setName("mean");
+        meanScatterSeries->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+        meanScatterSeries->setMarkerSize(8);
 
-    for (int i = 0; i < meanValues.length(); i++)
+        for (int i = 0; i < meanValues.length(); i++)
         meanScatterSeries->append(i, meanValues.at(i));
 
-    chart->addSeries(meanScatterSeries);
+        chart->addSeries(meanScatterSeries);
+    }
 
     // Add basic configuration
     QString plotTitle = "Gene expression in " + title + " clusters";
@@ -108,71 +111,71 @@ QChartView * createScatterPlot(const QString title, const QString yAxisTitle, co
 }
 
 
-/**
- * @brief createBarChart - Creates a bar chart for the given gene expression data - The resulting chart contains one barset per given gene
- * @param geneExpressionValuesForClusters - List of genes with corresponding expression data for n clusters
- * @param plotTitle - The title the resulting plot should show
- * @return - A bar chart that combines all given genes
- */
-QChartView * createBarChart(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle) {
+///**
+// * @brief createBarChart - Creates a bar chart for the given gene expression data - The resulting chart contains one barset per given gene
+// * @param geneExpressionValuesForClusters - List of genes with corresponding expression data for n clusters
+// * @param plotTitle - The title the resulting plot should show
+// * @return - A bar chart that combines all given genes
+// */
+//QChartView * createBarChart(std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> geneExpressionValuesForClusters, QString plotTitle) {
 
-    // Store the highest expression value for the range of the yAxis
-    double maxExpressionValue = .0;
-//    int numberOfClusters = std::get<1>(geneExpressionValuesForClusters.first()).length();
+//    // Store the highest expression value for the range of the yAxis
+//    double maxExpressionValue = .0;
+////    int numberOfClusters = std::get<1>(geneExpressionValuesForClusters.first()).length();
 
-    QBarSeries * barSeries = new QBarSeries();
+//    QBarSeries * barSeries = new QBarSeries();
 
-    // Go through all clusters and create a new Barset for each gene
-    // Attention: One Barseries is made per gene, not per cluster, for infos go to: https://doc.qt.io/qt-5/qbarset.html
-    for (int i = 0; i < std::get<0>(geneExpressionValuesForClusters).length(); i++) {
-        QString barSetTitle = std::get<0>(std::get<0>(geneExpressionValuesForClusters).at(i)).toUpper() + " - ⌀: "
-                + QString::number(std::get<2>(std::get<0>(geneExpressionValuesForClusters).at(i)));
-        QBarSet * barSet = new QBarSet(barSetTitle);
+//    // Go through all clusters and create a new Barset for each gene
+//    // Attention: One Barseries is made per gene, not per cluster, for infos go to: https://doc.qt.io/qt-5/qbarset.html
+//    for (int i = 0; i < std::get<0>(geneExpressionValuesForClusters).length(); i++) {
+//        QString barSetTitle = std::get<0>(std::get<0>(geneExpressionValuesForClusters).at(i)).toUpper() + " - ⌀: "
+//                + QString::number(std::get<2>(std::get<0>(geneExpressionValuesForClusters).at(i)));
+//        QBarSet * barSet = new QBarSet(barSetTitle);
 
-        // Add all expression values for the current gene
-        for (int j = 0; j < std::get<1>(std::get<0>(geneExpressionValuesForClusters).at(i)).length(); j++) {
-            double geneExpressionValueForCluster = std::get<1>(std::get<0>(geneExpressionValuesForClusters).at(i)).at(j);
+//        // Add all expression values for the current gene
+//        for (int j = 0; j < std::get<1>(std::get<0>(geneExpressionValuesForClusters).at(i)).length(); j++) {
+//            double geneExpressionValueForCluster = std::get<1>(std::get<0>(geneExpressionValuesForClusters).at(i)).at(j);
 
-            barSet->append(geneExpressionValueForCluster);
+//            barSet->append(geneExpressionValueForCluster);
 
-            // Compare to get the max gene expression value for the range of the y axis
-            if (geneExpressionValueForCluster > maxExpressionValue)
-                maxExpressionValue = geneExpressionValueForCluster;
-        }
+//            // Compare to get the max gene expression value for the range of the y axis
+//            if (geneExpressionValueForCluster > maxExpressionValue)
+//                maxExpressionValue = geneExpressionValueForCluster;
+//        }
 
-        barSeries->append(barSet);
-    }
+//        barSeries->append(barSet);
+//    }
 
-    // Create the chart that will hold the above created plotting series
-    QChart * chart = new QChart();
-    chart->addSeries(barSeries);
-    chart->setTitle("Gene expression in " + plotTitle + " clusters");
+//    // Create the chart that will hold the above created plotting series
+//    QChart * chart = new QChart();
+//    chart->addSeries(barSeries);
+//    chart->setTitle("Gene expression in " + plotTitle + " clusters");
 
-    // Create the x axis that will hold the above category names
-    QBarCategoryAxis * xAxis = new QBarCategoryAxis();
-    xAxis->setTitleText(plotTitle + " clusters");
-    xAxis->append(std::get<1>(geneExpressionValuesForClusters));
+//    // Create the x axis that will hold the above category names
+//    QBarCategoryAxis * xAxis = new QBarCategoryAxis();
+//    xAxis->setTitleText(plotTitle + " clusters");
+//    xAxis->append(std::get<1>(geneExpressionValuesForClusters));
 
-    // Create the y axis that will show the gene expression values
-    QValueAxis * yAxis = new QValueAxis();
-    yAxis->setTitleText("relative UMI counts per cell");
-    yAxis->setRange(0, maxExpressionValue + 5);
+//    // Create the y axis that will show the gene expression values
+//    QValueAxis * yAxis = new QValueAxis();
+//    yAxis->setTitleText("relative UMI counts per cell");
+//    yAxis->setRange(0, maxExpressionValue + 5);
 
-    // Add the new axes to the plot and attach them to the plotting series
-    chart->addAxis(xAxis, Qt::AlignBottom);
-    chart->addAxis(yAxis, Qt::AlignLeft);
-    barSeries->attachAxis(xAxis);
-    barSeries->attachAxis(yAxis);
+//    // Add the new axes to the plot and attach them to the plotting series
+//    chart->addAxis(xAxis, Qt::AlignBottom);
+//    chart->addAxis(yAxis, Qt::AlignLeft);
+//    barSeries->attachAxis(xAxis);
+//    barSeries->attachAxis(yAxis);
 
-    // Configure the main chart legend
-    chart->legend()->setVisible(true);
-    chart->legend()->setAlignment(Qt::AlignTop);
+//    // Configure the main chart legend
+//    chart->legend()->setVisible(true);
+//    chart->legend()->setAlignment(Qt::AlignTop);
 
-    // Crete the final chart view that will be returned
-    QChartView * chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
+//    // Crete the final chart view that will be returned
+//    QChartView * chartView = new QChartView(chart);
+//    chartView->setRenderHint(QPainter::Antialiasing);
 
-    return chartView;
-}
+//    return chartView;
+//}
 
 }

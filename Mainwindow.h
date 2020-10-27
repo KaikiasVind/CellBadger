@@ -11,6 +11,7 @@
 
 #include "StartDialog.h"
 #include "TabWidget.h"
+#include "AnalysisTab.h"
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/AnalysisConfigModel.h"
@@ -35,9 +36,10 @@ public slots:
 
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
-    void requestGeneExpressionData();
 //    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     void runAnalysis(const AnalysisConfigModel analysisConfigModel);
+    void requestGeneExpressionDataForAnalysisTab();
+    void transmitGeneExpressionDataForAnalysisTab(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);
@@ -82,6 +84,7 @@ private:
     Ui::MainWindow *ui;
 
     QVector<TabWidget *> runningTabWidgets;
+    AnalysisTab * analysisTab;
     TabWidget * currentTabWidget;
 
     void createDatasetItem(const QString datasetName, const QVector<FeatureCollection> geneExpressions, const QStringList completeGeneIDs, const QStringList clusterNames);
@@ -101,6 +104,5 @@ private:
     int highestMetNumberOfClusters;
 
     bool isTabWidgetInitialized = false;
-
 };
 #endif // MAINWINDOW_H

@@ -40,20 +40,19 @@ signals:
     void finishedCellMarkerFileParsing();
     void finishedClusterFilesParsing();
     void finishedCorrelating(const InformationCenter & informationCenter);
+    void sendGeneExpressionData(const QVector<QVector<FeatureCollection>> xClusterCollections, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
     void on_newProjectStarted(const QString cellMarkerFilePath, const QStringList filePaths);
     void on_filesUploaded(const QStringList filePaths);
     void on_projectFileUploaded(const QStringList filePaths);
-    // ################### INTERACTION WITH START DIALOG ########################
 
     // ################### INTERACTION WITH MAIN WINDOW #########################
 //    void on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     void on_runAnalysis(const AnalysisConfigModel analysisConfigModel);
-    // ################### INTERACTION WITH MAIN WINDOW #########################
+    void on_geneExpressionDataRequested();
 
-    // ######################### FILE PROCESSING ################################
     // ######################### FILE PROCESSING ################################
 };
 

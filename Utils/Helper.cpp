@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QFile>
 
+#include "ExportDialog.h"
+
 
 namespace Helper {
 
@@ -30,6 +32,21 @@ QString chopFileName(QString filepath) {
 
     // Split extension and file name. The first one is the file name
     return fileNameWithExtension.split(".").first();
+}
+
+
+/**
+ * @brief getFileNames - Chop the paths from the file paths and only return the file names
+ * @param filePaths - List of paths to files
+ * @return - List of names to files
+ */
+QStringList getFileNames(const QStringList filePaths) {
+    QStringList fileNames;
+    fileNames.reserve(filePaths.length());
+
+    std::transform(filePaths.begin(), filePaths.end(), std::back_inserter(fileNames), chopFileName);
+
+    return fileNames;
 }
 
 
@@ -68,6 +85,17 @@ QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtens
  */
 QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions) {
     return QFileDialog::getSaveFileName(parent, description, QDir::home().path(), validMimeTypeExtensions);
+}
+
+
+/**
+ * @brief openExportWidgetWithPlot - Takes the given plot and opens it in an ExportDialog
+ * @param chart - A QChartView * that is transfered onto an ExportDialog
+ */
+void openExportWidgetWithPlot(QtCharts::QChartView * chart) {
+    ExportDialog * exportDialog = new ExportDialog();
+    exportDialog->addPlot(chart);
+    exportDialog->show();
 }
 
 

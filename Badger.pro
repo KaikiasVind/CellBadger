@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    AnalysisTab.cpp \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
     ExportDialog.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
     Mainwindow.cpp
 
 HEADERS += \
+    AnalysisTab.h \
     BioModels/Feature.h \
     BioModels/FeatureCollection.h \
     ExportDialog.h \
@@ -62,6 +64,7 @@ HEADERS += \
     Utils/Sorter.h
 
 FORMS += \
+    AnalysisTab.ui \
     ExportDialog.ui \
     Mainwindow.ui \
     StartDialog.ui \

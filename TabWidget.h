@@ -5,15 +5,12 @@
 #include <QVector>
 #include <QPair>
 #include <QString>
-#include <QTableWidgetItem>
 #include <QStringList>
-#include <QObject>
 #include <QTableView>
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/GeneTableModel.h"
 #include "Utils/Models/ProxyModel.h"
-#include "Utils/Helper.h"
 
 namespace Ui {
 class TabWidget;
@@ -68,13 +65,13 @@ private:
 
     QStringList clusterNames;
 
-    template<typename F>
-    void openExportWidgetWithPlot(F plottingFunction);
     void cleanCorrelationTable();
 //    std::tuple<QVector<std::tuple<QString, QVector<double>, double>>, QStringList> retrieveExpressionDataForSelectedGenes();
     QMap<QString, QVector<double>> retrieveExpressionDataForSelectedGenes();
     QStringList retrieveNamesForSelectedClusters();
     QVector<double> retrieveMeanValuesForSelectedGenes();
+    template<typename F>
+    void createPlot(F plottingFunction);
 
     QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashFeatureDataForAllClusters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs);
 };

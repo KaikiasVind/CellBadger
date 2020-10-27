@@ -3,24 +3,17 @@
 #include <QString>
 #include <QStringList>
 #include <QMessageBox>
-#include <QtCharts/QScatterSeries>
-#include <QtCharts/QChart>
-#include <QtCharts/QChartView>
-#include <QValueAxis>
-#include <QBarCategoryAxis>
-#include <QCategoryAxis>
-#include <QLineSeries>
-#include <set>
 #include <math.h>
+#include <QtCharts/QChartView>
 
 #include "TabWidget.h"
 #include "ui_TabWidget.h"
 #include "BioModels/FeatureCollection.h"
-#include "ExportDialog.h"
 #include "Utils/Plots.h"
 #include "Utils/Models/GeneTableModel.h"
 #include "Utils/Definitions.h"
 #include "Utils/Math.h"
+#include "Utils/Helper.h"
 
 using Definitions::ShownData;
 
@@ -433,14 +426,12 @@ QVector<FeatureCollection> TabWidget::retrieveAllSeenData() {
     return allSeenClusters;
 }
 
-
 template<typename F>
 /**
- * @brief TabWidget::openExportWidgetWithPlot - Ceates a plot with the given plotting function and opens it in an ExportDialog
+ * @brief TabWidget::createPlot - Ceates a plot with the given plotting function and sends it to an ExportDialog
  * @param plottingFunction - Function that creates a QChartView * that is used to create a plot which is then transfered onto an ExportDialog
  */
-void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
-
+void TabWidget::createPlot(F plottingFunction) {
     // Gather the currently shown expression data for all selected cells
     QMap<QString, QVector<double>> expressionDataForSelectedGenes = this->retrieveExpressionDataForSelectedGenes();
 
@@ -460,13 +451,8 @@ void TabWidget::openExportWidgetWithPlot(F plottingFunction) {
         case 2: yAxisTitle = "Fold change per cluster"; break;
     }
 
-    // Create the chart with the gathered data
-    QChartView * chartView = plottingFunction(this->title, yAxisTitle, expressionDataForSelectedGenes, namesForSelectedClusters, meanValues);
-
-    // Create the export dialog and hand the chart over to the dialog
-    ExportDialog * exportDialog = new ExportDialog(this);
-    exportDialog->addPlot(chartView);
-    exportDialog->show();
+    QtCharts::QChartView * chart = plottingFunction(this->title, yAxisTitle, expressionDataForSelectedGenes, namesForSelectedClusters, meanValues);
+    Helper::openExportWidgetWithPlot(chart);
 }
 
 
@@ -559,7 +545,7 @@ void TabWidget::setFoldChangeInAtLeast(const int foldChangeInAtLeast) {
  * @brief TabWidget::on_pushButtonPlot_clicked
  */
 void TabWidget::on_pushButtonScatterPlot_clicked() {
-    this->openExportWidgetWithPlot(Plots::createScatterPlot);
+    this->createPlot(Plots::createScatterPlot);
 }
 
 
@@ -567,7 +553,7 @@ void TabWidget::on_pushButtonScatterPlot_clicked() {
  * @brief TabWidget::on_pushButtonBarChart_clicked
  */
 void TabWidget::on_pushButtonBarChart_clicked() {
-//    this->openExportWidgetWithPlot(Plots::createBarChart);
+//    this->createPlot(Plots::createBarChart);
 }
 
 

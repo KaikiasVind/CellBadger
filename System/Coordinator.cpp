@@ -258,6 +258,14 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
 //    this->needsCleaning = true;
 //}
 
+
+/**
+ * @brief Coordinator::on_geneExpressionDataRequested - The AnalysisTab has requested the gene expression data - Send it
+ */
+void Coordinator::on_geneExpressionDataRequested() {
+    emit this->sendGeneExpressionData(this->informationCenter.xClusterCollections, this->informationCenter.completeSetsOfGeneIDsPerDataset);
+}
+
 // ###################################### INTERACTION WITH MAIN WINDOW ###########################################
 
 /**
