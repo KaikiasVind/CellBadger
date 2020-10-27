@@ -17,7 +17,6 @@
 #include "Utils/Helper.h"
 #include "Utils/Math.h"
 
-#include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
 #define gui 1
@@ -94,54 +93,6 @@ int main(int argc, char * argv[])
     qDebug() << "Identical!";
     printCorrelations(correlations, filteredCorrelations);
     exit(0);
-
-
-
-//    Feature a("a", "nAn", 15, -1, 15);
-//    Feature b("b", "nAn", 12, -1, 13);
-//    Feature c("c", "nAn", 20, -1, 10);
-
-//    Feature d("d", "nAn", 300, -1, 400);
-//    Feature e("e", "nAn", 9, -1, 21);
-//    Feature f("f", "nAn", -40, -1, -30);
-
-//    FeatureCollection testCollection("test");
-//    testCollection.addFeature(a);
-//    testCollection.addFeature(b);
-//    testCollection.addFeature(c);
-//    testCollection.addFeature(d);
-//    testCollection.addFeature(e);
-//    testCollection.addFeature(f);
-
-//    QVector<FeatureCollection> experimentOne, experimentTwo;
-//    experimentOne << testCollection;
-//    experimentTwo << testCollection;
-//    QVector<QVector<FeatureCollection>> experiments;
-//    experiments << experimentOne << experimentTwo;
-
-//    AnalysisConfigModel configModel(Definitions::AnalysisFilterMode::MANUAL);
-//    configModel.minRawCount = 10;
-//    configModel.maxRawCount = 20;
-//    configModel.minFoldChange = 10;
-//    configModel.maxFoldChange = 20;
-
-//    QVector<QVector<FeatureCollection>> filteredExperiments;
-
-//    for (QVector<FeatureCollection> experiment : experiments)
-//        filteredExperiments.append(Helper::filterExpressedGenesAccordingToFilters(experiment, {"a", "b", "c", "d", "e", "f"}, configModel));
-
-//    for (QVector<FeatureCollection> experiment : filteredExperiments) {
-//        for (FeatureCollection collection : experiment) {
-//            qDebug() << collection.ID << ":";
-//            for (Feature feature : collection.getFeatures()) {
-//                qDebug() << feature.ID;
-//            }
-//        }
-//        qDebug() << "\n";
-//    }
-
-
-
 
 //    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
 

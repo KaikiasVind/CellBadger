@@ -8,7 +8,6 @@
 #include <QtCharts/QChartView>
 
 #include "BioModels/FeatureCollection.h"
-#include "Utils/Models/AnalysisConfigModel.h"
 
 namespace Helper
 {
@@ -27,7 +26,6 @@ extern void openExportWidgetWithPlot(QtCharts::QChartView * chart);
 // #################################### FILTERING #####################################
 
 extern QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, const int numberOfGenesToPop);
-extern QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs, const AnalysisConfigModel analysisConfigModel);
 
 }
 

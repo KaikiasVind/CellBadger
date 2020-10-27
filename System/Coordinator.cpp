@@ -193,7 +193,7 @@ void Coordinator::on_filesUploaded(const QStringList filePaths) {
 }
 
 
-void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) {
+void Coordinator::on_runAnalysis(const int numberOfGenesToUse) {
     qDebug() << "Coordinator: Received signal for run analyis.";
 
     if (this->needsCleaning)
@@ -203,22 +203,9 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
     QVector<QVector<FeatureCollection>> filteredXClusterCollections;
     filteredXClusterCollections.reserve(this->informationCenter.xClusterCollections.length());
 
-    // Go through every experiment and filter the genes according to the currently chosen filter model
-    for (int i = 0; i < this->informationCenter.xClusterCollections.length(); i++) {
-        // In case of TOP_N, filter every existant experiment for the top n most expressed genes
-        switch (analysisConfigModel.usedFilterMode) {
-            case AnalysisFilterMode::TOP_N:
-                filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(this->informationCenter.xClusterCollections.at(i), analysisConfigModel.numberOfGenesToUse));
-                break;
-
-            case AnalysisFilterMode::MANUAL:
-                filteredXClusterCollections.append(Helper::filterExpressedGenesAccordingToFilters(this->informationCenter.xClusterCollections.at(i), this->informationCenter.completeSetsOfGeneIDsPerDataset.at(i), analysisConfigModel));
-                break;
-
-            case AnalysisFilterMode::AUTOMATIC:
-                break;
-        }
-    }
+    // Go through every experiment and choose the top n most expressed genes
+    for (int i = 0; i < this->informationCenter.xClusterCollections.length(); i++)
+        filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(this->informationCenter.xClusterCollections.at(i), numberOfGenesToUse));
 
     // Correlate the datasets with the given cell type markers in separate threads
     this->correlateDatasets(filteredXClusterCollections, this->informationCenter.cellMarkersForTypes);

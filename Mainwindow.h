@@ -14,7 +14,6 @@
 #include "AnalysisTab.h"
 #include "System/InformationCenter.h"
 #include "BioModels/FeatureCollection.h"
-#include "Utils/Models/AnalysisConfigModel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -37,7 +36,7 @@ public slots:
 signals:
     void newDatasetTabCreated(const QString datasetName, const QVector<QVector<QPair<QString, double>>> correlation);
 //    void runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
-    void runAnalysis(const AnalysisConfigModel analysisConfigModel);
+    void runAnalysis(const int numberOfGenesToUse);
     void requestGeneExpressionDataForAnalysisTab();
     void transmitGeneExpressionDataForAnalysisTab(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
