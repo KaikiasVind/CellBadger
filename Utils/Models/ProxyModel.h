@@ -21,16 +21,22 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     void setCurrentlyShownDataType(const ShownData newDataTypeToShow);
-
-    void setMinRawCount(double minRawCount);
-    void setMaxRawCount(double maxRawCount);
-    void setMinFoldChange(double minFoldChange);
-    void setMaxFoldChange(double maxFoldChange);
-    void setRawCountInAtLeast(int amount);
-    void setIncludeRawCountInAtLeast(bool state);
-    void setFoldChangeInAtLeast(int amount);
-    void setIncludeFoldChangeInAtLeast(bool state);
     void setSearchedGeneIDs(QStringList searchedGeneIDs);
+
+    void setMinRPM(const double minRPM);
+    void setMaxRPM(const double maxRPM);
+    void setIncludeRPMInAtLeast(const bool includeRPMInAtLeast);
+    void setRPMInAtLeast(const int rpmInAtLeast);
+
+    void setMinRawCount(const double minRawCount);
+    void setMaxRawCount(const double maxRawCount);
+    void setRawCountInAtLeast(const int amount);
+    void setIncludeRawCountInAtLeast(const bool state);
+
+    void setMinFoldChange(const double minFoldChange);
+    void setMaxFoldChange(const double maxFoldChange);
+    void setFoldChangeInAtLeast(const int amount);
+    void setIncludeFoldChangeInAtLeast(const bool state);
 
 private:
     int rowCount;
@@ -39,14 +45,21 @@ private:
     ShownData currentlyShownDataType;
     QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> hashedGeneDataForAllClusters;
 
+    double minRPM;
+    double maxRPM;
+    int rpmInAtLeast;
+    bool includeRPMInAtLeast;
+
     double minRawCount;
     double maxRawCount;
-    double minFoldChange;
-    double maxFoldChange;
     int rawCountinAtLeast;
     bool includeRawCountInAtLeast;
+
+    double minFoldChange;
+    double maxFoldChange;
     int foldChangeInAtLeast;
     bool includeFoldChangeInAtLeast;
+
     QStringList searchedGeneIDs;
 };
 

@@ -507,6 +507,24 @@ QMap<QString, std::tuple<QVector<double>, QVector<double>, QVector<double>>> Tab
 
 // ############################################### SETTER ##############################################
 
+// RPM
+void TabWidget::setMinRPM(const double minRPM) {
+    this->proxyModel->setMinRPM(minRPM);
+}
+
+void TabWidget::setMaxRPM(const double maxRPM) {
+    this->proxyModel->setMaxRPM(maxRPM);
+}
+
+void TabWidget::setIncludeRPMInAtLeast(const bool includeRPMInAtLeast) {
+    this->proxyModel->setIncludeRPMInAtLeast(includeRPMInAtLeast);
+}
+
+void TabWidget::setRPMInAtLeast(const int rpmInAtLeast) {
+    this->proxyModel->setRPMInAtLeast(rpmInAtLeast);
+}
+
+// RAW COUNT
 void TabWidget::setMinRawCount(const double minRawCount) {
     this->proxyModel->setMinRawCount(minRawCount);
 }
@@ -515,6 +533,16 @@ void TabWidget::setMaxRawCount(const double maxRawCount) {
     this->proxyModel->setMaxRawCount(maxRawCount);
 }
 
+void TabWidget::setIncludeRawCountInAtLeast(const bool includeRawCountInAtLeast) {
+    this->proxyModel->setIncludeRawCountInAtLeast(includeRawCountInAtLeast);
+}
+
+void TabWidget::setRawCountInAtLeast(const int rawCountInAtLeast) {
+    this->proxyModel->setRawCountInAtLeast(rawCountInAtLeast);
+}
+
+
+// FOLD CHANGE
 void TabWidget::setMinFoldChange(const double minFoldChange) {
     this->proxyModel->setMinFoldChange(minFoldChange);
 }
@@ -523,17 +551,11 @@ void TabWidget::setMaxFoldChange(const double maxFoldChange) {
     this->proxyModel->setMaxFoldChange(maxFoldChange);
 }
 
-void TabWidget::setIncludeRawCountInAtLeast(const bool includeRawCountInAtLeast) {
-    this->proxyModel->setIncludeRawCountInAtLeast(includeRawCountInAtLeast);
-}
 
 void TabWidget::setIncludeFoldChangeInAtLeast(const bool includeFoldChangeInAtLeast) {
     this->proxyModel->setIncludeFoldChangeInAtLeast(includeFoldChangeInAtLeast);
 }
 
-void TabWidget::setRawCountInAtLeast(const int rawCountInAtLeast) {
-    this->proxyModel->setRawCountInAtLeast(rawCountInAtLeast);
-}
 
 void TabWidget::setFoldChangeInAtLeast(const int foldChangeInAtLeast) {
     this->proxyModel->setIncludeFoldChangeInAtLeast(foldChangeInAtLeast);

@@ -144,99 +144,140 @@ void ProxyModel::setCurrentlyShownDataType(const ShownData newDataTypeToShow) {
 
 
 /**
+ * @brief ProxyModel::setSearchedGeneIDs - Sets the list of gene IDs the table is filtered by
+ * @param searchedGeneIDs - List of gene IDs for filtering
+ */
+void ProxyModel::setSearchedGeneIDs(const QStringList searchedGeneIDs) {
+    if (this->searchedGeneIDs != searchedGeneIDs)
+        this->searchedGeneIDs = searchedGeneIDs;
+    invalidateFilter();
+}
+
+// #################################### RPM ####################################
+
+/**
+ * @brief ProxyModel::setMinRPM - Set the min accepted RPM value
+ * @param minRPM - RPM value
+ */
+void ProxyModel::setMinRPM(const double minRPM) {
+    if (this->minRPM != minRPM)
+        this->minRPM = minRPM;
+    invalidateFilter();
+}
+
+/**
+ * @brief ProxyModel::setMaxRPM - Set the max accepted RPM value
+ * @param maxRPM - RPM value
+ */
+void ProxyModel::setMaxRPM(const double maxRPM) {
+    if (this->maxRPM != maxRPM)
+        this->maxRPM = maxRPM;
+    invalidateFilter();
+}
+
+/**
+ * @brief ProxyModel::setRPMInAtLeast - Sets the minimum number of cluster that should met the RPM cut-offs
+ * @param amount - Minimum number of clusters
+ */
+void ProxyModel::setRPMInAtLeast(const int amount) {
+    if (this->rpmInAtLeast != amount)
+        this->rpmInAtLeast = amount;
+    invalidateFilter();
+}
+
+/**
+ * @brief ProxyModel::setIncludeRPMInAtLeast - Sets whether the minimum amount of cluster sould be considered or ignorded (In case the gui element is deactivated)
+ * @param state - Whether or not the number should be considered or ignored
+ */
+void ProxyModel::setIncludeRPMInAtLeast(const bool state) {
+    if (this->includeRPMInAtLeast != state)
+        this->includeRPMInAtLeast = state;
+    invalidateFilter();
+}
+
+// ################################# RAW COUNT #################################
+
+/**
  * @brief ProxyModel::setMinRawCount - Sets the min accepted raw count
  * @param minRawCount - Raw Count
  */
-void ProxyModel::setMinRawCount(double minRawCount) {
+void ProxyModel::setMinRawCount(const double minRawCount) {
     if (this->minRawCount != minRawCount)
         this->minRawCount = minRawCount;
     invalidateFilter();
 }
 
-
 /**
  * @brief ProxyModel::setMaxRawCount - Set the max accepted raw count
  * @param maxRawCoun - Raw Countt
  */
-void ProxyModel::setMaxRawCount(double maxRawCount) {
+void ProxyModel::setMaxRawCount(const double maxRawCount) {
     if (this->maxRawCount != maxRawCount)
         this->maxRawCount = maxRawCount;
     invalidateFilter();
 }
 
-
-/**
- * @brief ProxyModel::setMinFoldChange - Set the min accepted fold change
- * @param minFoldChange - Fold Change
- */
-void ProxyModel::setMinFoldChange(double minFoldChange) {
-    if (this->minFoldChange != minFoldChange)
-        this->minFoldChange = minFoldChange;
-    invalidateFilter();
-}
-
-
-/**
- * @brief ProxyModel::setMaxFoldChange - Set the max accepted fold change
- * @param maxFoldChange - Fold Change
- */
-void ProxyModel::setMaxFoldChange(double maxFoldChange) {
-    if (this->maxFoldChange != maxFoldChange)
-        this->maxFoldChange = maxFoldChange;
-    invalidateFilter();
-}
-
-
 /**
  * @brief ProxyModel::setRawCountInAtLeast - Sets the minimum number of cluster that should met the raw-count cut-offs
  * @param amount - Minimum number of clusters
  */
-void ProxyModel::setRawCountInAtLeast(int amount) {
+void ProxyModel::setRawCountInAtLeast(const int amount) {
     if (this->rawCountinAtLeast != amount)
         this->rawCountinAtLeast = amount;
     invalidateFilter();
 }
 
-
 /**
  * @brief ProxyModel::setIncludeRawCountInAtLeast - Sets whether the minimum amount of cluster sould be considered or ignorded (In case the gui element is deactivated)
  * @param state - Whether or not the number should be considered or ignored
  */
-void ProxyModel::setIncludeRawCountInAtLeast(bool state) {
+void ProxyModel::setIncludeRawCountInAtLeast(const bool state) {
     if (this->includeRawCountInAtLeast != state)
         this->includeRawCountInAtLeast = state;
     invalidateFilter();
 }
 
 
+// ################################# FOLD CHANGE: #################################
+
+/**
+ * @brief ProxyModel::setMinFoldChange - Set the min accepted fold change
+ * @param minFoldChange - Fold Change
+ */
+void ProxyModel::setMinFoldChange(const double minFoldChange) {
+    if (this->minFoldChange != minFoldChange)
+        this->minFoldChange = minFoldChange;
+    invalidateFilter();
+}
+
+/**
+ * @brief ProxyModel::setMaxFoldChange - Set the max accepted fold change
+ * @param maxFoldChange - Fold Change
+ */
+void ProxyModel::setMaxFoldChange(const double maxFoldChange) {
+    if (this->maxFoldChange != maxFoldChange)
+        this->maxFoldChange = maxFoldChange;
+    invalidateFilter();
+}
+
 /**
  * @brief ProxyModel::setFoldChangeInAtLeast - Sets the minimum number of cluster that should met the fold-change cut-offs
  * @param amount - Minimum number of clusters
  */
-void ProxyModel::setFoldChangeInAtLeast(int amount) {
+void ProxyModel::setFoldChangeInAtLeast(const int amount) {
     if (this->foldChangeInAtLeast != amount)
         this->foldChangeInAtLeast = amount;
     invalidateFilter();
 }
 
-
 /**
  * @brief ProxyModel::setIncludeFoldChangeInAtLeast - Sets whether the minimum amount of cluster sould be considered or ignorded (In case the gui element is deactivated)
  * @param state - Whether or not the number should be considered or ignored
  */
-void ProxyModel::setIncludeFoldChangeInAtLeast(bool state) {
+void ProxyModel::setIncludeFoldChangeInAtLeast(const bool state) {
     if (this->includeFoldChangeInAtLeast != state)
         this->includeFoldChangeInAtLeast = state;
     invalidateFilter();
 }
 
 
-/**
- * @brief ProxyModel::setSearchedGeneIDs - Sets the list of gene IDs the table is filtered by
- * @param searchedGeneIDs - List of gene IDs for filtering
- */
-void ProxyModel::setSearchedGeneIDs(QStringList searchedGeneIDs) {
-    if (this->searchedGeneIDs != searchedGeneIDs)
-        this->searchedGeneIDs = searchedGeneIDs;
-    invalidateFilter();
-}

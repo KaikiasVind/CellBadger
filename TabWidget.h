@@ -30,13 +30,19 @@ public:
 
     QVector<FeatureCollection> retrieveAllSeenData();
 
+    void setMinRPM(const double minRPM);
+    void setMaxRPM(const double maxRPM);
+    void setIncludeRPMInAtLeast(const bool includeRPMInAtLeast);
+    void setRPMInAtLeast(const int rpmInAtLeast);
+
     void setMinRawCount(const double minRawCount);
     void setMaxRawCount(const double maxRawCount);
+    void setIncludeRawCountInAtLeast(const bool includeRawCountInAtLeast);
+    void setRawCountInAtLeast(const int rawCountInAtLeast);
+
     void setMinFoldChange(const double minFoldChange);
     void setMaxFoldChange(const double maxFoldChange);
-    void setIncludeRawCountInAtLeast(const bool includeRawCountInAtLeast);
     void setIncludeFoldChangeInAtLeast(const bool includeFoldChangeInAtLeast);
-    void setRawCountInAtLeast(const int rawCountInAtLeast);
     void setFoldChangeInAtLeast(const int foldChangeInAtLeast);
 
 signals:

@@ -76,8 +76,21 @@ private slots:
     void on_spinBoxFilterOptionsRawCountCutOffInAtLeast_valueChanged(int number);
     void on_spinBoxFilterOptionsFoldChangeCutOffInAtLeast_valueChanged(int number);
 
-    void on_radioButtonAnalysisFilterUseTop_clicked();
-    void on_radioButtonAnalysisFilterFilterManually_clicked();
+    void on_horizontalSliderFilterOptionsTopGenesSelection_sliderMoved(int position);
+
+    void on_spinBoxFilterAnalysisFilterUseTop_valueChanged(int arg1);
+
+    void on_spinBoxFilterOptionsRPMCutOffMin_valueChanged(int arg1);
+
+    void on_horizontalSliderFilterOptionsRPMCutOffMin_sliderMoved(int position);
+
+    void on_spinBoxFilterOptionsRPMCutOffMax_valueChanged(int arg1);
+
+    void on_horizontalSliderFilterOptionsRPMCutOffMax_sliderMoved(int position);
+
+    void on_checkBoxFilterOptionsRPMCutOffInAtLeast_toggled(bool checked);
+
+    void on_spinBoxFilterOptionsRPMCutOffInAtLeast_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -90,17 +103,26 @@ private:
     void updateDatasetItemWithCorrelatedValues(const QVector<QVector<QPair<QString, double>>> correlations);
     void updateCurrentTabWidget();
 
+    int numberOfGenesToUse;
+    int highestMetNumberOfClusters;
+
+    double minRPM;
+    double maxRPM;
+    int rpmInAtLeast;
+    bool includeRPMInAtLeast;
+    double highestMetRPM;
+
     double minRawCount;
     double maxRawCount;
-    double minFoldChange;
-    double maxFoldChange;
     int rawCountinAtLeast;
     bool includeRawCountInAtLeast;
+    double highestMetRawCount;
+
+    double minFoldChange;
+    double maxFoldChange;
     int foldChangeInAtLeast;
     bool includeFoldChangeInAtLeast;
-    double highestMetRawCount;
     double highestMetFoldChange;
-    int highestMetNumberOfClusters;
 
     bool isTabWidgetInitialized = false;
 };
