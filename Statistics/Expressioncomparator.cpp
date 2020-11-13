@@ -53,7 +53,7 @@ QVector<QPair<QString, double>> findClusterCellTypeFoldChangeCorrelations(Featur
             // If the feature has not been found in the cell type, this means it is not expressed in the cell type
             // In this case append a very high value as the neutral value to the fold changes list
             if (!isFeatureExpressedInCluster) {
-                clusterFeatureFoldChanges.append(INT_MAX);
+                clusterFeatureFoldChanges.append(1.0);
             }
         }
 

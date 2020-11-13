@@ -29,8 +29,7 @@ extern void openExportWidgetWithPlot(QtCharts::QChartView * chart);
 extern FeatureCollection findTopNMostExpressedGenesInCluster(const FeatureCollection cluster, const int numberOfGenesToPop);
 extern QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, const int numberOfGenesToPop);
 extern QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs, const AnalysisConfigModel analysisConfigModel);
-//extern bool isCorrelationResultValid(const )
-
+extern bool isCorrelationResultValid(const QVector<QPair<QString, double>> clusterCellTypeFoldChangeCorrelations);
 }
 
 #endif // HELPER_H

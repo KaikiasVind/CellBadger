@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFile>
+#include <QDebug>
 
 #include "ExportDialog.h"
 
@@ -100,6 +101,17 @@ void openExportWidgetWithPlot(QtCharts::QChartView * chart) {
 
 
 // #################################### FILTERING #####################################
+
+
+/**
+ * @brief isCorrelationR^esultValid - Returns if the first correlated cell type is NA or not
+ * @param clusterCellTypeFoldChangeCorrelations - List of correlated cell types
+ * @return - One of TRUE or FALSE. Depending on whether the highest correlated cell type is NA or not
+ */
+bool isCorrelationResultValid(const QVector<QPair<QString, double>> clusterCellTypeFoldChangeCorrelations) {
+    qDebug() << clusterCellTypeFoldChangeCorrelations.at(0).second;
+    return clusterCellTypeFoldChangeCorrelations.at(0).second > 0.0;
+}
 
 
 FeatureCollection findTopNMostExpressedGenesInCluster(const FeatureCollection cluster, const int numberOfGenesToPop) {
