@@ -26,8 +26,10 @@ extern void openExportWidgetWithPlot(QtCharts::QChartView * chart);
 
 // #################################### FILTERING #####################################
 
+extern FeatureCollection findTopNMostExpressedGenesInCluster(const FeatureCollection cluster, const int numberOfGenesToPop);
 extern QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureCollection> experiment, const int numberOfGenesToPop);
 extern QVector<FeatureCollection> filterExpressedGenesAccordingToFilters(const QVector<FeatureCollection> experiment, const QStringList completeGeneIDs, const AnalysisConfigModel analysisConfigModel);
+//extern bool isCorrelationResultValid(const )
 
 }
 

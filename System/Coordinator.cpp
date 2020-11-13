@@ -94,7 +94,7 @@ void Coordinator::saveInformationAfterParsingFinished() {
 void Coordinator::correlateDatasets(const QVector<QVector<FeatureCollection>> xClusterDatasets, const QVector<FeatureCollection> cellMarkersForTypes) {
     for (QVector<FeatureCollection> xClusterDataset : xClusterDatasets) {
         // Correlate the single dataset with the given set of cell type markers
-        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findClusterCellFoldChangeCorrelations, xClusterDataset, cellMarkersForTypes);
+        QFuture<QVector<QVector<QPair<QString, double>>>> futureCorrelations = QtConcurrent::run(ExpressionComparator::findCellFoldChangeCorrelationsForAllClusters, xClusterDataset, cellMarkersForTypes);
 
         // And let the corresponding multi-thread-watcher watch over the new process
         this->correlatorThreadsWatcher.addFuture(futureCorrelations);
@@ -219,6 +219,10 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
                 break;
         }
     }
+
+    // Wahrscheinlich sollte man lieber alle am Anfang durchlaufen lassen und dann einzelne neu analysieren als alle einzeln zu analysieren für die Laufzeit
+
+
 
     // Correlate the datasets with the given cell type markers in separate threads
     this->correlateDatasets(filteredXClusterCollections, this->informationCenter.cellMarkersForTypes);

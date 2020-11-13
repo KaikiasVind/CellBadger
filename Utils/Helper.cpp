@@ -102,6 +102,33 @@ void openExportWidgetWithPlot(QtCharts::QChartView * chart) {
 // #################################### FILTERING #####################################
 
 
+FeatureCollection findTopNMostExpressedGenesInCluster(const FeatureCollection cluster, const int numberOfGenesToPop) {
+
+    // If the number of genes to pop exceeds the number of genes in the cluster, just return the cluster as is
+    if (numberOfGenesToPop > cluster.getNumberOfFeatures())
+        return cluster;
+
+    FeatureCollection filteredCluster;
+
+    // Get all features from the current collection
+    QVector<Feature> features = cluster.getFeatures();
+
+    // Sort the genes according to their fold changes
+    std::sort(features.begin(), features.end(),
+      [](Feature featureA, Feature featureB) { return featureA.foldChange > featureB.foldChange; });
+
+    // Then pop the first n genes and resize the list
+    features.resize(numberOfGenesToPop);
+    features.squeeze();
+
+    // And add the filtered features to the new collection
+    for (Feature feature : features)
+        filteredCluster.addFeature(feature);
+
+    return filteredCluster;
+}
+
+
 /**
  * @brief popTopNMostExpressedGenes - Finds the top n genes with the highest fold changes
  * @param experiment - List of FeatureCollections containing the to sort genes
@@ -114,29 +141,34 @@ QVector<FeatureCollection> findTopNMostExpressedGenes(const QVector<FeatureColle
 
     // Go through all collections of the experiment and pop the top n genes
     for (FeatureCollection collection : experiment) {
-        FeatureCollection filteredCollection(collection.ID);
 
-        // Get all features from the current collection
-        QVector<Feature> features = collection.getFeatures();
+        filteredExperiment.append(Helper::findTopNMostExpressedGenesInCluster(collection, numberOfGenesToPop));
 
-        // Make sure the number of genes to pop doesn't excell the number of genes in the collection
-        if (numberOfGenesToPop < features.length()) {
+//        // If the number of genes to pop exceeds the number of genes in the cluster, just add the cluster as is
+//        if (numberOfGenesToPop >= collection.getNumberOfFeatures()) {
+//            filteredExperiment.append(collection);
+//            continue;
+//        }
 
-            // Sort the genes according to their fold changes
-            std::sort(features.begin(), features.end(),
-                  [](Feature featureA, Feature featureB) { return featureA.foldChange > featureB.foldChange; });
+//        FeatureCollection filteredCollection(collection.ID);
 
-            // then pop the first n genes and resize the list
-            features.resize(numberOfGenesToPop);
-            features.squeeze();
-        }
+//        // Get all features from the current collection
+//        QVector<Feature> features = collection.getFeatures();
 
-        // and add the filtered features to the new collection
-        for (int i = 0; i < features.length(); i++)
-            filteredCollection.addFeature(features.at(i));
+//        // Sort the genes according to their fold changes
+//        std::sort(features.begin(), features.end(),
+//          [](Feature featureA, Feature featureB) { return featureA.foldChange > featureB.foldChange; });
 
-        // add the completed collection to the list and continue with the next collection
-        filteredExperiment.append(filteredCollection);
+//        // then pop the first n genes and resize the list
+//        features.resize(numberOfGenesToPop);
+//        features.squeeze();
+
+//        // and add the filtered features to the new collection
+//        for (Feature feature : features)
+//            filteredCollection.addFeature(feature);
+
+//        // add the completed collection to the list and continue with the next collection
+//        filteredExperiment.append(filteredCollection);
     }
 
     return filteredExperiment;

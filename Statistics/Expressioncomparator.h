@@ -10,7 +10,8 @@
 
 namespace ExpressionComparator
 {
-    extern QVector<QVector<QPair<QString, double>>> findClusterCellFoldChangeCorrelations(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes);
+    extern QVector<QPair<QString, double>> findClusterCellTypeFoldChangeCorrelations(FeatureCollection cluster, QVector<FeatureCollection> cellTypes);
+    extern QVector<QVector<QPair<QString, double>>> findCellFoldChangeCorrelationsForAllClusters(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes);
     extern QVector<QVector<QPair<QString, QPair<double, double>>>> calculateCellTypeFoldChangeSumsForClusters(QVector<FeatureCollection> clusters, QVector<FeatureCollection> cellTypes);
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++ DEPRECATED +++++++++++++++++++++++++++++++++++++++++++++++++++++
