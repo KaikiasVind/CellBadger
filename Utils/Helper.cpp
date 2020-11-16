@@ -129,13 +129,9 @@ FeatureCollection findTopNMostExpressedGenesInCluster(const FeatureCollection cl
     std::sort(features.begin(), features.end(),
       [](Feature featureA, Feature featureB) { return featureA.foldChange > featureB.foldChange; });
 
-    // Then pop the first n genes and resize the list
-    features.resize(numberOfGenesToPop);
-    features.squeeze();
-
-    // And add the filtered features to the new collection
-    for (Feature feature : features)
-        filteredCluster.addFeature(feature);
+    // Then pop the first n genes and add the filtered features to the new collection
+    for (int i = 0; i < numberOfGenesToPop; i++)
+        filteredCluster.addFeature(features.at(i));
 
     return filteredCluster;
 }
