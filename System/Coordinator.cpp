@@ -199,10 +199,6 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
     if (this->needsCleaning)
         this->cleanData();
 
-    // Create a list that will serve as filtered copy of the existant experiments
-//    QVector<QVector<FeatureCollection>> filteredXClusterCollections;
-//    filteredXClusterCollections.reserve(this->informationCenter.xClusterCollections.length());
-
     // Go through every experiment and filter the genes according to the currently chosen filter model
     for (QVector<FeatureCollection> experiment : this->informationCenter.xClusterCollections) {
         QVector<QVector<QPair<QString, double>>> cellFoldChangeCorrelationsForAllClusters;
@@ -224,6 +220,7 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
 
                 filteredCluster = Helper::findTopNMostExpressedGenesInCluster(cluster, numberOfGenesToUse);
 
+                // Correlate the datasets with the given cell type markers in separate threads
                 cellTypeCorrelationsForCluster =
                         ExpressionComparator::findClusterCellTypeFoldChangeCorrelations(filteredCluster, this->informationCenter.cellMarkersForTypes);
 
@@ -236,44 +233,18 @@ void Coordinator::on_runAnalysis(const AnalysisConfigModel analysisConfigModel) 
                         numberOfGenesToUse >= this->informationCenter.completeSetsOfGeneIDsPerDataset.at(0).length();
             }
 
-//            filteredXClusterCollections.append(cellTypeCorrelationsForCluster);
             cellFoldChangeCorrelationsForAllClusters.append(cellTypeCorrelationsForCluster);
         }
 
         qDebug() << "Saving information to InformationCenter";
+        // Save the information from the valid correlation - that rhymes^^
         this->informationCenter.correlatedDatasets.append(cellFoldChangeCorrelationsForAllClusters);
+
+        // Calculate the quality scores and append them to the list of previous quality scores
         this->informationCenter.qualityScores.append(Math::calculateQualityScores(this->informationCenter.correlatedDatasets.last()));
 
-//        filteredXClusterCollections.append(Helper::findTopNMostExpressedGenes(experiment, analysisConfigModel.numberOfGenesToUse));
     }
 
-
-//        // In case of TOP_N, filter every existant experiment for the top n most expressed genes
-//        switch (analysisConfigModel.usedFilterMode) {
-//            case AnalysisFilterMode::TOP_N:
-//                break;
-
-//            case AnalysisFilterMode::MANUAL:
-////                filteredXClusterCollections.append(Helper::filterExpressedGenesAccordingToFilters(this->informationCenter.xClusterCollections.at(i), this->informationCenter.completeSetsOfGeneIDsPerDataset.at(i), analysisConfigModel));
-//                break;
-
-//            case AnalysisFilterMode::AUTOMATIC:
-//                break;
-//        }
-//    }
-
-    // Wahrscheinlich sollte man lieber alle am Anfang durchlaufen lassen und dann einzelne neu analysieren als alle einzeln zu analysieren für die Laufzeit
-
-
-    // Correlate the datasets with the given cell type markers in separate threads
-//    this->correlateDatasets(filteredXClusterCollections, this->informationCenter.cellMarkersForTypes);
-//    qDebug() << "Finished correlating. Gathering information";
-//    this->informationCenter.correlatedDatasets.append(correlatorThreadsWatcher.futures()[i].result());
-
-    // Calculate the quality scores and append them to the list of previous quality scores
-
-    // Gather and save the information from the correlation from the different threads
-//    this->saveInformationAfterCorrelatingFinished();
     qDebug() << "Saving correlation data successful.";
 
     // Report that the last correlation thread has finished to the main window
