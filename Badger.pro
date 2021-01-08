@@ -26,6 +26,7 @@ SOURCES += \
     System/ConfigFile.cpp \
     System/Coordinator.cpp \
     System/InformationCenter.cpp \
+    TSNEDialog.cpp \
     TabWidget.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     System/ConfigFile.h \
     System/Coordinator.h \
     System/InformationCenter.h \
+    TSNEDialog.h \
     TabWidget.h \
     Utils/Definitions.h \
     Utils/FileOperators/CSVReader.h \
@@ -68,6 +70,7 @@ FORMS += \
     ExportDialog.ui \
     Mainwindow.ui \
     StartDialog.ui \
+    TSNEDialog.ui \
     TabWidget.ui
 
 # Default rules for deployment.

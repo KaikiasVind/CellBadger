@@ -20,7 +20,7 @@
 #include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
-#define gui 0
+#define gui 1
 
 int main(int argc, char * argv[])
 {

@@ -2,6 +2,7 @@
 #include "ui_AnalysisTab.h"
 
 #include <QtCharts/QChartView>
+#include <QDebug>
 
 #include "Utils/Plots.h"
 #include "Utils/Helper.h"
@@ -30,36 +31,66 @@ AnalysisTab::~AnalysisTab() {
  */
 void AnalysisTab::addExperiment(const QString experimentName, const QVector<FeatureCollection> experiment, const QVector<QVector<QPair<QString, double>>> correlations) {
 
-    int index = this->ui->tableWidgetExperimentsSelection->columnCount();
+    int columnIndex = this->ui->tableWidgetExperimentsSelection->columnCount();
+    int numberOfNecessaryRows = experiment.length() + 1;
 
     // Insert an empty column for the new values
-    this->ui->tableWidgetExperimentsSelection->insertColumn(index);
+    this->ui->tableWidgetExperimentsSelection->insertColumn(columnIndex);
 
     // And add additional rows in case the experiment has more clusters than previously added experiments
-    if (this->ui->tableWidgetExperimentsSelection->rowCount() < experiment.length())
-        this->ui->tableWidgetExperimentsSelection->setRowCount(experiment.length());
+    if (this->ui->tableWidgetExperimentsSelection->rowCount() < numberOfNecessaryRows)
+        this->ui->tableWidgetExperimentsSelection->setRowCount(numberOfNecessaryRows);
 
     // Create a new header item for the new experiment and add it to the horizontal header
     QTableWidgetItem * newHeaderItem = new QTableWidgetItem(0);
     newHeaderItem->setData(Qt::DisplayRole, experimentName);
     newHeaderItem->setTextAlignment(Qt::AlignCenter);
-    this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(index, newHeaderItem);
+    this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(columnIndex, newHeaderItem);
+
+    // Add new WidgetItem to the first row that will hold a plot button
+    QTableWidgetItem * buttonItem = new QTableWidgetItem(0);
+    // buttonItem->setData(Qt::DisplayRole, "t-SNE plot");
+    this->ui->tableWidgetExperimentsSelection->setItem(0, columnIndex, buttonItem);
+
+    // Create a plot button
+    QWidget * buttonWidget = new QWidget();
+    QPushButton * button = new QPushButton();
+    button->setText("t-SNE plot");
+
+    QHBoxLayout * layout = new QHBoxLayout(buttonWidget);
+    layout->addWidget(button);
+    layout->setAlignment(Qt::AlignCenter);
+    layout->setContentsMargins(0, 0, 0, 0);
+    buttonWidget->setLayout(layout);
+
+    // Add the plot button to the previously created WidgetItem
+    this->ui->tableWidgetExperimentsSelection->setCellWidget(0, columnIndex, buttonWidget);
+
+    // Make the newly created field non-selectable, so it will not be selected by accident
+    this->ui->tableWidgetExperimentsSelection->item(0, columnIndex)->setFlags(Qt::NoItemFlags);
+
 
     // Add every cluster to the table
-    for (int i = 0; i < experiment.length(); i++) {
+    for (int rowIndex = 1; rowIndex < numberOfNecessaryRows; rowIndex++) {
+        // Because an additional row field was created for the plot button,
+        // the row index is one number higher than the row index, thus subtract 1
+        int contentIndex = rowIndex - 1;
+
+        qDebug() << "row index:" << rowIndex;
         QTableWidgetItem * newTableItem = new QTableWidgetItem(0);
-        QString tableItemName = experiment.at(i).ID + ": ";
+        QString tableItemName = experiment.at(contentIndex).ID + ": ";
 
         // Add the cell type to the cluster name that is most closely correlated to it
         // If no correlation was found for the current cluster, just append NA to the name
-        if (correlations.at(i).at(0).second == 0)
+        if (correlations.at(contentIndex).at(0).second == 0) {
             tableItemName.append("NA");
-        else
-            tableItemName.append(correlations.at(i).at(0).first);
+        } else {
+            tableItemName.append(correlations.at(contentIndex).at(0).first);
+        }
 
         newTableItem->setData(Qt::DisplayRole, tableItemName);
         newTableItem->setTextAlignment(Qt::AlignLeft);
-        this->ui->tableWidgetExperimentsSelection->setItem(i, index, newTableItem);
+        this->ui->tableWidgetExperimentsSelection->setItem(rowIndex, columnIndex, newTableItem);
     }
 }
 
@@ -106,6 +137,9 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
     QStringList clusterNames;
 
     for (QModelIndex selectedIndex : selectedIndices) {
+        // Because an additional row field was created for the plot button,
+        // the row index is one number higher than the row index, thus subtract 1
+        int contentRowIndex = selectedIndex.row() - 1;
 
         int column = selectedIndex.column();
 
@@ -114,17 +148,17 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
 
         // If a cluster is selected that doesn't exist for the selected experiment. skip it.
         // This happens if the experiments have a different amount of clusters
-        if (selectedIndex.row() > selectedExperiment.size() - 1)
+        if (contentRowIndex > selectedExperiment.size() - 1)
             continue;
 
         // Append either the type of the selected cell or the cluster name if there is no type
-        QString clusterName = "Experiment " + QString::number(selectedIndex.column() + 1) + " : ";
+        QString clusterName = "Experiment " + QString::number(selectedIndex.column()) + " : ";
         QStringList type = selectedIndex.data(Qt::DisplayRole).toString().split(": ");
         clusterName.append(type[1].compare("NA") == 0 ? type[0] : type[1]);
         clusterNames.append(clusterName);
 
         // The selected cluster corresponds to the row that was selected in the table
-        FeatureCollection selectedCluster = selectedExperiment.at(selectedIndex.row());
+        FeatureCollection selectedCluster = selectedExperiment.at(contentRowIndex);
 
         // Look for every gene that was written in the text input and in every selected cluster
         for (QString geneID : foundGeneIDs) {
