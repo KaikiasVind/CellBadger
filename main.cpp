@@ -20,7 +20,7 @@
 #include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
-#define gui 1
+#define gui 0
 
 int main(int argc, char * argv[])
 {
@@ -31,126 +31,32 @@ int main(int argc, char * argv[])
 //    QString samplesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/Pbmc_expression.csv";
 //    QString cellTypesFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/PanglaoDB_markers.csv";
 
-    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\10xGenomics\\Pbmc_expression.csv";
-    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\10xGenomics\\PanglaoDB_markers.csv";
+//    QString samplesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\10xGenomics\\Pbmc_expression.csv";
+//    QString cellTypesFilePath = "C:\\Users\\Kademuni\\Nextcloud\\Documents\\Arbeit\\Hiwi\\Daten\\10xGenomics\\PanglaoDB_markers.csv";
 
-    qDebug() << "Parsing.";
-    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {15, 0});
-    QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
-    qDebug() << "Finished.";
+//    qDebug() << "Parsing.";
+//    QVector<FeatureCollection> samples = CSVReader::read10xGenomicsClustersFromFile(samplesFilePath, {15, 0});
+//    QVector<FeatureCollection> cellTypes = CSVReader::readCellTypesFromPanglaoDBFile(cellTypesFilePath, {});
+//    qDebug() << "Finished.";
 
-    samples.removeFirst();
+//    samples.removeFirst();
 
-    QStringList completeGeneIDs;
+//    QStringList completeGeneIDs;
 
-    for (FeatureCollection collection : samples) {
-        for (Feature feature : collection.getFeatures()) {
-            completeGeneIDs.append(feature.ID);
-        }
-    }
-
-    completeGeneIDs.removeDuplicates();
-
-    AnalysisConfigModel analysisConfigModel(Definitions::AnalysisFilterMode::MANUAL);
-
-    analysisConfigModel.minRawCount = 20;
-    analysisConfigModel.maxRawCount = 972;
-//    analysisConfigModel.includeRawCountInAtLeast = true;
-//    analysisConfigModel.rawCountInAtLeast = 3;
-    analysisConfigModel.minFoldChange = 0;
-    analysisConfigModel.maxFoldChange = 906;
-
-    QVector<FeatureCollection> filteredSamples = Helper::filterExpressedGenesAccordingToFilters(samples, completeGeneIDs, analysisConfigModel);
-////    QVector<FeatureCollection> filteredSamples = Helper::findTopNMostExpressedGenes(samples, 50);
-
-    QVector<QVector<QPair<QString, double>>> correlations = ExpressionComparator::findClusterCellFoldChangeCorrelations(samples, cellTypes);
-    QVector<QVector<QPair<QString, double>>> filteredCorrelations = ExpressionComparator::findClusterCellFoldChangeCorrelations(filteredSamples, cellTypes);
-
-    QVector<double> qualityScores = Math::calculateQualityScores(filteredCorrelations);
-
-    auto printCorrelations = [qualityScores](QVector<QVector<QPair<QString, double>>> correlationOneValues, QVector<QVector<QPair<QString, double>>> correlationTwoValues) {
-        for (int i = 0; i < correlationOneValues.length(); i++) {
-            qDebug() << "\ncluster" << i << "- qs:" << qualityScores.at(i);
-            for (int j = 0; j < 5; j++) {
-//                qDebug() << correlationOneValues.at(i).at(j).first << "-" << correlationOneValues.at(i).at(j).second;
-                qDebug() << correlationTwoValues.at(i).at(j).first << "-" << correlationTwoValues.at(i).at(j).second;
-            }
-        }
-    };
-
-    for (int i = 0; i < correlations.length(); i++) {
-        for (int j = 0; j < correlations.at(i).length(); j++) {
-            bool equalGeneIDs = correlations.at(i).at(j).first.compare(filteredCorrelations.at(i).at(j).first) == 0,
-                 equalValues  = correlations.at(i).at(j).second == filteredCorrelations.at(i).at(j).second;
-
-            if (!equalGeneIDs || !equalValues) {
-                qDebug() << "Not identical!";
-                printCorrelations(correlations, filteredCorrelations);
-                exit(0);
-            }
-        }
-    }
-
-    qDebug() << "Identical!";
-    printCorrelations(correlations, filteredCorrelations);
-    exit(0);
-
-
-
-//    Feature a("a", "nAn", 15, -1, 15);
-//    Feature b("b", "nAn", 12, -1, 13);
-//    Feature c("c", "nAn", 20, -1, 10);
-
-//    Feature d("d", "nAn", 300, -1, 400);
-//    Feature e("e", "nAn", 9, -1, 21);
-//    Feature f("f", "nAn", -40, -1, -30);
-
-//    FeatureCollection testCollection("test");
-//    testCollection.addFeature(a);
-//    testCollection.addFeature(b);
-//    testCollection.addFeature(c);
-//    testCollection.addFeature(d);
-//    testCollection.addFeature(e);
-//    testCollection.addFeature(f);
-
-//    QVector<FeatureCollection> experimentOne, experimentTwo;
-//    experimentOne << testCollection;
-//    experimentTwo << testCollection;
-//    QVector<QVector<FeatureCollection>> experiments;
-//    experiments << experimentOne << experimentTwo;
-
-//    AnalysisConfigModel configModel(Definitions::AnalysisFilterMode::MANUAL);
-//    configModel.minRawCount = 10;
-//    configModel.maxRawCount = 20;
-//    configModel.minFoldChange = 10;
-//    configModel.maxFoldChange = 20;
-
-//    QVector<QVector<FeatureCollection>> filteredExperiments;
-
-//    for (QVector<FeatureCollection> experiment : experiments)
-//        filteredExperiments.append(Helper::filterExpressedGenesAccordingToFilters(experiment, {"a", "b", "c", "d", "e", "f"}, configModel));
-
-//    for (QVector<FeatureCollection> experiment : filteredExperiments) {
-//        for (FeatureCollection collection : experiment) {
-//            qDebug() << collection.ID << ":";
-//            for (Feature feature : collection.getFeatures()) {
-//                qDebug() << feature.ID;
-//            }
+//    for (FeatureCollection collection : samples) {
+//        for (Feature feature : collection.getFeatures()) {
+//            completeGeneIDs.append(feature.ID);
 //        }
-//        qDebug() << "\n";
 //    }
 
+//    completeGeneIDs.removeDuplicates();
 
+    QString tsneFilePath = "/home/numelen/Nextcloud/Documents/Arbeit/Hiwi/Daten/10xGenomics/5k_Pbmc/merged_tsne_clusters_by_barcode.csv";
 
+    QVector<std::tuple<QString, int, double, double>> tsneProjectionData = CSVReader::readTSNECoordinatesFromProjectionFile(tsneFilePath);
 
-//    QVector<std::tuple<QString, QVector<double>, double>> genesWithRawCountsInClusters = Helper::getFeatureCollectionsAsGenes(samples, allGeneIDs);
-
-//    qDebug() << "length:" << genesWithRawCountsInClusters.length();
-//    for (int i = 0; i < genesWithRawCountsInClusters.length(); i++) {
-//        qDebug() << "\nGene:" << std::get<0>(genesWithRawCountsInClusters.at(i));
-//        qDebug() << std::get<1>(genesWithRawCountsInClusters.at(i));
-//        qDebug() << "mean:" << std::get<2>(genesWithRawCountsInClusters.at(i));
-//    }
+    for (auto const & value : tsneProjectionData)
+        qDebug() << std::get<0>(value) << ":" << std::get<1>(value) << "-" << std::get<2>(value) << ":" << std::get<3>(value);
 
 # else
     // Declaration of the used widgets

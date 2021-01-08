@@ -17,6 +17,7 @@ namespace Helper
 
 extern QString chopFileName(QString filePath);
 extern QStringList getFileNames(const QStringList filePaths);
+extern void exitIfErrorOnOpen(QFile * file, const QString filePath);
 
 // ####################################### GUI #######################################
 

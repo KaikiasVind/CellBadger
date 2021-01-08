@@ -13,6 +13,7 @@ namespace CSVReader
 {
     extern QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFilePath, const QVector<double> cutOffs);
     extern QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(const QString csvFilePath, const QVector<double> cutOffs);
+    extern QVector<std::tuple<QString, int, double, double>> readTSNECoordinatesFromProjectionFile(const QString csvFilePath);
 
     // DEPRECATED
 //    extern QVector<CellType> getCellTypesWithMarkers(QString csvFilePath);

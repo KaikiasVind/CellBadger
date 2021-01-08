@@ -10,6 +10,7 @@
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Math.h"
+#include "Utils/Helper.h"
 
 namespace CSVReader {
 
@@ -28,11 +29,8 @@ QVector<FeatureCollection> readCellTypesFromPanglaoDBFile(const QString csvFileP
     // Open file
     QFile csvFile(csvFilePath);
 
-    // Throw error in case opening the file fails
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
+    // Throw an error and exit in case opening the file fails
+    Helper::exitIfErrorOnOpen(&csvFile, csvFilePath);
 
     // Skip title line
     char columnDelimiter(',');
@@ -113,11 +111,8 @@ QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFile
     // Open file
     QFile csvFile(csvFilePath);
 
-    // Throw error in case opening the file fails
-    if (!csvFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "CSV READER:" << csvFilePath << "-" << csvFile.errorString();
-        exit(1);
-    }
+    // Throw an error and exit in case opening the file fails
+    Helper::exitIfErrorOnOpen(&csvFile, csvFilePath);
 
     // Skip title line
     QByteArray line = csvFile.readLine();
@@ -204,6 +199,41 @@ QVector<FeatureCollection> read10xGenomicsClustersFromFile(const QString csvFile
     clustersWithSignificantFeatureFoldChanges.push_front(completeGeneIDCollection);
 
     return clustersWithSignificantFeatureFoldChanges;
+}
+
+/**
+ * @brief CSVReader::readTSNECoordinatesFromProjectionFile
+ * @param csvFilePath -
+ * @return
+ */
+QVector<std::tuple<QString, int, double, double>> readTSNECoordinatesFromProjectionFile(const QString csvFilePath) {
+
+    // Open file
+    QFile csvFile(csvFilePath);
+
+    // Throw an error and exit in case opening the file fails
+    Helper::exitIfErrorOnOpen(&csvFile, csvFilePath);
+
+    QByteArray line;
+    QList<QByteArray> splitLine;
+
+    // Skip title line
+    csvFile.readLine();
+
+    // Create a list to collect all coordinates and cluster numbers for all barcodes in the file
+    QVector<std::tuple<QString, int, double, double>> tSNECoordinatesForAllFeatures;
+
+    // Start parsing cluster file
+    while (!csvFile.atEnd()) {
+        splitLine = csvFile.readLine().split(',');
+
+        tSNECoordinatesForAllFeatures.append(std::make_tuple(splitLine.at(0),
+                                                             splitLine.at(1).toInt(),
+                                                             splitLine.at(2).toDouble(),
+                                                             splitLine.at(3).toDouble()));
+    }
+
+    return tSNECoordinatesForAllFeatures;
 }
 
 

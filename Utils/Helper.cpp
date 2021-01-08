@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFile>
+#include <QDebug>
 
 #include "ExportDialog.h"
 
@@ -47,6 +48,19 @@ QStringList getFileNames(const QStringList filePaths) {
     std::transform(filePaths.begin(), filePaths.end(), std::back_inserter(fileNames), chopFileName);
 
     return fileNames;
+}
+
+
+/**
+ * @brief exitIfErrorOnOpen - Exit the program if the file cannot be opened without error
+ * @param file - File to be opened
+ * @param filePath - Path to the file that is to be opened
+ */
+void exitIfErrorOnOpen(QFile * file, const QString filePath) {
+    if (!file->open(QIODevice::ReadOnly)) {
+        qDebug() << "CSV READER:" << filePath << "-" << file->errorString();
+        exit(1);
+    }
 }
 
 
