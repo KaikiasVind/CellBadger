@@ -26,6 +26,7 @@ signals:
 
 public slots:
     void on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
+    void on_plotButtonClicked();
 
 private slots:
     void on_pushButtonScatterPlot_clicked();
@@ -40,6 +41,8 @@ private:
     };
 
     PlotType requestedPlotType;
+
+    void addPlotButtonItemToTable(const int columnIndex);
 };
 
 #endif // ANALYSISTAB_H

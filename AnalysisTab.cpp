@@ -48,27 +48,7 @@ void AnalysisTab::addExperiment(const QString experimentName, const QVector<Feat
     this->ui->tableWidgetExperimentsSelection->setHorizontalHeaderItem(columnIndex, newHeaderItem);
 
     // Add new WidgetItem to the first row that will hold a plot button
-    QTableWidgetItem * buttonItem = new QTableWidgetItem(0);
-    // buttonItem->setData(Qt::DisplayRole, "t-SNE plot");
-    this->ui->tableWidgetExperimentsSelection->setItem(0, columnIndex, buttonItem);
-
-    // Create a plot button
-    QWidget * buttonWidget = new QWidget();
-    QPushButton * button = new QPushButton();
-    button->setText("t-SNE plot");
-
-    QHBoxLayout * layout = new QHBoxLayout(buttonWidget);
-    layout->addWidget(button);
-    layout->setAlignment(Qt::AlignCenter);
-    layout->setContentsMargins(0, 0, 0, 0);
-    buttonWidget->setLayout(layout);
-
-    // Add the plot button to the previously created WidgetItem
-    this->ui->tableWidgetExperimentsSelection->setCellWidget(0, columnIndex, buttonWidget);
-
-    // Make the newly created field non-selectable, so it will not be selected by accident
-    this->ui->tableWidgetExperimentsSelection->item(0, columnIndex)->setFlags(Qt::NoItemFlags);
-
+    this->addPlotButtonItemToTable(columnIndex);
 
     // Add every cluster to the table
     for (int rowIndex = 1; rowIndex < numberOfNecessaryRows; rowIndex++) {
@@ -76,7 +56,6 @@ void AnalysisTab::addExperiment(const QString experimentName, const QVector<Feat
         // the row index is one number higher than the row index, thus subtract 1
         int contentIndex = rowIndex - 1;
 
-        qDebug() << "row index:" << rowIndex;
         QTableWidgetItem * newTableItem = new QTableWidgetItem(0);
         QString tableItemName = experiment.at(contentIndex).ID + ": ";
 
@@ -110,6 +89,36 @@ void AnalysisTab::cleanTable() {
     this->ui->tableWidgetExperimentsSelection->setColumnCount(0);
 }
 
+
+/**
+ * @brief AnalysisTab::addPlotButtonItemToTable - Add a new table item with a plot button to the table at the given index
+ * @param columnIndex - Column index where the new button is to be added
+ */
+void AnalysisTab::addPlotButtonItemToTable(const int columnIndex) {
+    QTableWidgetItem * buttonItem = new QTableWidgetItem(0);
+    this->ui->tableWidgetExperimentsSelection->setItem(0, columnIndex, buttonItem);
+
+    // Create a plot button
+    QWidget * buttonWidget = new QWidget();
+    QPushButton * button = new QPushButton();
+    button->setText("t-SNE plot");
+
+    QObject::connect(button, &QPushButton::clicked, this, &AnalysisTab::on_plotButtonClicked);
+
+    QHBoxLayout * layout = new QHBoxLayout(buttonWidget);
+    layout->addWidget(button);
+    layout->setAlignment(Qt::AlignCenter);
+    layout->setContentsMargins(0, 0, 0, 0);
+    buttonWidget->setLayout(layout);
+
+    // Add the plot button to the previously created WidgetItem
+    this->ui->tableWidgetExperimentsSelection->setCellWidget(0, columnIndex, buttonWidget);
+
+    // Make the newly created field non-selectable, so it will not be selected by accident
+    this->ui->tableWidgetExperimentsSelection->item(0, columnIndex)->setFlags(Qt::NoItemFlags);
+}
+
+// ################################################## SLOTS ###########################################################
 
 /**
  * @brief AnalysisTab::on_receivedGeneExpressionData
@@ -196,6 +205,10 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
     }
 
     Helper::openExportWidgetWithPlot(chart);
+}
+
+void AnalysisTab::on_plotButtonClicked() {
+    qDebug() << "Click click.";
 }
 
 // ########################## UI-SLOTS ##########################
