@@ -20,6 +20,7 @@ SOURCES += \
     BioModels/Feature.cpp \
     BioModels/FeatureCollection.cpp \
     ExportDialog.cpp \
+    PlotButton.cpp \
     StartDialog.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     BioModels/FeatureCollection.h \
     ExportDialog.h \
     Mainwindow.h \
+    PlotButton.h \
     StartDialog.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \

@@ -6,6 +6,7 @@
 
 #include "Utils/Plots.h"
 #include "Utils/Helper.h"
+#include "PlotButton.h"
 
 using QtCharts::QChartView;
 
@@ -100,10 +101,9 @@ void AnalysisTab::addPlotButtonItemToTable(const int columnIndex) {
 
     // Create a plot button
     QWidget * buttonWidget = new QWidget();
-    QPushButton * button = new QPushButton();
-    button->setText("t-SNE plot");
+    PlotButton * button = new PlotButton("t-SNE plot", this, columnIndex);
 
-    QObject::connect(button, &QPushButton::clicked, this, &AnalysisTab::on_plotButtonClicked);
+    QObject::connect(button, &PlotButton::clickedWithIndex, this, &AnalysisTab::on_plotButtonClicked);
 
     QHBoxLayout * layout = new QHBoxLayout(buttonWidget);
     layout->addWidget(button);
@@ -207,8 +207,8 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
     Helper::openExportWidgetWithPlot(chart);
 }
 
-void AnalysisTab::on_plotButtonClicked() {
-    qDebug() << "Click click.";
+void AnalysisTab::on_plotButtonClicked(const int buttonIndex) {
+    qDebug() << "Click click on:" << buttonIndex;
 }
 
 // ########################## UI-SLOTS ##########################

@@ -26,7 +26,7 @@ signals:
 
 public slots:
     void on_receivedGeneExpressionData(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
-    void on_plotButtonClicked();
+    void on_plotButtonClicked(const int buttonIndex);
 
 private slots:
     void on_pushButtonScatterPlot_clicked();
