@@ -20,7 +20,19 @@
 #include "Utils/Models/AnalysisConfigModel.h"
 #include "Utils/Definitions.h"
 
-#define gui 1
+// Only for graphs
+#include <QtCharts/QScatterSeries>
+#include <QtCharts/QChart>
+#include <QtCharts/QLegend>
+#include <QtCharts/QChartView>
+#include <QtCharts/QValueAxis>
+using QtCharts::QChart;
+using QtCharts::QChartView;
+using QtCharts::QLegend;
+using QtCharts::QScatterSeries;
+using QtCharts::QValueAxis;
+
+#define gui 0
 
 int main(int argc, char * argv[])
 {
@@ -55,8 +67,82 @@ int main(int argc, char * argv[])
 
     QVector<std::tuple<QString, int, double, double>> tsneProjectionData = CSVReader::readTSNECoordinatesFromProjectionFile(tsneFilePath);
 
-    for (auto const & value : tsneProjectionData)
-        qDebug() << std::get<0>(value) << ":" << std::get<1>(value) << "-" << std::get<2>(value) << ":" << std::get<3>(value);
+    std::sort(tsneProjectionData.begin(), tsneProjectionData.end(), []
+                   (const std::tuple<QString, int, double, double> valueA, const std::tuple<QString, int, double, double> valueB) {
+        return std::get<1>(valueA) < std::get<1>(valueB);
+    });
+
+    QChart * chart = new QChart();
+    QVector<QScatterSeries *> allScatterSeries;
+
+    double minObservedXValue = std::get<2>(tsneProjectionData.first()),
+           maxObservedXValue = std::get<2>(tsneProjectionData.first()),
+           minObservedYValue = std::get<3>(tsneProjectionData.first()),
+           maxObservedYValue = std::get<3>(tsneProjectionData.first());
+
+    QVector<int> clusterIndices;
+
+    for (auto const & value : tsneProjectionData) {
+        int newClusterIndex = std::get<1>(value);
+
+        // If this is the first round or there is a new index,
+        // append a new scatterseries and save the cluster's index
+        if (clusterIndices.isEmpty() || newClusterIndex != clusterIndices.last()) {
+            clusterIndices.append(newClusterIndex);
+            allScatterSeries.append(new QScatterSeries());
+        }
+
+        double newXValue = std::get<2>(value),
+               newYValue = std::get<3>(value);
+
+        if (newXValue < minObservedXValue)
+            minObservedXValue = newXValue;
+        else if (newXValue > maxObservedXValue)
+            maxObservedXValue = newXValue;
+
+        if (newYValue < minObservedYValue)
+            minObservedYValue = newYValue;
+        else if (newYValue > maxObservedYValue)
+            maxObservedYValue = newYValue;
+
+        allScatterSeries.last()->append(std::get<2>(value), std::get<3>(value));
+    }
+
+    for (int i = 0; i < allScatterSeries.length(); i++) {
+        QScatterSeries * series = allScatterSeries.at(i);
+        chart->addSeries(series);
+        series->setName("Cluster " + QString::number(clusterIndices.at(i)));
+        series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+        series->setMarkerSize(8);
+    }
+
+    chart->setTitle("Chart test");
+    chart->setDropShadowEnabled(false);
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+
+    QChartView * chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    QValueAxis * xAxis = new QValueAxis();
+    QValueAxis * yAxis = new QValueAxis();
+    xAxis->setTitleText("UMAP 1");
+    yAxis->setTitleText("UMAP 2");
+    xAxis->setRange(minObservedXValue - 1, maxObservedXValue + 1);
+    yAxis->setRange(minObservedYValue - 1, maxObservedYValue + 1);
+
+    // Add axes to the chart
+    for (auto const & series : chart->series()) {
+        chart->setAxisX(xAxis, series);
+        chart->setAxisY(yAxis, series);
+    }
+
+    QMainWindow window;
+    window.setCentralWidget(chartView);
+    window.resize(800, 700);
+    window.show();
+
+
+
 
 # else
     // Declaration of the used widgets
