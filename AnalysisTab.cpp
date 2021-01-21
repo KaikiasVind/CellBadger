@@ -7,6 +7,8 @@
 #include "Utils/Plots.h"
 #include "Utils/Helper.h"
 #include "PlotButton.h"
+#include "TSNEDialog.h"
+#include "Utils/FileOperators/CSVReader.h"
 
 using QtCharts::QChartView;
 
@@ -208,7 +210,28 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
 }
 
 void AnalysisTab::on_plotButtonClicked(const int buttonIndex) {
+    ExportDialog * tSNEPlotDialog = new ExportDialog();
+    QString tSNEFilePath = Helper::openLoadFileDialog(this, {"csv"}, false).first();
+
+    QVector<std::tuple<QString, int, double, double>> tsneProjectionData = CSVReader::readTSNECoordinatesFromProjectionFile(tSNEFilePath);
+
+    std::sort(tsneProjectionData.begin(), tsneProjectionData.end(), []
+                   (const std::tuple<QString, int, double, double> valueA, const std::tuple<QString, int, double, double> valueB) {
+        return std::get<1>(valueA) < std::get<1>(valueB);
+    });
+
+    QChartView * chartView = Plots::createUMAPPlot("UMAP plot", tsneProjectionData, this);
+
+    tSNEPlotDialog->addPlot(chartView);
+    tSNEPlotDialog->show();
     qDebug() << "Click click on:" << buttonIndex;
+}
+
+/**
+ * @brief ExportDialog::on_lineSeriesClicked
+ */
+void AnalysisTab::on_lineSeriesClicked() {
+    qDebug() << "Clicked on line series.";
 }
 
 // ########################## UI-SLOTS ##########################

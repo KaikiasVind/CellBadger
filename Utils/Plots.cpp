@@ -17,6 +17,7 @@
 #include <QDebug>
 
 #include "BioModels/FeatureCollection.h"
+#include "ExportDialog.h"
 
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
@@ -110,6 +111,80 @@ QChartView * createScatterPlot(const QString title, const QString yAxisTitle, co
     return chartView;
 }
 
+/**
+ * @brief createUMAPPlot
+ * @param title
+ * @param tSNEProjectionData - SORTED BY CLUSTER INDEX!!!
+ * @return
+ */
+QChartView * createUMAPPlot(const QString title, const QVector<std::tuple<QString, int, double, double>> tSNEProjectionData, AnalysisTab * analysisTab) {
+    QChart * chart = new QChart();
+    QVector<QScatterSeries *> allScatterSeries;
+
+    double minObservedXValue = std::get<2>(tSNEProjectionData.first()),
+           maxObservedXValue = std::get<2>(tSNEProjectionData.first()),
+           minObservedYValue = std::get<3>(tSNEProjectionData.first()),
+           maxObservedYValue = std::get<3>(tSNEProjectionData.first());
+
+    QVector<int> clusterIndices;
+
+    for (auto const & value : tSNEProjectionData) {
+        int newClusterIndex = std::get<1>(value);
+
+        // If this is the first round or there is a new index,
+        // append a new scatterseries and save the cluster's index
+        if (clusterIndices.isEmpty() || newClusterIndex != clusterIndices.last()) {
+            clusterIndices.append(newClusterIndex);
+            allScatterSeries.append(new QScatterSeries());
+        }
+
+        double newXValue = std::get<2>(value),
+               newYValue = std::get<3>(value);
+
+        if (newXValue < minObservedXValue)
+            minObservedXValue = newXValue;
+        else if (newXValue > maxObservedXValue)
+            maxObservedXValue = newXValue;
+
+        if (newYValue < minObservedYValue)
+            minObservedYValue = newYValue;
+        else if (newYValue > maxObservedYValue)
+            maxObservedYValue = newYValue;
+
+        allScatterSeries.last()->append(std::get<2>(value), std::get<3>(value));
+    }
+
+    for (int i = 0; i < allScatterSeries.length(); i++) {
+        QScatterSeries * series = allScatterSeries.at(i);
+        chart->addSeries(series);
+        series->setName("Cluster " + QString::number(clusterIndices.at(i)));
+        series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+        series->setMarkerSize(8);
+        QObject::connect(series, &QScatterSeries::clicked, analysisTab, &AnalysisTab::on_lineSeriesClicked);
+    }
+
+    chart->setTitle("Chart test");
+    chart->setDropShadowEnabled(false);
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+
+    QChartView * chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    QValueAxis * xAxis = new QValueAxis();
+    QValueAxis * yAxis = new QValueAxis();
+    xAxis->setTitleText("UMAP 1");
+    yAxis->setTitleText("UMAP 2");
+    xAxis->setRange(minObservedXValue - 1, maxObservedXValue + 1);
+    yAxis->setRange(minObservedYValue - 1, maxObservedYValue + 1);
+
+    // Add axes to the chart
+    for (auto const & series : chart->series()) {
+        chart->setAxisX(xAxis, series);
+        chart->setAxisY(yAxis, series);
+    }
+
+    return chartView;
+}
 
 ///**
 // * @brief createBarChart - Creates a bar chart for the given gene expression data - The resulting chart contains one barset per given gene

@@ -32,7 +32,7 @@ using QtCharts::QLegend;
 using QtCharts::QScatterSeries;
 using QtCharts::QValueAxis;
 
-#define gui 0
+#define gui 1
 
 int main(int argc, char * argv[])
 {
