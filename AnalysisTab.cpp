@@ -222,7 +222,7 @@ void AnalysisTab::on_plotButtonClicked(const int buttonIndex) {
 
     QStringList clusterTypes;
 
-    for (int i = 0; i < this->ui->tableWidgetExperimentsSelection->rowCount(); i++) {
+    for (int i = 1; i < this->ui->tableWidgetExperimentsSelection->rowCount(); i++) {
         QString itemName = this->ui->tableWidgetExperimentsSelection->item(i, buttonIndex)->text();
         clusterTypes.append(itemName);
     }
