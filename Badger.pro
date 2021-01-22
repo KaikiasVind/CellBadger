@@ -21,13 +21,13 @@ SOURCES += \
     BioModels/FeatureCollection.cpp \
     ExportDialog.cpp \
     PlotButton.cpp \
+    ScatterSeries.cpp \
     StartDialog.cpp \
     Statistics/Correlator.cpp \
     Statistics/Expressioncomparator.cpp \
     System/ConfigFile.cpp \
     System/Coordinator.cpp \
     System/InformationCenter.cpp \
-    TSNEDialog.cpp \
     TabWidget.cpp \
     Utils/FileOperators/CSVReader.cpp \
     Utils/FileOperators/ConfigFileOperator.cpp \
@@ -48,13 +48,13 @@ HEADERS += \
     ExportDialog.h \
     Mainwindow.h \
     PlotButton.h \
+    ScatterSeries.h \
     StartDialog.h \
     Statistics/Correlator.h \
     Statistics/Expressioncomparator.h \
     System/ConfigFile.h \
     System/Coordinator.h \
     System/InformationCenter.h \
-    TSNEDialog.h \
     TabWidget.h \
     Utils/Definitions.h \
     Utils/FileOperators/CSVReader.h \
@@ -72,7 +72,6 @@ FORMS += \
     ExportDialog.ui \
     Mainwindow.ui \
     StartDialog.ui \
-    TSNEDialog.ui \
     TabWidget.ui
 
 # Default rules for deployment.

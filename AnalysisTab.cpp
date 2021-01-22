@@ -7,7 +7,7 @@
 #include "Utils/Plots.h"
 #include "Utils/Helper.h"
 #include "PlotButton.h"
-#include "TSNEDialog.h"
+#include "ExportDialog.h"
 #include "Utils/FileOperators/CSVReader.h"
 
 using QtCharts::QChartView;
@@ -220,7 +220,18 @@ void AnalysisTab::on_plotButtonClicked(const int buttonIndex) {
         return std::get<1>(valueA) < std::get<1>(valueB);
     });
 
-    QChartView * chartView = Plots::createUMAPPlot("UMAP plot", tsneProjectionData, this);
+    QStringList clusterTypes;
+
+    for (int i = 0; i < this->ui->tableWidgetExperimentsSelection->rowCount(); i++) {
+        QString itemName = this->ui->tableWidgetExperimentsSelection->item(i, buttonIndex)->text();
+        clusterTypes.append(itemName);
+    }
+
+    // CREATE NEW SCATTERSERIES SUBCLASS WITH A CLICKED SIGNAL THAT CAN TRANSFER THE INDEX OF THE CLICKED SERIES
+    // Look into int index = your_containter.indexOf(your_serie);
+    // Taken from https://stackoverflow.com/questions/51744802/qchartview-qlineseries-select-by-mouse-click
+    QChartView * chartView = Plots::createUMAPPlot("UMAP projection of clusters", tsneProjectionData, this, clusterTypes);
+//    chartView->chart()->series().inde
 
     tSNEPlotDialog->addPlot(chartView);
     tSNEPlotDialog->show();
@@ -230,8 +241,8 @@ void AnalysisTab::on_plotButtonClicked(const int buttonIndex) {
 /**
  * @brief ExportDialog::on_lineSeriesClicked
  */
-void AnalysisTab::on_lineSeriesClicked() {
-    qDebug() << "Clicked on line series.";
+void AnalysisTab::on_lineSeriesClickedWithIndex(const int index, ScatterSeries const *series) {
+    qDebug() << "Clicked on line series" << index;
 }
 
 // ########################## UI-SLOTS ##########################

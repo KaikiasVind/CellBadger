@@ -18,6 +18,7 @@
 
 #include "BioModels/FeatureCollection.h"
 #include "ExportDialog.h"
+#include "ScatterSeries.h"
 
 using QtCharts::QScatterSeries;
 using QtCharts::QChart;
@@ -77,7 +78,7 @@ QChartView * createScatterPlot(const QString title, const QString yAxisTitle, co
         meanScatterSeries->setMarkerSize(8);
 
         for (int i = 0; i < meanValues.length(); i++)
-        meanScatterSeries->append(i, meanValues.at(i));
+            meanScatterSeries->append(i, meanValues.at(i));
 
         chart->addSeries(meanScatterSeries);
     }
@@ -117,9 +118,9 @@ QChartView * createScatterPlot(const QString title, const QString yAxisTitle, co
  * @param tSNEProjectionData - SORTED BY CLUSTER INDEX!!!
  * @return
  */
-QChartView * createUMAPPlot(const QString title, const QVector<std::tuple<QString, int, double, double>> tSNEProjectionData, AnalysisTab * analysisTab) {
+QChartView * createUMAPPlot(const QString title, const QVector<std::tuple<QString, int, double, double>> tSNEProjectionData, AnalysisTab * analysisTab, const QStringList clusterTypes) {
     QChart * chart = new QChart();
-    QVector<QScatterSeries *> allScatterSeries;
+    QVector<ScatterSeries *> allScatterSeries;
 
     double minObservedXValue = std::get<2>(tSNEProjectionData.first()),
            maxObservedXValue = std::get<2>(tSNEProjectionData.first()),
@@ -135,7 +136,7 @@ QChartView * createUMAPPlot(const QString title, const QVector<std::tuple<QStrin
         // append a new scatterseries and save the cluster's index
         if (clusterIndices.isEmpty() || newClusterIndex != clusterIndices.last()) {
             clusterIndices.append(newClusterIndex);
-            allScatterSeries.append(new QScatterSeries());
+            allScatterSeries.append(new ScatterSeries(newClusterIndex));
         }
 
         double newXValue = std::get<2>(value),
@@ -155,17 +156,24 @@ QChartView * createUMAPPlot(const QString title, const QVector<std::tuple<QStrin
     }
 
     for (int i = 0; i < allScatterSeries.length(); i++) {
-        QScatterSeries * series = allScatterSeries.at(i);
+        ScatterSeries * series = allScatterSeries.at(i);
         chart->addSeries(series);
-        series->setName("Cluster " + QString::number(clusterIndices.at(i)));
+
+        // Set a default name and replace it with the given type name if non-empty
+        QString name = "cluster " + QString::number(clusterIndices.at(i));
+        if (clusterTypes.at(i).compare("NA") != 0)
+            name = clusterTypes.at(i);
+
+        series->setName(name);
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         series->setMarkerSize(8);
-        QObject::connect(series, &QScatterSeries::clicked, analysisTab, &AnalysisTab::on_lineSeriesClicked);
+        QObject::connect(series, &ScatterSeries::clickedWithIndex, analysisTab, &AnalysisTab::on_lineSeriesClickedWithIndex);
     }
 
-    chart->setTitle("Chart test");
+    chart->setTitle(title);
     chart->setDropShadowEnabled(false);
     chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+    chart->legend()->setAlignment(Qt::AlignRight);
 
     QChartView * chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
