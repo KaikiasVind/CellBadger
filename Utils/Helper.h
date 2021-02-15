@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QFile>
 #include <QtCharts/QChartView>
+#include <QFileDialog>
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/AnalysisConfigModel.h"
@@ -21,7 +22,7 @@ extern void exitIfErrorOnOpen(QFile * file, const QString filePath);
 
 // ####################################### GUI #######################################
 
-extern QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles);
+extern QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, QFileDialog::FileMode fileMode);
 extern QString openSaveFileDialog(QWidget * parent, QString description, QString validMimeTypeExtensions);
 extern void openExportWidgetWithPlot(QtCharts::QChartView * chart);
 

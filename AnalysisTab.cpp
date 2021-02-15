@@ -2,6 +2,7 @@
 #include "ui_AnalysisTab.h"
 
 #include <QtCharts/QChartView>
+#include <QFileDialog>
 #include <QDebug>
 
 #include "Utils/Plots.h"
@@ -211,7 +212,7 @@ void AnalysisTab::on_receivedGeneExpressionData(const QVector<QVector<FeatureCol
 
 void AnalysisTab::on_plotButtonClicked(const int buttonIndex) {
     ExportDialog * tSNEPlotDialog = new ExportDialog();
-    QString tSNEFilePath = Helper::openLoadFileDialog(this, {"csv"}, false).first();
+    QString tSNEFilePath = Helper::openLoadFileDialog(this, {"csv"}, QFileDialog::ExistingFile).first();
 
     QVector<std::tuple<QString, int, double, double>> tsneProjectionData = CSVReader::readTSNECoordinatesFromProjectionFile(tSNEFilePath);
 

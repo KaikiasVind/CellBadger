@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QAction>
 #include <QMouseEvent>
+#include <QFileDialog>
 
 #include "Utils/Helper.h"
 
@@ -104,7 +105,7 @@ __attribute__((noreturn)) void StartDialog::on_buttonExit_clicked() {
  */
 void StartDialog::on_buttonLoadProject_clicked() {
     QStringList csvMimeTypes = { "text/plain" };
-    QStringList fileNames = openLoadFileDialog(this, csvMimeTypes, false);
+    QStringList fileNames = openLoadFileDialog(this, csvMimeTypes, QFileDialog::ExistingFile);
 
     if (fileNames.empty())
         return;
@@ -161,7 +162,7 @@ __attribute__((noreturn)) void StartDialog::on_buttonMenuBarExit_2_clicked() {
  */
 void StartDialog::on_buttonLoadCustom_clicked() {
     QStringList csvMimeTypes = { "text/csv" };
-    QStringList fileNames = openLoadFileDialog(this, csvMimeTypes, false);
+    QStringList fileNames = openLoadFileDialog(this, csvMimeTypes, QFileDialog::ExistingFile);
 
     if (fileNames.empty())
         return;
@@ -177,7 +178,7 @@ void StartDialog::on_buttonLoadCustom_clicked() {
  */
 void StartDialog::on_buttonAddDataset_clicked() {
     QStringList csvMimeTypes = { "text/csv" };
-    QStringList filePaths = openLoadFileDialog(this, csvMimeTypes, true);
+    QStringList filePaths = openLoadFileDialog(this, csvMimeTypes, QFileDialog::ExistingFiles);
 
     if (filePaths.empty())
         return;

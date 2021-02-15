@@ -73,15 +73,12 @@ void exitIfErrorOnOpen(QFile * file, const QString filePath) {
  * @param isAcceptsMultipleFiles - Should the user be able to select multiple files for upload
  * @return - List of Strings representing the file paths for the selected files
  */
-QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, bool isAcceptsMultipleFiles) {
+QStringList openLoadFileDialog(QWidget * parent, QStringList validMimeTypeExtensions, QFileDialog::FileMode fileMode) {
     QFileDialog fileDialog(parent);
     fileDialog.setDirectory(QDir::home());
     fileDialog.setMimeTypeFilters(validMimeTypeExtensions);
 
-    if (isAcceptsMultipleFiles)
-        fileDialog.setFileMode(QFileDialog::ExistingFiles);
-    else
-        fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setFileMode(fileMode);
 
     QStringList fileNames;
     if (fileDialog.exec())
