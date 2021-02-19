@@ -9,6 +9,7 @@
 
 #include "System/InformationCenter.h"
 #include "Utils/Models/AnalysisConfigModel.h"
+#include "Utils/RInterOperator.h"
 
 /**
  * @brief The Coordinator class - This class is used to model the basic workflow and to concentrate the program logic in one place
@@ -22,6 +23,8 @@ private:
 
     QFutureSynchronizer<QVector<FeatureCollection>> parsingThreadsWatcher;
     QFutureSynchronizer<QVector<QVector<QPair<QString, double>>>> correlatorThreadsWatcher;
+
+    RInterOperator rInterOperator;
 
     template<typename F>
     void parseFiles(const QStringList filePaths, F & parsingFunction, const QVector<double> cutOffs);
@@ -41,6 +44,7 @@ signals:
     void finishedClusterFilesParsing();
     void finishedCorrelating(const InformationCenter & informationCenter);
     void sendGeneExpressionData(const QVector<QVector<FeatureCollection>> xClusterCollections, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
+    void sendDEAnalysisData(const QVector<QPair<QString, QVector<double>>> differentiallyExpressedGenes);
 
 public slots:
     // ################### INTERACTION WITH START DIALOG ########################
@@ -52,6 +56,9 @@ public slots:
 //    void on_runAnalysis(QVector<QVector<FeatureCollection>> allClustersFromAllDatasetsWithGeneExpressions);
     void on_runAnalysis(const AnalysisConfigModel analysisConfigModel);
     void on_geneExpressionDataRequested();
+
+    // ################### INTERACTION WITH ANALYIS TAB #########################
+    void on_runDEAnalysis(const QString matrixFilePath, const QString clusteringInformationFilePath, const QVector<int> clustersToCompare);
 
     // ######################### FILE PROCESSING ################################
 };

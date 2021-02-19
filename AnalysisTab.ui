@@ -61,14 +61,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="labelGenesToPlot">
      <property name="text">
       <string>Genes to plot</string>
      </property>
     </widget>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="textEditGeneSelection"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayoutPlotting">
@@ -103,6 +100,57 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="textEditGeneSelection">
+     <property name="placeholderText">
+      <string>AAK1,JUNB,MALAT1,...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelDEAnalysis">
+     <property name="text">
+      <string>Differential Expression Analysis</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutDEAnalysis">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonDEAnalysisAnalyze">
+       <property name="text">
+        <string>Analyse</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonDEAnalysisPlot">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Scatter Plot</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="tableWidgetDEAnalysis"/>
    </item>
    <item>
     <spacer name="verticalSpacerMain">

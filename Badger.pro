@@ -37,6 +37,7 @@ SOURCES += \
     Utils/Models/GeneTableModel.cpp \
     Utils/Models/ProxyModel.cpp \
     Utils/Plots.cpp \
+    Utils/RInterOperator.cpp \
     Utils/Sorter.cpp \
     main.cpp \
     Mainwindow.cpp
@@ -65,6 +66,7 @@ HEADERS += \
     Utils/Models/GeneTableModel.h \
     Utils/Models/ProxyModel.h \
     Utils/Plots.h \
+    Utils/RInterOperator.h \
     Utils/Sorter.h
 
 FORMS += \

@@ -275,3 +275,9 @@ void Coordinator::on_geneExpressionDataRequested() {
 void Coordinator::on_projectFileUploaded(const QStringList filePath) {
     qDebug() << "on_projectFileUploaded: received" << filePath;
 }
+
+// ###################################### INTERACTION WITH ANALYSIS TAB ###########################################
+
+void Coordinator::on_runDEAnalysis(const QString matrixFilePath, const QString clusteringInformationFilePath, const QVector<int> clustersToCompare) {
+    emit this->sendDEAnalysisData(this->rInterOperator.calculateDifferentialExpressedGenes(matrixFilePath, clusteringInformationFilePath, clustersToCompare));
+}

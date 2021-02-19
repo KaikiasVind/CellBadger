@@ -45,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Add the signal-signal connections of the MainWindow and the AnalysisTab. The MainWindow just serves as a middle-man between AnalysisTab and Coordinator
     QObject::connect(this->analysisTab, &AnalysisTab::requestGeneExpressionData, this, &MainWindow::requestGeneExpressionDataForAnalysisTab);
     QObject::connect(this, &MainWindow::transmitGeneExpressionDataForAnalysisTab, this->analysisTab, &AnalysisTab::on_receivedGeneExpressionData);
+    QObject::connect(this->analysisTab, &AnalysisTab::requestDEAnalysis, this, &MainWindow::requestDEAnalysis);
+    QObject::connect(this, &MainWindow::transmitDEAnalysisData, this->analysisTab, &AnalysisTab::on_receivedDEAnalysisData);
 
     // Insert the AnalysisTab and disable it until after the analysis
     this->ui->tabWidgetDatasets->insertTab(0, this->analysisTab, "Analysis");

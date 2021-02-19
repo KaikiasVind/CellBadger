@@ -10,14 +10,14 @@
 #include "PlotButton.h"
 #include "ExportDialog.h"
 #include "Utils/FileOperators/CSVReader.h"
+#include "Utils/RInterOperator.h"
 
 using QtCharts::QChartView;
 
 
-AnalysisTab::AnalysisTab(QWidget *parent) :
+AnalysisTab::AnalysisTab(QWidget * parent) :
     QWidget(parent), ui(new Ui::AnalysisTab)
 {
-
     ui->setupUi(this);
     this->ui->tableWidgetExperimentsSelection->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
@@ -246,6 +246,41 @@ void AnalysisTab::on_lineSeriesClickedWithIndex(const int index, ScatterSeries c
     qDebug() << "Clicked on line series" << index;
 }
 
+void AnalysisTab::on_receivedDEAnalysisData(const QVector<QPair<QString, QVector<double>>> differentiallyExpressedGenes) {
+    qDebug() << "Received DE analysis data.";
+
+    this->ui->tableWidgetDEAnalysis->setRowCount(5);
+    this->ui->tableWidgetDEAnalysis->setColumnCount(5);
+
+    QStringList tableWidgetHeaderItemLabels = {"gene id", "p value", "avg log2 fold change", "adj p value"};
+
+    auto createTableWidgetItem = [](const QString text) {
+        QTableWidgetItem * newTableWidgetItem = new QTableWidgetItem(0);
+        newTableWidgetItem->setData(Qt::DisplayRole, text);
+        newTableWidgetItem->setTextAlignment(Qt::AlignCenter);
+        return newTableWidgetItem;
+    };
+
+    // Set the labels for the table header
+    for (int i = 0; i < tableWidgetHeaderItemLabels.length(); i++) {
+        QTableWidgetItem * newHeaderItem = createTableWidgetItem(tableWidgetHeaderItemLabels.at(i));
+        this->ui->tableWidgetDEAnalysis->setHorizontalHeaderItem(i, newHeaderItem);
+    }
+
+    for (int i = 0; i < 5; i++) {
+        // Set the gene IDs as items for the first column
+        QTableWidgetItem * newGeneIDTableItem = createTableWidgetItem(differentiallyExpressedGenes.at(i).first);
+        this->ui->tableWidgetDEAnalysis->setItem(i, 0, newGeneIDTableItem);
+
+        // Set the data for the rest of the columns
+        for (int j = 0; j < differentiallyExpressedGenes.at(i).second.length(); j++) {
+            QString value = QString::number(differentiallyExpressedGenes.at(i).second.at(j));
+            QTableWidgetItem * newValueTableItem = createTableWidgetItem(value);
+            this->ui->tableWidgetDEAnalysis->setItem(i, j + 1, newValueTableItem);
+        }
+    }
+}
+
 // ########################## UI-SLOTS ##########################
 void AnalysisTab::on_pushButtonScatterPlot_clicked() {
     this->requestedPlotType = PlotType::SCATTER_PLOT;
@@ -255,4 +290,18 @@ void AnalysisTab::on_pushButtonScatterPlot_clicked() {
 void AnalysisTab::on_pushButtonBarChart_clicked() {
     return;
     emit this->requestGeneExpressionData();
+}
+
+void AnalysisTab::on_pushButtonDEAnalysisAnalyze_clicked() {
+    const QModelIndexList selectedIndices = this->ui->tableWidgetExperimentsSelection->selectionModel()->selectedIndexes();
+    QString expressionMatrixPath = Helper::openLoadFileDialog(this, {}, QFileDialog::Directory).first();
+    QString clusteringDataFilePath = Helper::openLoadFileDialog(this, {"csv"}, QFileDialog::ExistingFile).first();
+
+    QVector<int> selectedClusterIndices;
+
+    for (QModelIndex const & selectedIndex : selectedIndices) {
+        selectedClusterIndices.append(selectedIndex.row());
+    }
+
+    emit this->requestDEAnalysis(expressionMatrixPath, clusteringDataFilePath, selectedClusterIndices);
 }

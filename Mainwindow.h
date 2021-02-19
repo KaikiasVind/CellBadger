@@ -41,6 +41,9 @@ signals:
     void requestGeneExpressionDataForAnalysisTab();
     void transmitGeneExpressionDataForAnalysisTab(const QVector<QVector<FeatureCollection>> experiments, const QVector<QStringList> completeSetsOfGeneIDsPerDataset);
 
+    void requestDEAnalysis(const QString matrixFilePath, const QString clusteringInformationFilePath, const QVector<int> clustersToCompare);
+    void transmitDEAnalysisData(const QVector<QPair<QString, QVector<double>>> differentiallyExpressedGenes);
+
     void minRawCountChanged(int minRawCount);
     void maxRawCountChanged(int minRawCount);
     void minfoldChangeChanged(int minFoldChange);
