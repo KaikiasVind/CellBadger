@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFile>
+#include <QHeaderView>
 #include <QDebug>
 
 #include "ExportDialog.h"
@@ -61,6 +62,51 @@ void exitIfErrorOnOpen(QFile * file, const QString filePath) {
         qDebug() << "CSV READER:" << filePath << "-" << file->errorString();
         exit(1);
     }
+}
+
+
+/**
+ * @brief saveTableWidgetEntriesToCSV
+ * @param parent
+ * @param table
+ */
+void saveTableEntriesToCSV(QWidget * parent, QTableView * table) {
+    // If no values are contained, return
+    if (table->model()->rowCount() == 0)
+        return;
+
+    QString selectedFilePath = Helper::openSaveFileDialog(parent, "Export expression values as csv.", "csv");
+
+    // If the chose file dialog has been canceled, return
+    if (selectedFilePath.isEmpty())
+        return;
+
+    if (!selectedFilePath.split(".").endsWith("csv"))
+        selectedFilePath += ".csv";
+
+    QFile file(selectedFilePath);
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream textStream(& file);
+    QString content, cellDelimiter = ",", newLineCharacter = "\n";
+
+    // Add the header items
+    for (int i = 0; i < table->horizontalHeader()->count(); i++) {
+        content += table->model()->headerData(i, Qt::Horizontal).toString() + cellDelimiter;
+    }
+    content += newLineCharacter;
+
+    // Add the table items
+    for (int i = 0; i < table->model()->rowCount(); i++) {
+        for (int j = 0; j < table->model()->columnCount(); j++) {
+            QModelIndex cellModelIndex = table->model()->index(i, j);
+            content += table->model()->data(cellModelIndex).toString() + cellDelimiter;
+        }
+        content += newLineCharacter;
+    }
+
+    textStream << content;
+    file.close();
 }
 
 

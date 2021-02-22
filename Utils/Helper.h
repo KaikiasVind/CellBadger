@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QtCharts/QChartView>
 #include <QFileDialog>
+#include <QTableView>
 
 #include "BioModels/FeatureCollection.h"
 #include "Utils/Models/AnalysisConfigModel.h"
@@ -19,6 +20,7 @@ namespace Helper
 extern QString chopFileName(QString filePath);
 extern QStringList getFileNames(const QStringList filePaths);
 extern void exitIfErrorOnOpen(QFile * file, const QString filePath);
+extern void saveTableEntriesToCSV(QWidget * parent, QTableView * table);
 
 // ####################################### GUI #######################################
 

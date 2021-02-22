@@ -39,6 +39,8 @@ private slots:
 
     void on_pushButtonDEAnalysisAnalyze_clicked();
 
+    void on_pushButtonDEAnalysisExport_clicked();
+
 private:
     Ui::AnalysisTab *ui;
 

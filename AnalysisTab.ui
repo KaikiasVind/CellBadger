@@ -138,6 +138,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonDEAnalysisExport">
+       <property name="text">
+        <string>Export</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButtonDEAnalysisPlot">
        <property name="enabled">
         <bool>false</bool>

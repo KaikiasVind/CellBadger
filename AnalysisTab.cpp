@@ -307,3 +307,7 @@ void AnalysisTab::on_pushButtonDEAnalysisAnalyze_clicked() {
 
     emit this->requestDEAnalysis(expressionMatrixPath, clusteringDataFilePath, selectedClusterIndices);
 }
+
+void AnalysisTab::on_pushButtonDEAnalysisExport_clicked() {
+    Helper::saveTableEntriesToCSV(this, this->ui->tableWidgetDEAnalysis);
+}
