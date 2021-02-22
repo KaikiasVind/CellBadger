@@ -25,6 +25,8 @@ struct InformationCenter
     QVector<QVector<QVector<QPair<QString, double>>>> correlatedDatasets;
     QVector<QVector<double>> qualityScores;
 
+    QVector<QPair<QString, QVector<double>>> lastDEGeneAnalysisResult;
+
     InformationCenter(ConfigFile configFile);
 };
 

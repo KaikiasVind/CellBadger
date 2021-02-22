@@ -246,13 +246,15 @@ void AnalysisTab::on_lineSeriesClickedWithIndex(const int index, ScatterSeries c
     qDebug() << "Clicked on line series" << index;
 }
 
+/**
+ * @brief AnalysisTab::on_receivedDEAnalysisData
+ * @param differentiallyExpressedGenes
+ */
 void AnalysisTab::on_receivedDEAnalysisData(const QVector<QPair<QString, QVector<double>>> differentiallyExpressedGenes) {
-    qDebug() << "Received DE analysis data.";
-
-    this->ui->tableWidgetDEAnalysis->setRowCount(5);
-    this->ui->tableWidgetDEAnalysis->setColumnCount(5);
-
     QStringList tableWidgetHeaderItemLabels = {"gene id", "p value", "avg log2 fold change", "adj p value"};
+
+    this->ui->tableWidgetDEAnalysis->setRowCount(differentiallyExpressedGenes.length());
+    this->ui->tableWidgetDEAnalysis->setColumnCount(tableWidgetHeaderItemLabels.length());
 
     auto createTableWidgetItem = [](const QString text) {
         QTableWidgetItem * newTableWidgetItem = new QTableWidgetItem(0);
@@ -267,7 +269,7 @@ void AnalysisTab::on_receivedDEAnalysisData(const QVector<QPair<QString, QVector
         this->ui->tableWidgetDEAnalysis->setHorizontalHeaderItem(i, newHeaderItem);
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < differentiallyExpressedGenes.length(); i++) {
         // Set the gene IDs as items for the first column
         QTableWidgetItem * newGeneIDTableItem = createTableWidgetItem(differentiallyExpressedGenes.at(i).first);
         this->ui->tableWidgetDEAnalysis->setItem(i, 0, newGeneIDTableItem);
