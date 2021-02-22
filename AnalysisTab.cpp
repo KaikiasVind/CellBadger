@@ -121,6 +121,14 @@ void AnalysisTab::addPlotButtonItemToTable(const int columnIndex) {
     this->ui->tableWidgetExperimentsSelection->item(0, columnIndex)->setFlags(Qt::NoItemFlags);
 }
 
+QVector<int> AnalysisTab::getSelectedClusters() {
+//    for (QModelIndex const & selectedIndex : selectedIndices) {
+//        selectedClusterIndices.append(selectedIndex.row());
+//    }
+
+    return {};
+}
+
 // ################################################## SLOTS ###########################################################
 
 /**
@@ -301,9 +309,10 @@ void AnalysisTab::on_pushButtonDEAnalysisAnalyze_clicked() {
 
     QVector<int> selectedClusterIndices;
 
-    for (QModelIndex const & selectedIndex : selectedIndices) {
-        selectedClusterIndices.append(selectedIndex.row());
-    }
+    bool compareAllClusters = this->ui->checkBoxDEAnalysisCompareAll->isChecked();
+
+    if (!compareAllClusters)
+        selectedClusterIndices = this->getSelectedClusters();
 
     emit this->requestDEAnalysis(expressionMatrixPath, clusteringDataFilePath, selectedClusterIndices);
 }

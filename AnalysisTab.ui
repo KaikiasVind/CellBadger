@@ -131,6 +131,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="checkBoxDEAnalysisCompareAll">
+       <property name="text">
+        <string>Compare all</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButtonDEAnalysisAnalyze">
        <property name="text">
         <string>Analyse</string>

@@ -41,16 +41,33 @@ QVector<QPair<QString, QVector<double>>> RInterOperator::calculateDifferentialEx
     this->rSession.parseEvalQ("seurat$clustering <- clustering.data$Cluster[idx]");
     this->rSession.parseEvalQ("Idents(seurat) <- 'clustering'");
 
-    QString findMarkersEvalString = "FindMarkers(seurat, \
-                                                 ident.1 = 1, \
-                                                 ident.2 = 2, \
-                                                 min.pct = 0.1, \
-                                                 logfc.threshold = 0.25, \
-                                                 min.diff.pct = 0.1, \
-                                                 test.use = 'wilcox', \
-                                                 slot = 'data', \
-                                                 only.pos = FALSE, \
-                                                 verbose = FALSE)";
+    QString findMarkersEvalString;
+
+    // If no cluster is given for comparison, compare all clusters
+    if (clustersToCompare.isEmpty()) {
+        findMarkersEvalString = "FindAllMarkers(object = seurat, \
+                                  only.pos = TRUE, \
+                                  min.pct = 0.1, \
+                                  assay = 'RNA', \
+                                  logfc.threshold = 0.25, \
+                                  min.diff.pct = 0.1, \
+                                  test.use = 'wilcox')";
+
+    } else {
+        QString ident1String = "ident.1 = " + QString::number(clustersToCompare.at(0)) + ",",
+            ident2String = "ident.2 = c(" + QString::number(clustersToCompare.at(1)) + "," + QString::number(clustersToCompare.at(2)) + ")";
+
+        findMarkersEvalString = "FindMarkers(seurat, "
+                             + ident1String + ","
+                             + ident2String + ","
+                             + "min.pct = 0.1, \
+                             logfc.threshold = 0.25, \
+                             min.diff.pct = 0.1, \
+                             test.use = 'wilcox', \
+                             slot = 'data', \
+                             only.pos = FALSE, \
+                             verbose = FALSE)";
+    }
 
     // Find the differentially expressed genes for the given clusters
     this->rSession.parseEvalQ("DEG <- " + findMarkersEvalString.toStdString());

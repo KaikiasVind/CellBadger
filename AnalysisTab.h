@@ -51,6 +51,7 @@ private:
     PlotType requestedPlotType;
 
     void addPlotButtonItemToTable(const int columnIndex);
+    QVector<int> getSelectedClusters();
 };
 
 #endif // ANALYSISTAB_H
